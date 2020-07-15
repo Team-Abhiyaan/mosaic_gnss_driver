@@ -2,6 +2,9 @@
 
 A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
+## These might help us with the work
+
+[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
 ## Links
 
 [Module details](https://shop.septentrio.com/en/shop/mosaictm-development-kit)

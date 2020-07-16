@@ -2,9 +2,6 @@
 
 A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
-## These might help us with the work
-
-[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
 ## Links
 
 [Module details](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
@@ -15,6 +12,16 @@ A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
 [Slides for the above](https://docs.google.com/presentation/d/13yyOB5CXOzpvMa0_wYxDvNzjb_9dfMjDuVo-CvBcoRw/edit#slide=id.p)
 
+---
+
+[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
+
+### Other open source drivers for reference
+
+[NMEA Navsat driver - GitHub : Python](https://github.com/ros-drivers/nmea_navsat_driver)
+
+[Novatel GPS Driver - GitHub : C++](https://github.com/swri-robotics/novatel_gps_driver)
+
 ## General workflow of writing hardware drivers
 
 **As from the ROSCon video**
@@ -23,7 +30,6 @@ A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
 [Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
 
-[NMEA Navsat driver - GitHub *Found this really helpful](https://github.com/ros-drivers/nmea_navsat_driver)
 
 * Writing a standalone library
 

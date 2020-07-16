@@ -28,7 +28,7 @@ A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
 * Starting driver
 
-[Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
+  * [Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
 
 
 * Writing a standalone library

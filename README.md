@@ -2,6 +2,11 @@
 
 A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
+---
+
+**Please add any info that you think might be useful**
+
+---
 ## Links
 
 [**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)

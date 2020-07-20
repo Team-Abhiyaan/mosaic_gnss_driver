@@ -4,7 +4,9 @@ A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
 
 ## Links
 
-[Module details](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+[**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+
+[**Google drive link**](https://drive.google.com/drive/folders/14KQpB4tbFVY6TrVSzioFhG_bZOaW4NAf?usp=sharing)
 
 [Septentrio request for info](https://customersupport.septentrio.com/s/case/500f300001R3MOlAAN/configuration-setup-for-the-mosaic-dev-kit)
 

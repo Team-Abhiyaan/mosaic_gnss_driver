@@ -4,7 +4,7 @@
 
 - Clone this repository **[ branch : libdriver-devel ]**
 
-* Build
+- Build
 
 ```bash
 bash ws_build.sh

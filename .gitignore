@@ -1,4 +1,12 @@
+# cmake output dirs
 bin/
 build/
-.vscode/
+
+# googletest
 lib/
+
+# vscode settings
+.vscode/
+
+# doxygen config files
+*.dconfig

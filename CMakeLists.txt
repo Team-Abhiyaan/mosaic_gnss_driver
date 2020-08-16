@@ -9,3 +9,13 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 include_directories(
     include
 )
+
+enable_testing()
+
+add_subdirectory(lib/googletest)
+add_subdirectory(tests)
+
+add_library(countOnes src/countOnes.cpp)
+
+add_executable(demo src/main.cpp)
+target_link_libraries(demo countOnes)

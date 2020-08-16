@@ -7,5 +7,6 @@ struct Test1 : public ::testing::Test
 
 TEST(Test1, CheckOutput)
 {
-    EXPECT_EQ(countOnes(99), 4);
+    CountOnes c(99);
+    EXPECT_EQ(c.getCount(), 4);
 }

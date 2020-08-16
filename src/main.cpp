@@ -3,10 +3,8 @@
 
 int main(void)
 {
-    for (int i = 0; i < 101; i++)
-    {
-        std::cout << i << " " << countOnes(i) << std::endl;
-    }
+    CountOnes *countOnes = new CountOnes(99);
+    std::cout << countOnes->getCount() << std::endl;
 
     return 0;
 }

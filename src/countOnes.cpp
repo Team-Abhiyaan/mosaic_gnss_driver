@@ -1,14 +1,17 @@
 #include <mosaic_gnss_driver/countOnes.h>
 
-int countOnes(int n)
+CountOnes::CountOnes(int n)
 {
-    int count = 0;
+    this->m_count = 0;
 
     while (n != 0)
     {
         n = n & (n - 1);
-        count++;
+        m_count++;
     }
+}
 
-    return count;
+int CountOnes::getCount()
+{
+    return this->m_count;
 }

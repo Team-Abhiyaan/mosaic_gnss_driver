@@ -26,7 +26,7 @@ bash ws_build.sh gendoc
 
 ## Notes
 
-- Wireshark installation for capturing traffic from module
+### Wireshark installation for capturing traffic from module
 
   - Install wireshark
 
@@ -61,7 +61,7 @@ bash ws_build.sh gendoc
   Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
   <br>
 
-- Install C++ libraries for traffic playback
+### Install C++ libraries for traffic playback
 
   ```bash
   sudo apt install libpcap-dev

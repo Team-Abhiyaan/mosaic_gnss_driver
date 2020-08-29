@@ -7,6 +7,3 @@ lib/
 
 # vscode settings
 .vscode/
-
-# doxygen config files
-*.dconfig

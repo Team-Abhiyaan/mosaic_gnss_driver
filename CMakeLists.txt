@@ -16,6 +16,7 @@ add_subdirectory(lib/googletest)
 add_subdirectory(tests)
 
 add_library(countOnes src/countOnes.cpp)
+add_library(mosaicGNSS src/mosaic_gnss.cpp)
 
 add_executable(demo src/main.cpp)
 target_link_libraries(demo countOnes)

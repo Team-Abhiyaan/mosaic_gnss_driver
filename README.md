@@ -5,6 +5,8 @@
 - [Other subcommands](#other-commands)
 <br>
 
+- [Setting up Googletest for unit testing](#googletest-for-unit-testing)
+
 - [Wireshark Installation](#wireshark-installation-for-capturing-traffic-from-module)
 
 - [C++ libraries for data playback](#install-c-libraries-for-traffic-playback)
@@ -36,6 +38,12 @@ bash ws_build.sh gendoc
 ```
 
 ## Notes
+
+### Googletest for Unit testing
+
+```bash
+git clone https://github.com/google/googletest.git lib/googletest
+```
 
 ### Wireshark installation for capturing traffic from module
 

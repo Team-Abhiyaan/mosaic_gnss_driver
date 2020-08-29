@@ -1,5 +1,8 @@
 #include <mosaic_gnss_driver/countOnes.h>
 
+/// Find 1 count in n
+/// 
+/// @param n Input integer
 CountOnes::CountOnes(int n)
 {
     this->m_count = 0;

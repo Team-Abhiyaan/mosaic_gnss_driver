@@ -71,6 +71,14 @@ namespace mosaic_gnss_driver
             return m_bIsConnected;
         }
 
+        /**
+         * Convert the strings "udp", "tcp" or "serial" to the corresponding enum values
+         * 
+         * @param connection: A string indicating the connection type
+         * @return Corresponding enum value
+         */
+        static ConnectionType parseConnection(const std::string& connection);
+
     private:
         /**
          * Create a PCAP device for playing back recorded data
@@ -80,6 +88,9 @@ namespace mosaic_gnss_driver
          * @return True on success
          */
         bool _createPcapConnection(const std::string &device, MosaicGNSSOpts const &opts);
+
+        bool _createSerialConnection();
+        bool _createIpConnection();
 
         static constexpr uint16_t DEFAULT_TCP_PORT = 3001;
         static constexpr uint16_t DEFAULT_UDP_PORT = 3002;

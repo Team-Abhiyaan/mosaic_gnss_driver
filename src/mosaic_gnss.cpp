@@ -15,6 +15,28 @@ namespace mosaic_gnss_driver
         disconnect();
     }
 
+    MosaicGNSS::ConnectionType MosaicGNSS::parseConnection(const std::string& connection)
+    {
+        if (connection == "serial")
+        {
+            return SERIAL;
+        }
+        else if (connection == "udp")
+        {
+            return UDP;
+        }
+        else if (connection == "tcp")
+        {
+            return TCP;
+        }
+        else if (connection == "pcap")
+        {
+            return PCAP;
+        }
+
+        return INVALID;
+    }
+
     void MosaicGNSS::disconnect()
     {
         // todo : add serial, tcp, udp disconnections and socket closing
@@ -70,5 +92,9 @@ namespace mosaic_gnss_driver
 
         return true;
     }
+
+    bool MosaicGNSS::_createSerialConnection() {}
+
+    bool MosaicGNSS::_createIpConnection() {}
 
 } // namespace mosaic_gnss_driver

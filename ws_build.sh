@@ -3,14 +3,14 @@
 #########################################################################################
 # GLOBALS
 #########################################################################################
+# Path to this script
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 # Configuration file for Doxygen
 DOXYGEN_CONFIG_FILE="mosaic.dconfig"
 
 # All these directories will be deleted permanently when clean in invoked
 DIRS_TO_TRASH=(
-    bin
-    build
     docs
 )
 
@@ -19,19 +19,24 @@ DIRS_TO_TRASH=(
 #########################################################################################
 
 function ws_build () {
-    
-    cmake -H. -Bbuild && \
-    cmake --build build -- -j8 && \
+    echo ${SCRIPTPATH}
+    cd ${SCRIPTPATH}/../..
+    catkin_make
     echo -e "\n\033[1;33m Workspace build complete \033[0m\n"
-    
+}
+
+function testing () {
+    rostopic list > /dev/null 2>&1 || echo "Oops! Master is offline" && exit 0
+    cd ${SCRIPTPATH}/../..
+    catkin_make run_tests
 }
 
 function gendoc () {
     
     if [[ -f $DOXYGEN_CONFIG_FILE ]]
     then
-        
-        doxygen $DOXYGEN_CONFIG_FILE && \
+        cd ${SCRIPTPATH}
+        doxygen ${DOXYGEN_CONFIG_FILE} && \
         cd docs/latex
         make && \
         echo -e "\n\033[1;33m Generated docs \033[0m\n"
@@ -44,6 +49,7 @@ function gendoc () {
 }
 
 function cleanup () {
+    cd ${SCRIPTPATH}
     
     for dir in "${DIRS_TO_TRASH[@]}"; do
         if [[ -d $dir ]]
@@ -67,6 +73,9 @@ then
 elif [[ $1 = "clean" ]]
 then
     cleanup
+elif [[ $1 = "testing" ]]
+then
+    testing
 else
     ws_build
 fi

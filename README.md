@@ -1,11 +1,14 @@
 # mosaic_gnss_driver
 
+## Description
+
+ROS Package(core library only) for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+
+## Navigation
 - [Build workspace](#build-workspace)
 
 - [Other subcommands](#other-commands)
 <br>
-
-- [Setting up Googletest for unit testing](#googletest-for-unit-testing)
 
 - [Wireshark Installation](#wireshark-installation-for-capturing-traffic-from-module)
 
@@ -14,6 +17,8 @@
 ---
 
 ## Build workspace
+
+A bash script for ease of development has been included with catkin workspace buidling, documentation generation and running unit tests
 
 - Clone this repository **[ branch : libdriver-devel ]**
 
@@ -25,7 +30,7 @@ bash ws_build.sh
 
 ### Other commands
 
-- Cleanup binaries and documentation
+- Cleanup
 
 ```bash
 bash ws_build.sh clean
@@ -37,13 +42,13 @@ bash ws_build.sh clean
 bash ws_build.sh gendoc
 ```
 
-## Notes
-
-### Googletest for Unit testing
+- Run unit tests
 
 ```bash
-git clone https://github.com/google/googletest.git lib/googletest
+bash ws_build.sh testing
 ```
+
+## Notes
 
 ### Wireshark installation for capturing traffic from module
 

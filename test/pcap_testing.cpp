@@ -1,12 +1,24 @@
-#include <gtest/gtest.h>
-#include <ros/ros.h>
 #include <mosaic_gnss_driver/mosaic_gnss.h>
+
+#include <gtest/gtest.h>
+
+#include <ros/ros.h>
+#include <ros/package.h>
 
 TEST(PcapTestSuite, testCaseInit)
 {
     mosaic_gnss_driver::MosaicGNSS gnss;
 
     ASSERT_FALSE(gnss.isConnected());
+
+}
+
+TEST(PcapTestSuite, testCaseFileConnection)
+{
+    mosaic_gnss_driver::MosaicGNSS gnss;
+    std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
+
+    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sample_data.pcap", mosaic_gnss_driver::MosaicGNSS::PCAP));
 }
 
 int main(int argc, char **argv)

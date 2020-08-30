@@ -3,6 +3,7 @@ project(mosaic_gnss_driver)
 
 set(DEPS
   roscpp
+  roslib
   std_msgs
 )
 ## Compile as C++11, supported in ROS Kinetic and newer

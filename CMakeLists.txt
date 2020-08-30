@@ -131,7 +131,6 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME} 
-  src/countOnes.cpp
   src/mosaic_gnss.cpp
 )
 
@@ -211,8 +210,8 @@ target_link_libraries(${PROJECT_NAME}_node
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
 
-  catkin_add_gtest(sample_test test/sample_test.cpp)
-  target_link_libraries(sample_test 
+  catkin_add_gtest(pcap_test test/pcap_testing.cpp)
+  target_link_libraries(pcap_test 
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${libpcap_LIBRARIES}

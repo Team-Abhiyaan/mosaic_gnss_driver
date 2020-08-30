@@ -56,7 +56,19 @@ namespace mosaic_gnss_driver
 
     bool MosaicGNSS::_createPcapConnection(const std::string &device, MosaicGNSSOpts const &opts)
     {
-        ;
+        ROS_INFO("Opening pcap file: %s", device.c_str());
+
+        if ((m_pPcap = pcap_open_offline(device.c_str(), m_cPcapErrBuffer)) == nullptr)
+        {
+            ROS_FATAL("Unable to open pcap file");
+            m_bIsConnected = false;
+            return false;
+        }
+
+        pcap_compile(m_pPcap, &m_PcapPacketFilter, "tcp dst port 3001", 1, PCAP_NETMASK_UNKNOWN);
+        m_bIsConnected = true;
+
+        return true;
     }
 
 } // namespace mosaic_gnss_driver

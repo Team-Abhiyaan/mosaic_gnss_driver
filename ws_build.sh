@@ -26,9 +26,20 @@ function ws_build () {
 }
 
 function testing () {
-    rostopic list > /dev/null 2>&1 || echo "Oops! Master is offline" && exit 0
-    cd ${SCRIPTPATH}/../..
-    catkin_make run_tests
+    rostopic list > /dev/null 2>&1
+    
+    if [[ $? != 0 ]]
+    then
+
+        echo "Oops! Master is offline"
+        exit 1
+        
+    else
+        
+        cd ${SCRIPTPATH}/../..
+        catkin_make run_tests
+        
+    fi
 }
 
 function gendoc () {

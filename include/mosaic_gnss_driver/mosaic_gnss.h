@@ -9,7 +9,7 @@
 
 namespace mosaic_gnss_driver
 {
-
+    /// Options 
     typedef std::map<std::string, double> MosaicGNSSOpts;
 
     class MosaicGNSS
@@ -17,28 +17,68 @@ namespace mosaic_gnss_driver
     public:
         enum ConnectionType
         {
+            /// For connection via Serial port
             SERIAL,
+            /// For connection via TCP
             TCP,
+            /// For connection via UDP
             UDP,
+            /// Read data from pcap file, for development and testing
             PCAP,
+            /// Invalid connection mode
             INVALID
         };
-
+        /// Constructor
         MosaicGNSS();
+        /// Destructor
         ~MosaicGNSS();
 
+        /** 
+         * Connect to module and configure using default options
+         *
+         * @param device: For serial connections, it is a filehandle. eg: /dev/TTYUSB0 \n
+         *                For IP connections, a host:port specification eg: 192.168.3.1:3001 \n
+         *                For PCAP connection, filename
+         * @param connection: The Type of connection
+         * @return True on success
+         */
         bool connect(const std::string &device, ConnectionType connection);
 
+        /**
+         * Connect to module and configure using given options
+         * 
+         * @param device: For serial connections, it is a filehandle. eg: /dev/TTYUSB0 \n
+         *                For IP connections, a host:port specification eg: 192.168.3.1:3001 \n
+         *                For PCAP connection, filename
+         * @param connection: The Type of connection
+         * @param opts: Configuration options
+         * @return True on success
+         */
         bool connect(const std::string &device, ConnectionType connection, MosaicGNSSOpts const &opts);
 
+        /**
+         * Disconnect from module
+         */
         void disconnect();
 
+        /**
+         * Check if a connection to module exists
+         * 
+         * @return True if connection exists
+         */
         bool isConnected()
         {
             return m_bIsConnected;
         }
 
     private:
+        /**
+         * Create a PCAP device for playing back recorded data
+         * 
+         * @param device: filename
+         * @param opts: options
+         * @return True on success
+         */
         bool _createPcapConnection(const std::string &device, MosaicGNSSOpts const &opts);
 
         static constexpr uint16_t DEFAULT_TCP_PORT = 3001;

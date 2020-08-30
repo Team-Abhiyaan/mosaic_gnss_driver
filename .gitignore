@@ -1,10 +1,6 @@
-# cmake output dirs
-bin/
-build/
-
-# googletest
-lib/
-
 # vscode
 .vscode/
 *.code-workspace
+
+#docs
+docs

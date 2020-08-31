@@ -26,11 +26,14 @@ function ws_build () {
 }
 
 function testing () {
+    
+    ws_build
+    
     rostopic list > /dev/null 2>&1
     
     if [[ $? != 0 ]]
     then
-
+        
         echo "Oops! Master is offline"
         exit 1
         

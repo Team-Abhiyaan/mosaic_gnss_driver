@@ -6,6 +6,9 @@
 # Path to this script
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
+# Path to workspace
+WORKSPACE=${SCRIPTPATH}/../..
+
 # Configuration file for Doxygen
 DOXYGEN_CONFIG_FILE="mosaic.dconfig"
 
@@ -20,15 +23,18 @@ DIRS_TO_TRASH=(
 
 function ws_build () {
     echo ${SCRIPTPATH}
-    cd ${SCRIPTPATH}/../..
+    cd ${WORKSPACE}
     catkin_make
     echo -e "\n\033[1;33m Workspace build complete \033[0m\n"
 }
 
 function testing () {
-    
+    source /opt/ros/melodic/setup.bash
+
     ws_build
     
+    source ${WORKSPACE}/devel/setup.bash
+
     rostopic list > /dev/null 2>&1
     
     if [[ $? != 0 ]]

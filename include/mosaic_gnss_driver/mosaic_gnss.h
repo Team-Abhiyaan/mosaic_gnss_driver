@@ -7,10 +7,12 @@
 #include <cmath>
 #include <pcap/pcap.h>
 
+#include <boost/asio.hpp>
+
 namespace mosaic_gnss_driver
 {
     /// Options 
-    typedef std::map<std::string, double> MosaicGNSSOpts;
+    typedef std::map<std::string, double> MosaicGNSSMessageOpts;
 
     class MosaicGNSS
     {
@@ -28,6 +30,19 @@ namespace mosaic_gnss_driver
             /// Invalid connection mode
             INVALID
         };
+
+        enum ReadResult
+        {
+            /// Data read successfully
+            READ_SUCCESS = 0,
+            READ_INSUFFICIENT_DATA = 1,
+            READ_TIMOUT = 2,
+            READ_INTERRUPTED = 3,
+            READ_ERROR = -1,
+            /// Unable to parse data, parsing error
+            READ_PARSE_FAILED = -2
+        };
+
         /// Constructor
         MosaicGNSS();
         /// Destructor
@@ -54,7 +69,7 @@ namespace mosaic_gnss_driver
          * @param opts: Configuration options
          * @return True on success
          */
-        bool connect(const std::string &device, ConnectionType connection, MosaicGNSSOpts const &opts);
+        bool connect(const std::string &device, ConnectionType connection, MosaicGNSSMessageOpts const &opts);
 
         /**
          * Disconnect from module
@@ -66,7 +81,7 @@ namespace mosaic_gnss_driver
          * 
          * @return True if connection exists
          */
-        bool isConnected()
+        bool isConnected() const
         {
             return m_bIsConnected;
         }
@@ -79,18 +94,36 @@ namespace mosaic_gnss_driver
          */
         static ConnectionType parseConnection(const std::string& connection);
 
+        /**
+         * Process data that has been recieved from the device
+         * 
+         * @return A code indicating result of operation
+         */
+        ReadResult processData();
+
     private:
         /**
          * Create a PCAP device for playing back recorded data
          * 
-         * @param device: filename
+         * @param device: PCAP file path
          * @param opts: options
          * @return True on success
          */
-        bool _createPcapConnection(const std::string &device, MosaicGNSSOpts const &opts);
+        bool _createPcapConnection(const std::string &device, MosaicGNSSMessageOpts const &opts);
 
         bool _createSerialConnection();
         bool _createIpConnection();
+
+        /**
+         * Read data from module. Data appended will be appended to buffer.
+         * 
+         * @return Status of read operation
+         */
+        ReadResult _readData();
+
+        ReadResult _readSerialData();
+        ReadResult _readIpData();
+        ReadResult _readPcapData();
 
         static constexpr uint16_t DEFAULT_TCP_PORT = 3001;
         static constexpr uint16_t DEFAULT_UDP_PORT = 3002;
@@ -98,6 +131,8 @@ namespace mosaic_gnss_driver
 
         ConnectionType m_cConnectionType;
         bool m_bIsConnected;
+
+        std::vector<uint8_t> m_vDataBuffer;
 
         // Pcap device is used for testing and development
         pcap_t *m_pPcap;

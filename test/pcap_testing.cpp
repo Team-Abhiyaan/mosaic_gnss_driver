@@ -7,7 +7,7 @@
 
 TEST(PcapTestSuite, testCaseInit)
 {
-    mosaic_gnss_driver::MosaicGNSS gnss;
+    const mosaic_gnss_driver::MosaicGNSS gnss;
 
     ASSERT_FALSE(gnss.isConnected());
 
@@ -18,7 +18,7 @@ TEST(PcapTestSuite, testCaseFileConnection)
     mosaic_gnss_driver::MosaicGNSS gnss;
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
 
-    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sample_data.pcap", mosaic_gnss_driver::MosaicGNSS::PCAP));
+    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/mosaic_capture_001.pcap", mosaic_gnss_driver::MosaicGNSS::PCAP));
 
     gnss.disconnect();
 

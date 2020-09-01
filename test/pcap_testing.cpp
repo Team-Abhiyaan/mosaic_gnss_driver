@@ -20,6 +20,8 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
         ;
     }
 
+    // gnss.bufferDump();
+
     gnss.disconnect();
 
     ASSERT_FALSE(gnss.isConnected());

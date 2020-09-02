@@ -46,12 +46,12 @@ namespace mosaic_gnss_driver
 
     void MosaicGNSS::disconnect()
     {
-        // todo : add serial, tcp, udp disconnections and socket closing
+        // TODO : add serial closing
         switch (m_ConnectionType)
         {
         case SERIAL:
 
-            // todo : do serial closing
+            // TODO : do serial closing
             break;
 
         case TCP:
@@ -101,7 +101,7 @@ namespace mosaic_gnss_driver
     {
         disconnect();
 
-        // todo: add arguments for serial
+        // TODO: add arguments for serial
 
         m_ConnectionType = connection;
 
@@ -144,7 +144,7 @@ namespace mosaic_gnss_driver
 
     MosaicGNSS::ReadResult MosaicGNSS::processData()
     {
-        // todo complete this method
+        // TODO: complete this method
         MosaicGNSS::ReadResult readResult = _readData();
 
         if (readResult != READ_SUCCESS)
@@ -164,7 +164,7 @@ namespace mosaic_gnss_driver
 
     bool MosaicGNSS::_createSerialConnection()
     {
-        // todo: complete this
+        // TODO: complete this
     }
 
     bool MosaicGNSS::_createIpConnection(const std::string& endpoint, MosaicGNSSMessageOpts const& opts)
@@ -277,7 +277,7 @@ namespace mosaic_gnss_driver
 
         m_bIsConnected = true;
 
-        // todo: do configuring of module here using a configure method
+        // TODO: do configuring of module here using a configure method
 
         return true;
     }
@@ -302,7 +302,7 @@ namespace mosaic_gnss_driver
 
     MosaicGNSS::ReadResult MosaicGNSS::_readSerialData()
     {
-        // todo: complete this
+        // TODO: complete this
         ;
     }
 
@@ -421,7 +421,7 @@ namespace mosaic_gnss_driver
                 }
                 case 128: // SSCOPMCE
                 {
-                    // todo : research and handle
+                    // TODO : research and handle
                     // Got this protocol while testing with the pcap file, no clue what this does
                     break;
                 }

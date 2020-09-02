@@ -143,7 +143,7 @@ namespace mosaic_gnss_driver
        * host is omitted, it will listen for a connection the specified port.  If the port is
        * omitted, DEFAULT_TCP_PORT will be used for TCP connections and DEFAULT_UDP_PORT
        * for UDP connections.
-       * @param opts : todo
+       * @param opts :TODO 
        * @return false if it failed to create a connection, true otherwise.
        */
         bool _createIpConnection(const std::string& endpoint, MosaicGNSSMessageOpts const& opts);
@@ -186,8 +186,9 @@ namespace mosaic_gnss_driver
         std::string m_sErrorMessage;
 
         // Serial connection
-
-        // IP (TCP / UDP) Connections
+		// TODO: fill here
+        
+		// IP (TCP / UDP) Connections
         boost::asio::io_service m_IoService;
         boost::asio::ip::tcp::socket m_TcpSocket;
         boost::shared_ptr<boost::asio::ip::udp::socket> m_UdpSocket;
@@ -202,7 +203,7 @@ namespace mosaic_gnss_driver
         /*************** Buffers ***************/
         // Buffer for holding read, raw data
         std::vector<uint8_t> m_vDataBuffer;
-        //Fixed size buffer for reading directly from sockets
+        // Fixed size buffer for reading directly from sockets
         boost::array<uint8_t, 10000> m_SocketBuffer;
 
     };

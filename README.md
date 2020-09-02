@@ -18,14 +18,12 @@ ROS Package(core library only) for the [Septentrio Mosaic development kit](https
 
 ## Build workspace
 
-A bash script for ease of development has been included with catkin workspace buidling, documentation generation and running unit tests
-
 - Clone this repository **[ branch : libdriver-devel ]**
 
 - Build
 
 ```bash
-bash ws_build.sh
+make build
 ```
 
 ### Other commands
@@ -33,19 +31,19 @@ bash ws_build.sh
 - Cleanup
 
 ```bash
-bash ws_build.sh clean
+make clean
 ```
 
 - Generate documentation
 
 ```bash
-bash ws_build.sh gendoc
+make gendoc
 ```
 
 - Run unit tests
 
 ```bash
-bash ws_build.sh testing
+make test
 ```
 
 ## Notes

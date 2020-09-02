@@ -3,6 +3,9 @@
 *.code-workspace
 
 #docs
-docs
+docs/html
+docs/latex
 
-dump*.txt
+test/data
+
+dump

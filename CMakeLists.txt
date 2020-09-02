@@ -224,6 +224,14 @@ if(CATKIN_ENABLE_TESTING)
     ${libpcap_LIBRARIES}
     ${Boost_LIBRARIES}
   )
+  
+  catkin_add_gtest(tcp_test test/tcp_testing.cpp)
+  target_link_libraries(tcp_test
+	${PROJECT_NAME}
+	${catkin_LIBRARIES}
+	${libpcap_LIBRARIES}
+	${Boost_LIBRARIES}
+  )
 
 endif()
 

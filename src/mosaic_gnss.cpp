@@ -327,6 +327,8 @@ namespace mosaic_gnss_driver
             if (error)
             {
                 m_sErrorMessage = error.message();
+				ROS_ERROR("Error occured in TCP connection: %s", m_sErrorMessage.c_str());
+
                 disconnect();
                 return READ_ERROR;
             }

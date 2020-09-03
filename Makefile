@@ -1,12 +1,14 @@
-SHELL := /bin/bash
-MAKEFLAGS += --no-print-directory
+SHELL       := /bin/bash
+MAKEFLAGS   += --no-print-directory
 
-.SILENT: init build clean test gendoc
-.PHONY: test
+.SILENT     : init build clean test gendoc
+.PHONY      : test
 
-CATKIN_WS := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/../..
-PACKAGE   := ${CATKIN_WS}/src/mosaic_gnss_driver
+# Define some directory paths
+CATKIN_WS   := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/../..
+PACKAGE     := ${CATKIN_WS}/src/mosaic_gnss_driver
 
+# All these will be deleted when clean is invoked
 TRASH_DIRS  := ${CATKIN_WS}/build ${CATKIN_WS}/devel ${PACKAGE}/docs/html ${PACKAGE}/docs/latex
 TRASH_FILES :=
 

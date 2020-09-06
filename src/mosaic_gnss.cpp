@@ -311,6 +311,7 @@ namespace mosaic_gnss_driver
         try
         {
             boost::system::error_code error;
+            // number of bytes read from the socket
             size_t length;
 
             if (m_ConnectionType == TCP)

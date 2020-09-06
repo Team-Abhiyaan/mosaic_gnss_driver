@@ -1,4 +1,4 @@
-#include <serial.h>
+#include <mosaic_utils/serial.h>
 #include <unistd.h>
 
 namespace serial_util

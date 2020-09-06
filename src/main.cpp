@@ -8,11 +8,16 @@ void connectViaPcap(void)
     mosaic_gnss_driver::MosaicGNSS gnss;
 
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
-    std::string testFile = thisPackagePath + "/test/data/mosaic_real.pcap";
+    std::string testFile = thisPackagePath + "/test/data/capture_002.pcap";
 
     gnss.connect(testFile, mosaic_gnss_driver::MosaicGNSS::PCAP);
 
-    gnss.processData();
+    while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS)
+    {
+        ;
+    }
+
+    gnss.bufferDump();
 
     gnss.disconnect();
 
@@ -26,20 +31,24 @@ void connectViaTcp(void)
 
     gnss.connect(device, mosaic_gnss_driver::MosaicGNSS::TCP);
 
-	for (int i = 0; i < 500; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		bool success = gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS;
 
-		if (!success){
+		if (!success)
+        {
 			std::cout << "Error, non successful termination" << std::endl;
+           	std::cout << gnss.errorMsg() << std::endl;
+
 			break;
-		} else {
+		}
+        else
+        {
 			std::cout << "Got stream: " << i + 1 << std::endl;
 		}
 	}
 
 	gnss.bufferDump();
-	std::cout << gnss.errorMsg() << std::endl;
     gnss.disconnect();
 
 }

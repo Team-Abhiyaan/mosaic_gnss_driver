@@ -1,7 +1,7 @@
 SHELL       := /bin/bash
 MAKEFLAGS   += --no-print-directory
 
-.SILENT     : init build clean test gendoc
+.SILENT     : init build run clean test gendoc
 .PHONY      : test
 
 # Define some directory paths
@@ -33,6 +33,19 @@ build:
 	source /opt/ros/melodic/setup.bash && \
 	cd ${CATKIN_WS} && \
 	catkin_make
+
+# Run main node (sample)
+run:
+	$(call banner,Run main sample node)
+	source /opt/ros/melodic/setup.bash && \
+	cd ${CATKIN_WS} && \
+	catkin_make && \
+	if rostopic list > /dev/null 2>&1; then \
+		source ${CATKIN_WS}/devel/setup.bash && \
+		rosrun mosaic_gnss_driver mosaic_gnss_driver_node; \
+	else \
+		echo -e "\nOops! Master is offline\n"; \
+	fi
 
 # Run unit tests (only if rosmaster in online)
 test:

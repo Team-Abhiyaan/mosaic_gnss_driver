@@ -5,17 +5,19 @@
 
 namespace sbf {
     class SBF {
-        static const size_t buffer_size = 256;
+        std::ifstream &input;
 
-        std::ifstream &data;
-        char buffer[buffer_size];
+        static const size_t buffer_size = 256;
+        char _buffer[buffer_size]; // Any point in std::array ?
+        char *const buffer = _buffer;
+        // char *const buffer_end = buffer + buffer_size;
+
+        bool seek_block();
 
     public:
         explicit SBF(std::ifstream &in);
 
-        bool seek_block();
-
-        bool next_block();
+        bool parse_next();
     };
 }
 

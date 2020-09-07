@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     sbf::SBF sbf(file);
 
     size_t num_sync_chars = 0;
-    while (sbf.next_block())
+    while (sbf.parse_next())
         num_sync_chars++;
     std::cout << "Found " << num_sync_chars << " blocks." << std::endl;
 

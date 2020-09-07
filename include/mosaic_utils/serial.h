@@ -38,6 +38,13 @@ namespace serial_util
          * @param flowControl: Flow control - Ability of device to tell another device to stop sending data for a while
          * @param lowLatencyMode: Set to low latency mode
          * @param writable: Make port writable, used to configure the module
+         * 
+         * Low-latency mode
+         * ----------------
+         * Serial ports on linux are "wrapped" into unix-style terminal constructs, which hits you with 1 tick lag, i.e. 10ms.
+         * On a PC, you can go hardcore and talk to standard serial ports directly, unbind linux driver from serial port hardware 
+         * and control the port via inb/outb to port registers.
+         * The downside is you don't get interrupts when data arrives and you have to poll the register. often. Hence not preferred.
          */
         Config(int32_t baudRate, int32_t dataBits, int32_t stopBits, Parity parity, bool flowControl, bool lowLatencyMode, bool writable);
 
@@ -103,8 +110,15 @@ namespace serial_util
         void serialClose();
 
         /**
-         * // TODO: Put description
+         * Read bytes from the serial port
          * 
+         * Appends upto maxBytes into the provided vector. If maxBytes is 0, it reads all available bytes.
+         * 
+         * @param output: The output buffer to which read bytes are to be saved
+         * @param maxBytes: The maximum number of bytes to read. If set to 0, all available bytes are read.
+         * @param timeout: The maximum time to block in milliseconds
+         * 
+         * @return A code indicating result of operation (SUCCESS, TIMEOUT, INTERRUPTED, ERROR)
          */
         ReadResult readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout);
 

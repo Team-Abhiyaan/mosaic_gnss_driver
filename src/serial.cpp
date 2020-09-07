@@ -1,15 +1,15 @@
 #include <mosaic_utils/serial.h>
 
-#include <sys/ioctl.h>
-#include <linux/serial.h>
+#include <boost/lexical_cast.hpp>
 
 // Linux headers
-#include <fcntl.h> // Contains file controls like O_RDWR
-#include <errno.h> // Error integer and strerror() function
-#include <termios.h> // Contains POSIX terminal control definitions
-#include <unistd.h> // write(), read(), close()
-
-#include <boost/lexical_cast.hpp>
+#include <linux/serial.h> // For latency control and low-latency mode
+#include <sys/ioctl.h>    // I/O Interface for device control
+#include <termios.h>      // Contains POSIX terminal control definitions
+#include <unistd.h>       // write(), read(), close()
+#include <fcntl.h>        // Contains file controls like O_RDWR, O_RDONLY
+#include <errno.h>        // Error integer and strerror() function
+#include <poll.h>         // For event handling on file descriptors and polling ports
 
 namespace serial_util
 {
@@ -189,12 +189,98 @@ namespace serial_util
 
     SerialPort::ReadResult SerialPort::readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout)
     {
-        // TODO: Complete this
+        // Check if device is open
+        if (m_Fd < 0)
+        {
+            m_ErrorMessage = "Device not open";
+            return ERROR;
+        }
+
+        struct pollfd fds[1];
+        fds[0].fd = m_Fd;       // Specify file descriptor
+        fds[0].events = POLLIN; // Specify event
+
+        // Wait till file descriptor is ready for I/O
+        //
+        // Upon successful completion, poll() shall return a non-negative value. A positive value indicates the
+        // total number of file descriptors that have been selected (that is, file descriptors for which the
+        // revents member is non-zero)
+        int pollReturn = poll(fds, 1, timeout);
+
+        if (pollReturn == 0) // Timeout
+        {
+            m_ErrorMessage = "Timed out while waiting for data";
+            return TIMEOUT;
+        }
+        else if (pollReturn < 0) // Failure
+        {
+            int errorNumber = errno;
+            switch (errorNumber)
+            {
+            case EINTR:
+                return INTERRUPTED;
+            default:
+                m_ErrorMessage = "Error polling serial port: " + std::string(strerror(errno));
+                return ERROR;
+            }
+        }
+
+        size_t toRead = maxBytes; // number of bytes to be read
+        if (toRead <= 0)
+        {
+            int bytes;
+            // ioctl - control device
+            // FIONREAD specifies it to get the number of bytes that are immediately available for reading
+            ioctl(m_Fd, FIONREAD, &bytes);
+            if (bytes < 0)
+            {
+                m_ErrorMessage = "Error getting number of available bytes from serial port: " + std::string(strerror(errno));
+                return ERROR;
+            }
+
+            toRead = static_cast<size_t>(bytes);
+        }
+
+        size_t outputSize = output.size();
+        output.resize(outputSize + toRead);
+
+        int result = read(m_Fd, output.data() + outputSize, toRead); // read data, returns number of bytes read
+
+        if (result > 0)
+        {
+            output.resize(outputSize + result);
+        }
+        else
+        {
+            output.resize(outputSize);
+        }
+
+        if (result > 0) // Success
+        {
+            return SUCCESS;
+        }
+        else if (result == 0) // Interruption
+        {
+            return INTERRUPTED;
+        }
+        else
+        {
+            int errorNumber = errno;
+            switch (errorNumber)
+            {
+            case EINTR:
+                return INTERRUPTED;
+
+            default:
+                m_ErrorMessage = "Error reading from serial port: " + std::string(strerror(errno));
+                return ERROR;
+            }
+        }
     }
 
     int32_t SerialPort::serialWrite(const std::vector<uint8_t> &input)
     {
-        int32_t result =  write(m_Fd, input.data(), input.size());
+        int32_t result = write(m_Fd, input.data(), input.size());
 
         if (result < 0)
         {

@@ -3,16 +3,31 @@
 
 #include <iostream>
 
-sbf::SBF::SBF(std::ifstream &in) : data(in) {
+sbf::SBF::SBF(std::ifstream &in) : input(in) {
     // if (!in) error;
 }
 
 /**
- * Seeks until sync array is found, i.e. 0x24, 0x40
+ * Seeks until sync str of block found, i.e. [0x24, 0x40]
  *
- * @return success
+ * @return true on block found, false on IO error
  */
 bool sbf::SBF::seek_block() {
+    while (input.read(buffer, 1)) {
+        if (*buffer == '$') { // 0x24
+            if (input.read(buffer, 1)) {
+                if (*buffer == '@') // 0x40
+                    return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+// Uses stream based operations:
+/*bool sbf::SBF::seek_block() {
     char c;
     while (data >> c) {
         if (c == '$') {
@@ -25,40 +40,101 @@ bool sbf::SBF::seek_block() {
         }
     }
     return false;
-}
+}*/
 
-bool sbf::SBF::next_block() {
-    auto read_data = reinterpret_cast<uint8_t *>(buffer);
+
+/*
+ * List of errors:
+ *  data end
+ */
+
+/* Things that cause seek_block
+ *   Need block
+ *   Invalid length
+ *   buffer overflow
+ */
+
+/*
+ * A block has the following format:
+ * sync | CRC | ID | Length | Actual Data ....
+ *
+ * Sync is eaten up by seek_block
+ * CRC is stored in a local variable
+ *
+ * Everything onwards is stored in the buffer and is required for the CRC check.
+ *
+ * Length of the block has to be a multiple of 4 and that check is applied
+ * Based on the block id, a parser is chosen.
+ *
+ * The parser receives the revision number and two pointers, the start and end of the Actual Data.
+ * The parser _must_ copy any data it requires, as buffer will be overwritten after the parser is called.
+ *
+ */
+bool sbf::SBF::parse_next() {
+    // Find the next block
     if (!seek_block()) return false;
-    if (!data.read(buffer, 6)) return false;
 
-    auto crc = sbf::u2(read_data);
+    // Read CRC
+    if (!input.read(buffer, 2)) return false;
+    const auto crc = sbf::u2(reinterpret_cast<uint8_t *>(buffer));
 
-    auto raw_id = sbf::u2(read_data + 2);
-    auto id = raw_id & 0b0001111111111111u;
-    auto rev_num = (raw_id & 0b1110000000000000u) >> 13u;
 
-    auto length = sbf::u2(read_data + 4);
 
-    if (length % 4 != 0) {
+    // Now Parse the rest of the block header
+
+    // This ptr walks through the buffer while we parse values
+    auto parse_ptr = reinterpret_cast<uint8_t *>(buffer);
+
+
+    // Read ID and Length
+    if (!input.read(buffer, 4)) return false;
+
+    // Get ID and revision number
+    const auto raw_id = sbf::u2(parse_ptr);
+    parse_ptr += 2; // TODO: Move this to the sbf::u2()
+    const auto id = raw_id & 0b0001111111111111u;
+    const auto rev_num = (raw_id & 0b1110000000000000u) >> 13u;
+
+    // Get Length
+    auto length = sbf::u2(parse_ptr);
+    parse_ptr += 2;
+
+    // Check Length
+    if (length % 4 != 0 || length <= 8) {
         // std::cout << "Invalid block length" << std::endl;
-        return next_block();
+        return parse_next();
     }
-    std::cout << id << "\t" << rev_num << "\t" << length; // << "\t" << data.tellg();
-
-    length -= 8;
-
-
     if (length > buffer_size) {
         std::cout << "\t Buffer overflow" << std::endl;
-        // data.seekg(length);
+        // TODO: How to handle.
+        // data.seekg(data_length);
         return true;
     }
-    if (!data.read(buffer, length)) return false;
 
-    // Time stamp
-    std::cout << "\t" << static_cast<int>( sbf::u4(read_data) / 1e3) << "\t"
-              << static_cast<int>( sbf::u4(read_data + 4));
+
+    // Read the rest of the block
+    // Also, we dont want to overwrite ID and length so we can perform CRC checks.
+
+    // Block Length is
+    const auto data_length = length - 8;
+    if (!input.read(buffer + 4, data_length)) return false;
+    // parse_ptr points to current position in while parsing data
+    auto parse_ptr_end = parse_ptr + data_length; // End of block data
+
+    std::cout << id << "\t" << rev_num << "\t" << length;
+
+
+    // Call the parser
+    /* TODO: Implement
+     * auto parser = parsers[id]
+     * parser(rev_num, pares_ptr, parse_ptr_end);
+     */
+
+
+    /*// Time stamp
+    std::cout << "\t" << static_cast<int>( sbf::u4(parse_ptr) / 1e3) << "\t"
+              << static_cast<int>( sbf::u4(parse_ptr + 4));
+    */
 
     std::cout << std::endl;
     return true;

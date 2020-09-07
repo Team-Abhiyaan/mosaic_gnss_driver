@@ -12,6 +12,7 @@ namespace mosaic_gnss_driver
 {
     MosaicGNSS::MosaicGNSS() : m_ConnectionType(SERIAL),
                                m_bIsConnected(false),
+                               m_SerialBaud(115200),
                                m_TcpSocket(m_IoService),
                                m_Pcap(nullptr)
     {
@@ -46,12 +47,11 @@ namespace mosaic_gnss_driver
 
     void MosaicGNSS::disconnect()
     {
-        // TODO : add serial closing
         switch (m_ConnectionType)
         {
         case SERIAL:
 
-            // TODO : do serial closing
+            m_SerialPort.serialClose();
             break;
 
         case TCP:
@@ -100,15 +100,12 @@ namespace mosaic_gnss_driver
     bool MosaicGNSS::connect(const std::string &device, ConnectionType connection, MosaicGNSSMessageOpts const &opts)
     {
         disconnect();
-
-        // TODO: add arguments for serial
-
         m_ConnectionType = connection;
 
-        switch (connection)
+        switch (m_ConnectionType)
         {
         case SERIAL:
-            return _createSerialConnection();
+            return _createSerialConnection(device, opts);
 
         case TCP:
             return _createIpConnection(device, opts);
@@ -118,11 +115,17 @@ namespace mosaic_gnss_driver
 
         case PCAP:
             return _createPcapConnection(device, opts);
-        
+
         default:
             m_sErrorMessage = "Invalid Connection type.";
             return false;
-        }        
+        }
+    }
+
+    bool MosaicGNSS::_configure(MosaicGNSSMessageOpts const &opts)
+    {
+        // TODO: Complete this
+        return true;
     }
 
     bool MosaicGNSS::_createPcapConnection(const std::string &device, MosaicGNSSMessageOpts const &opts)
@@ -162,12 +165,41 @@ namespace mosaic_gnss_driver
         return READ_SUCCESS;
     }
 
-    bool MosaicGNSS::_createSerialConnection()
+    bool MosaicGNSS::_createSerialConnection(const std::string &device, MosaicGNSSMessageOpts const &opts)
     {
-        // TODO: complete this
+        serial_util::Config config;
+        config.m_BaudRate = m_SerialBaud;
+        config.m_Parity = serial_util::Config::NO_PARITY;
+        config.m_FlowControl = false;
+        config.m_DataBits = 8;
+        config.m_StopBits = 1;
+        config.m_LowLatencyMode = false;
+        config.m_Writable = true;
+
+        bool success = m_SerialPort.serialOpen(device, config);
+
+        if (success)
+        {
+            m_bIsConnected = true;
+            if (_configure(opts))
+            {
+                // We will not kill the connection here, because the device may already
+                // be setup to communicate correctly, but we will print a warning
+                ROS_ERROR("Failed to configure module. This port may be read only, or the "
+                          "device may not be functioning as expected; however, the "
+                          "driver may still function correctly if the port has already "
+                          "been pre-configured.");
+            }
+        }
+        else
+        {
+            m_sErrorMessage = m_SerialPort.errorMsg();
+        }
+
+        return success;
     }
 
-    bool MosaicGNSS::_createIpConnection(const std::string& endpoint, MosaicGNSSMessageOpts const& opts)
+    bool MosaicGNSS::_createIpConnection(const std::string &endpoint, MosaicGNSSMessageOpts const &opts)
     {
         std::string ip;
         std::string port;
@@ -181,14 +213,14 @@ namespace mosaic_gnss_driver
 
             switch (m_ConnectionType)
             {
-                case TCP:
-                    numPort = DEFAULT_TCP_PORT;
-                    break;
-                case UDP:
-                    numPort = DEFAULT_UDP_PORT;
-                    break;
+            case TCP:
+                numPort = DEFAULT_TCP_PORT;
+                break;
+            case UDP:
+                numPort = DEFAULT_UDP_PORT;
+                break;
             }
-            
+
             ss << numPort;
             port = ss.str();
         }
@@ -217,7 +249,6 @@ namespace mosaic_gnss_driver
                     boost::asio::connect(m_TcpSocket, iter);
 
                     ROS_INFO("Connecting via TCP to %s:%s", ip.c_str(), port.c_str());
-
                 }
                 else
                 {
@@ -230,7 +261,6 @@ namespace mosaic_gnss_driver
 
                     ROS_INFO("Connecting via UDP to %s:%s", ip.c_str(), port.c_str());
                 }
-                
             }
             else
             {
@@ -268,7 +298,7 @@ namespace mosaic_gnss_driver
                 }
             }
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             m_sErrorMessage = e.what();
             ROS_ERROR("Unable to connect: %s", e.what());
@@ -277,8 +307,19 @@ namespace mosaic_gnss_driver
 
         m_bIsConnected = true;
 
-        // TODO: do configuring of module here using a configure method
-
+        if (_configure(opts))
+        {
+            ROS_INFO("Configured Mosaic module.");
+        }
+        else
+        {
+            // We will not kill the connection here, because the device may already
+            // be setup to communicate correctly, but we will print a warning
+            ROS_ERROR("Failed to configure GPS. This port may be read only, or the "
+                      "device may not be functioning as expected; however, the "
+                      "driver may still function correctly if the port has already "
+                      "been pre-configured.");
+        }
         return true;
     }
 
@@ -302,8 +343,25 @@ namespace mosaic_gnss_driver
 
     MosaicGNSS::ReadResult MosaicGNSS::_readSerialData()
     {
-        // TODO: complete this
-        ;
+        serial_util::SerialPort::ReadResult result = m_SerialPort.readBytes(m_vDataBuffer, 0, 1000);
+
+        if (result == serial_util::SerialPort::ERROR)
+        {
+            m_sErrorMessage = m_SerialPort.errorMsg();
+            return READ_ERROR;
+        }
+        else if (result == serial_util::SerialPort::TIMEOUT)
+        {
+            m_sErrorMessage = "Timed out waiting for serial device.";
+            return READ_TIMEOUT;
+        }
+        else if (result == serial_util::SerialPort::INTERRUPTED)
+        {
+            m_sErrorMessage = "Interrupted during read from serial device.";
+            return READ_INTERRUPTED;
+        }
+
+        return READ_SUCCESS;
     }
 
     MosaicGNSS::ReadResult MosaicGNSS::_readIpData()
@@ -328,14 +386,14 @@ namespace mosaic_gnss_driver
             if (error)
             {
                 m_sErrorMessage = error.message();
-				ROS_ERROR("Error occured in TCP connection: %s", m_sErrorMessage.c_str());
+                ROS_ERROR("Error occured in TCP connection: %s", m_sErrorMessage.c_str());
 
                 disconnect();
                 return READ_ERROR;
             }
             return READ_SUCCESS;
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             ROS_WARN("TCP Connection error: %s", e.what());
         }
@@ -355,82 +413,82 @@ namespace mosaic_gnss_driver
         {
             auto ipHeader = reinterpret_cast<const iphdr *>(packetData + sizeof(struct ethhdr));
             uint32_t ipHeaderLength = ipHeader->ihl * 4u;
-            
+
             // handle by protocol id, refer https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
             switch (ipHeader->protocol)
             {
-                case 6: // TCP
+            case 6: // TCP
+            {
+
+                if (header->len == 54)
                 {
-                    
-                    if (header->len == 54)
-                    {
-                        // Empty packet, skip it.
-                        return READ_SUCCESS;
-                    }
-
-                    bool storePacket = true;
-
-                    if (!m_vLastTcpPacket.empty())
-                    {
-                        auto tcpHeader = reinterpret_cast<const tcphdr *>(packetData + ipHeaderLength + sizeof(struct ethhdr));
-                        auto lastIpHeader = reinterpret_cast<const iphdr *>(&(m_vLastTcpPacket[0]));
-                        uint32_t lastIpHeaderLength = lastIpHeader->ihl * 4u;
-                        auto lastTcpHeader = reinterpret_cast<const tcphdr *>(&(m_vLastTcpPacket[0]) + lastIpHeaderLength);
-                        uint16_t lastLength = ntohs(static_cast<uint16_t>(lastIpHeader->tot_len));
-                        uint16_t newLength = ntohs(static_cast<uint16_t>(ipHeader->tot_len));
-                        uint32_t lastSeq = ntohl(lastTcpHeader->seq);
-                        uint32_t newSeq = ntohl(tcpHeader->seq);
-
-                        if (newSeq != lastSeq)
-                        {
-                            uint32_t dataOffset = lastTcpHeader->doff * 4;
-                            m_vDataBuffer.insert(m_vDataBuffer.end(), m_vLastTcpPacket.begin() + lastIpHeaderLength + dataOffset, m_vLastTcpPacket.end());
-                        }
-                        else if (newLength <= lastLength)
-                        {
-                            storePacket = false;
-                        }
-                    }
-
-                    if (storePacket)
-                    {
-                        m_vLastTcpPacket.clear();
-                        m_vLastTcpPacket.insert(m_vLastTcpPacket.end(), packetData + sizeof(struct ethhdr), packetData + header->len);
-                    }
-
-                    break;
+                    // Empty packet, skip it.
+                    return READ_SUCCESS;
                 }
-                case 17: // UDP
+
+                bool storePacket = true;
+
+                if (!m_vLastTcpPacket.empty())
                 {
-                    uint16_t fragOff = ntohs(static_cast<uint16_t>(ipHeader->frag_off));
+                    auto tcpHeader = reinterpret_cast<const tcphdr *>(packetData + ipHeaderLength + sizeof(struct ethhdr));
+                    auto lastIpHeader = reinterpret_cast<const iphdr *>(&(m_vLastTcpPacket[0]));
+                    uint32_t lastIpHeaderLength = lastIpHeader->ihl * 4u;
+                    auto lastTcpHeader = reinterpret_cast<const tcphdr *>(&(m_vLastTcpPacket[0]) + lastIpHeaderLength);
+                    uint16_t lastLength = ntohs(static_cast<uint16_t>(lastIpHeader->tot_len));
+                    uint16_t newLength = ntohs(static_cast<uint16_t>(ipHeader->tot_len));
+                    uint32_t lastSeq = ntohl(lastTcpHeader->seq);
+                    uint32_t newSeq = ntohl(tcpHeader->seq);
 
-                    uint16_t fragmentOffset = fragOff & static_cast<uint16_t>(0x1FFF);
-                    size_t headerSize;
-
-                    // UDP packets may be fragmented; this isn't really "correct", but for
-                    // simplicity's sake we'll assume we get fragments in the right order.
-                    if (fragmentOffset == 0)
+                    if (newSeq != lastSeq)
                     {
+                        uint32_t dataOffset = lastTcpHeader->doff * 4;
+                        m_vDataBuffer.insert(m_vDataBuffer.end(), m_vLastTcpPacket.begin() + lastIpHeaderLength + dataOffset, m_vLastTcpPacket.end());
+                    }
+                    else if (newLength <= lastLength)
+                    {
+                        storePacket = false;
+                    }
+                }
+
+                if (storePacket)
+                {
+                    m_vLastTcpPacket.clear();
+                    m_vLastTcpPacket.insert(m_vLastTcpPacket.end(), packetData + sizeof(struct ethhdr), packetData + header->len);
+                }
+
+                break;
+            }
+            case 17: // UDP
+            {
+                uint16_t fragOff = ntohs(static_cast<uint16_t>(ipHeader->frag_off));
+
+                uint16_t fragmentOffset = fragOff & static_cast<uint16_t>(0x1FFF);
+                size_t headerSize;
+
+                // UDP packets may be fragmented; this isn't really "correct", but for
+                // simplicity's sake we'll assume we get fragments in the right order.
+                if (fragmentOffset == 0)
+                {
                     headerSize = sizeof(struct ethhdr) + ipHeaderLength + sizeof(struct udphdr);
-                    }
-                    else
-                    {
-                    headerSize = sizeof(struct ethhdr) + ipHeaderLength;
-                    }
-
-                    m_vDataBuffer.insert(m_vDataBuffer.end(), packetData + headerSize, packetData + header->len);
-                    
-                    break;
                 }
-                case 128: // SSCOPMCE
+                else
                 {
-                    // TODO : research and handle
-                    // Got this protocol while testing with the pcap file, no clue what this does
-                    break;
+                    headerSize = sizeof(struct ethhdr) + ipHeaderLength;
                 }
-                default:
-                    ROS_WARN("Unexpected protocol: %u", ipHeader->protocol);
-                    return READ_ERROR;
+
+                m_vDataBuffer.insert(m_vDataBuffer.end(), packetData + headerSize, packetData + header->len);
+
+                break;
+            }
+            case 128: // SSCOPMCE
+            {
+                // TODO : research and handle
+                // Got this protocol while testing with the pcap file, no clue what this does
+                break;
+            }
+            default:
+                ROS_WARN("Unexpected protocol: %u", ipHeader->protocol);
+                return READ_ERROR;
             }
 
             // Add a slight delay after reading packets; if the node is being tested offline
@@ -445,16 +503,15 @@ namespace mosaic_gnss_driver
 
             if (!m_vLastTcpPacket.empty())
             {
-                auto lastIpHeader = reinterpret_cast<const iphdr*>(&(m_vLastTcpPacket[0]));
+                auto lastIpHeader = reinterpret_cast<const iphdr *>(&(m_vLastTcpPacket[0]));
                 uint32_t ipHeaderLength = lastIpHeader->ihl * 4u;
 
-                auto lastTcpHeader = reinterpret_cast<const tcphdr*>(&(m_vLastTcpPacket[0]) + ipHeaderLength);
+                auto lastTcpHeader = reinterpret_cast<const tcphdr *>(&(m_vLastTcpPacket[0]) + ipHeaderLength);
                 uint32_t dataOffset = lastTcpHeader->doff * 4u;
 
                 m_vDataBuffer.insert(m_vDataBuffer.end(),
-                    m_vLastTcpPacket.begin() + ipHeaderLength + dataOffset,
-                    m_vLastTcpPacket.end()
-                );
+                                     m_vLastTcpPacket.begin() + ipHeaderLength + dataOffset,
+                                     m_vLastTcpPacket.end());
 
                 m_vLastTcpPacket.clear();
             }
@@ -465,14 +522,14 @@ namespace mosaic_gnss_driver
         {
             ROS_WARN("Error reading pcap data: %s", pcap_geterr(m_Pcap));
             return READ_ERROR;
-        }        
+        }
     }
 
     void MosaicGNSS::bufferDump()
     {
         std::cout << "MosaicGNSS::bufferDump() -> Use of this method is not encouraged and is for development purposes only" << std::endl;
         std::cout << "\n\n";
-        for (auto& data: m_vDataBuffer)
+        for (auto &data : m_vDataBuffer)
         {
             std::cout << data;
         }

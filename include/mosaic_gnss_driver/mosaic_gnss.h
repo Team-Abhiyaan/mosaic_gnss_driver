@@ -10,9 +10,11 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
+#include <mosaic_utils/serial.h>
+
 namespace mosaic_gnss_driver
 {
-    /// Options 
+    /// Options
     typedef std::map<std::string, double> MosaicGNSSMessageOpts;
 
     class MosaicGNSS
@@ -37,7 +39,7 @@ namespace mosaic_gnss_driver
             /// Data read successfully
             READ_SUCCESS = 0,
             READ_INSUFFICIENT_DATA = 1,
-            READ_TIMOUT = 2,
+            READ_TIMEOUT = 2,
             READ_INTERRUPTED = 3,
             READ_ERROR = -1,
             /// Unable to parse data, parsing error
@@ -103,7 +105,7 @@ namespace mosaic_gnss_driver
          * @param connection: A string indicating the connection type
          * @return Corresponding enum value
          */
-        static ConnectionType parseConnection(const std::string& connection);
+        static ConnectionType parseConnection(const std::string &connection);
 
         /**
          * Process data that has been recieved from the device
@@ -113,13 +115,31 @@ namespace mosaic_gnss_driver
         ReadResult processData();
 
         /**
+         * Sets the serial baud rate; should be called before configuring a serial connection.
+         * 
+         * @param serialBaud: The serial baud rate.
+         */
+        void setSerialBaud(int32_t serialBaud);
+
+        /**
          * Only for development purposes, to be removed in release version
          * 
          * Spits out data buffer into stdout
+         * 
+         * // TODO: remove this in release version
          */
         void bufferDump();
 
     private:
+        /**
+         * (Re)configure the driver with a set of message options
+         * 
+         * @param opts: // TODO
+         * 
+         * @return True on success
+         */
+        bool _configure(MosaicGNSSMessageOpts const &opts);
+
         /**
          * Create a PCAP device for playing back recorded data
          * 
@@ -129,7 +149,20 @@ namespace mosaic_gnss_driver
          */
         bool _createPcapConnection(const std::string &device, MosaicGNSSMessageOpts const &opts);
 
-        bool _createSerialConnection();
+        /**
+         * Establishes a serial port connection with the mosaic module.
+         *
+         * It will create a connection set at the baud set by setSerialBaud(), no parity, 
+         * no flow control, and 8N1 bits, then it will call _configure() on that connection.  After
+         * this method has succeeded, _readData() and serialWrite() can be used to communicate with
+         * the device.
+         *
+         * @param device:  The device node to connect to; e. g., "/dev/ttyUSB0"
+         * @param opts: // TODO
+         * 
+         * @return True on success
+         */
+        bool _createSerialConnection(const std::string &device, MosaicGNSSMessageOpts const &opts);
 
         /**
        * Establishes an IP connection with the Mosaic module.
@@ -146,7 +179,7 @@ namespace mosaic_gnss_driver
        * @param opts :TODO 
        * @return false if it failed to create a connection, true otherwise.
        */
-        bool _createIpConnection(const std::string& endpoint, MosaicGNSSMessageOpts const& opts);
+        bool _createIpConnection(const std::string &endpoint, MosaicGNSSMessageOpts const &opts);
 
         /**
          * Read data from module. Data appended will be appended to data buffer.
@@ -182,18 +215,19 @@ namespace mosaic_gnss_driver
 
         ConnectionType m_ConnectionType;
         bool m_bIsConnected;
-        
+
         std::string m_sErrorMessage;
 
         // Serial connection
-		// TODO: fill here
-        
-		// IP (TCP / UDP) Connections
+        int32_t m_SerialBaud;
+        serial_util::SerialPort m_SerialPort;
+
+        // IP (TCP / UDP) Connections
         boost::asio::io_service m_IoService;
         boost::asio::ip::tcp::socket m_TcpSocket;
         boost::shared_ptr<boost::asio::ip::udp::socket> m_UdpSocket;
         boost::shared_ptr<boost::asio::ip::udp::endpoint> m_UdpEndpoint;
-        
+
         // Pcap device is used for testing and development
         pcap_t *m_Pcap;
         bpf_program m_PcapPacketFilter;
@@ -205,7 +239,6 @@ namespace mosaic_gnss_driver
         std::vector<uint8_t> m_vDataBuffer;
         // Fixed size buffer for reading directly from sockets
         boost::array<uint8_t, 10000> m_SocketBuffer;
-
     };
 } // namespace mosaic_gnss_driver
 

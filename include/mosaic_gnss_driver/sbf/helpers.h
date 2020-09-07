@@ -14,10 +14,15 @@ namespace sbf {
     // Here: we cant directly cast b/c that depends on the system we are running in.
     // C++ does not guarantee little endian / big endian, twos complement /ones complement.
 
+    // Using these functions makes it easy to change code to work on big endian systems if necessary
+
     // static_assert(LITTLE_ENDIAN, "Wrong endianness");
     // static_assert(TWOS_COMPLEMENT, "Wrong signed integer format");
     static_assert(sizeof(float) == 4, "Bad float size, no 4 byte floating point type");
     static_assert(sizeof(double) == 8, "Bad double size, no 8 byte floating point type");
+
+    using float4_t = float;
+    using float8_t = double;
 
     uint8_t u1(const uint8_t *buffer) {
         return *buffer;
@@ -43,12 +48,12 @@ namespace sbf {
         return *reinterpret_cast<const int32_t *>(buffer);
     }
 
-    float f4(const uint8_t *buffer) {
-        return *reinterpret_cast<const float *>(buffer);
+    float4_t f4(const uint8_t *buffer) {
+        return *reinterpret_cast<const float4_t *>(buffer);
     }
 
-    double f8(const uint8_t *buffer) {
-        return *reinterpret_cast<const double *>(buffer);
+    float8_t f8(const uint8_t *buffer) {
+        return *reinterpret_cast<const float8_t *>(buffer);
     }
 
     std::string c(const uint8_t *buffer, size_t size) {

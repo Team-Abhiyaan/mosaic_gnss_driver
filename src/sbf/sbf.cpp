@@ -61,8 +61,6 @@ bool sbf::SBF::parse_next() {
     if (!input.read(buffer, 2)) return false;
     const auto crc = sbf::u2(reinterpret_cast<uint8_t *>(buffer));
 
-
-
     // Now Parse the rest of the block header
 
     // This ptr walks through the buffer while we parse values
@@ -75,6 +73,7 @@ bool sbf::SBF::parse_next() {
     // Get ID and revision number
     const auto raw_id = sbf::u2(parse_ptr);
     parse_ptr += 2; // TODO: Move this to the sbf::u2()
+
     const auto[id, rev_num] = sbf::parse_id(raw_id);
 
     // Get Length
@@ -87,7 +86,7 @@ bool sbf::SBF::parse_next() {
         return parse_next();
     }
     if (length > buffer_size) {
-        std::cout << "\t Buffer overflow" << std::endl;
+        // std::cout << "\t Buffer overflow" << std::endl;
         // TODO: How to handle.
         // data.seekg(data_length);
         return true;
@@ -103,7 +102,7 @@ bool sbf::SBF::parse_next() {
     // parse_ptr points to current position in while parsing data
     auto parse_ptr_end = parse_ptr + data_length; // End of block data
 
-    std::cout << id << "\t" << rev_num << "\t" << length;
+    std::cout << id << "\t" << (int) rev_num << "\t" << length;
 
 
     // Call the parser

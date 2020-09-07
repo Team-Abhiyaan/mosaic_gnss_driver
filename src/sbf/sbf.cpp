@@ -70,15 +70,12 @@ bool sbf::SBF::parse_next() {
     // Read ID and Length
     if (!input.read(buffer, 4)) return false;
 
-    // Get ID and revision number
-    const auto raw_id = sbf::u2(parse_ptr);
-    parse_ptr += 2; // TODO: Move this to the sbf::u2()
+    // Get Header
+    auto header = reinterpret_cast<const sbf::Header *>(parse_ptr);
+    parse_ptr += sizeof(sbf::Header);
 
-    const auto[id, rev_num] = sbf::parse_id(raw_id);
-
-    // Get Length
-    auto length = sbf::u2(parse_ptr);
-    parse_ptr += 2;
+    const auto[id, rev_num] = sbf::parse_id(header->ID);
+    auto length = header->length;
 
     // Check Length
     if (length % 4 != 0 || length <= 8) {

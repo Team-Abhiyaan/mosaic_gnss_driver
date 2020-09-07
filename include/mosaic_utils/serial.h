@@ -61,9 +61,9 @@ namespace serial_util
             ERROR
         };
 
-        // File descriptor representing the serial port
+        /// File descriptor representing the serial port
         int m_Fd;
-        // For latest error message
+        /// For latest error message
         std::string m_ErrorMessage;
 
         /**

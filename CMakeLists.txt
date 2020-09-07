@@ -136,7 +136,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME} 
+add_library(${PROJECT_NAME}
   src/mosaic_gnss.cpp
   src/mosaic_utils/serial.cpp
 )
@@ -219,13 +219,13 @@ if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
 
   catkin_add_gtest(pcap_test test/pcap_testing.cpp)
-  target_link_libraries(pcap_test 
+  target_link_libraries(pcap_test
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${libpcap_LIBRARIES}
     ${Boost_LIBRARIES}
   )
-  
+
   catkin_add_gtest(tcp_test test/tcp_testing.cpp)
   target_link_libraries(tcp_test
 	${PROJECT_NAME}
@@ -244,3 +244,5 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)

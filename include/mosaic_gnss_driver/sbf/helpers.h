@@ -24,6 +24,13 @@ namespace sbf {
     using float4_t = float;
     using float8_t = double;
 
+#pragma pack ( push, 1) // Packs the struct tightly, no gaps b/w objs
+    struct Header {
+        uint16_t ID;
+        uint16_t length;
+    };
+#pragma pack ( pop )
+
     uint8_t u1(const uint8_t *buffer) {
         return *buffer;
     }

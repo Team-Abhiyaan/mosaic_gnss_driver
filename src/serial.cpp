@@ -58,7 +58,7 @@ namespace serial_util
         m_Fd = -1;
     }
 
-    bool SerialPort::SerialOpen(const std::string &device, Config config)
+    bool SerialPort::serialOpen(const std::string &device, Config config)
     {
         serialClose();
 

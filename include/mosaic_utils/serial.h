@@ -62,10 +62,14 @@ namespace serial_util
     public:
         enum ReadResult
         {
-            SUCCESS,
-            TIMEOUT,
-            INTERRUPTED,
-            ERROR
+            /// Data read successfully
+            SUCCESS = 0,
+            /// Timed out
+            TIMEOUT = 2,
+            /// Interruption while reading
+            INTERRUPTED = 3,
+            /// Error
+            ERROR = -1
         };
 
         /// File descriptor representing the serial port
@@ -102,7 +106,7 @@ namespace serial_util
          * 
          * @return True on success
          */
-        bool SerialOpen(const std::string &device, Config config = Config());
+        bool serialOpen(const std::string &device, Config config = Config());
 
         /**
          * Close serial port if open

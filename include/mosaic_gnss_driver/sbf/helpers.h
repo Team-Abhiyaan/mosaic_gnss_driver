@@ -1,13 +1,18 @@
-#ifndef MOSAIC_GNSS_DRIVER_SBF_CONVERSIONS_H
-#define MOSAIC_GNSS_DRIVER_SBF_CONVERSIONS_H
+#ifndef MOSAIC_GNSS_DRIVER_HELPERS_H
+#define MOSAIC_GNSS_DRIVER_HELPERS_H
 
-#include <inttypes.h>
+#include <cinttypes>
 
-// Just assume little endian system with two's complement:
-// TODO check.
+
+/*
+ * Contains functions for:
+ *  - converting SBF types to c++ types
+ *  - Parsing common sbf fields
+ */
+
 namespace sbf {
     // Here: we cant directly cast b/c that depends on the system we are running in.
-    // C++ does not guarantee little endian / big endian, twos complement ones complement.
+    // C++ does not guarantee little endian / big endian, twos complement /ones complement.
 
     // static_assert(LITTLE_ENDIAN, "Wrong endianness");
     // static_assert(TWOS_COMPLEMENT, "Wrong signed integer format");
@@ -49,6 +54,11 @@ namespace sbf {
     std::string c(const uint8_t *buffer, size_t size) {
         return std::string{reinterpret_cast<const char *>(buffer), size};
     }
+
+
+    std::pair<uint16_t, uint8_t> parse_id(const uint16_t raw_id) {
+        return {raw_id & 0b0001111111111111u, (raw_id & 0b1110000000000000u) >> 13u};
+    }
 }
 
 // Below is normal attempt without relying on architecture and should run anywhere, but not complete
@@ -87,4 +97,4 @@ namespace sbf {
     }
 
 }*/
-#endif //MOSAIC_GNSS_DRIVER_SBF_CONVERSIONS_H
+#endif //MOSAIC_GNSS_DRIVER_HELPERS_H

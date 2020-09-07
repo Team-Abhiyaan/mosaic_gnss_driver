@@ -1,5 +1,5 @@
 #include "mosaic_gnss_driver/sbf/sbf.h"
-#include "mosaic_gnss_driver/sbf/sbf_conversions.h"
+#include "mosaic_gnss_driver/sbf/helpers.h"
 
 #include <iostream>
 
@@ -92,8 +92,7 @@ bool sbf::SBF::parse_next() {
     // Get ID and revision number
     const auto raw_id = sbf::u2(parse_ptr);
     parse_ptr += 2; // TODO: Move this to the sbf::u2()
-    const auto id = raw_id & 0b0001111111111111u;
-    const auto rev_num = (raw_id & 0b1110000000000000u) >> 13u;
+    const auto[id, rev_num] = sbf::parse_id(raw_id);
 
     // Get Length
     auto length = sbf::u2(parse_ptr);

@@ -1,10 +1,13 @@
 #include <mosaic_utils/serial.h>
 
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <linux/serial.h>
-#include <fcntl.h>
-#include <unistd.h>
+
+// Linux headers
+#include <fcntl.h> // Contains file controls like O_RDWR
+#include <errno.h> // Error integer and strerror() function
+#include <termios.h> // Contains POSIX terminal control definitions
+#include <unistd.h> // write(), read(), close()
 
 #include <boost/lexical_cast.hpp>
 
@@ -59,8 +62,8 @@ namespace serial_util
     {
         serialClose();
 
+        // Validate baud rate
         int32_t baud = _parseBaudRate(config.m_BaudRate);
-
         if (baud == -1)
         {
             m_ErrorMessage = "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
@@ -68,6 +71,7 @@ namespace serial_util
             return false;
         }
 
+        // Validate stop bits
         if (config.m_StopBits != 1 && config.m_StopBits != 2)
         {
             m_ErrorMessage = "Invalid stop bits: " + boost::lexical_cast<std::string>(config.m_StopBits);
@@ -75,6 +79,7 @@ namespace serial_util
             return false;
         }
 
+        // Validate data bits
         if (config.m_DataBits != 7 && config.m_DataBits != 8)
         {
             m_ErrorMessage = "Invalid data bits: " + boost::lexical_cast<std::string>(config.m_DataBits);
@@ -82,6 +87,7 @@ namespace serial_util
             return false;
         }
 
+        // Validate parity checking
         if (config.m_Parity != Config::NO_PARITY && config.m_Parity != Config::EVEN_PARITY && config.m_Parity != Config::ODD_PARITY)
         {
             m_ErrorMessage = "Invalid parity mode";
@@ -89,9 +95,9 @@ namespace serial_util
             return false;
         }
 
+        // Open serial port, handle error if any
         m_Fd = open(device.c_str(), config.m_Writable ? O_RDWR : O_RDONLY);
-
-        if (m_Fd == -1)
+        if (m_Fd < 0)
         {
             m_ErrorMessage = "Error opening serial port <" + device + ">: " + strerror(errno);
 
@@ -100,6 +106,7 @@ namespace serial_util
 
         struct termios term;
 
+        // Read in existing settings, and handle any error
         if (tcgetattr(m_Fd, &term) < 0)
         {
             m_ErrorMessage = "Unable to set serial attributes <" + device + ">: " + strerror(errno);
@@ -108,6 +115,7 @@ namespace serial_util
             return false;
         }
 
+        // Apply fresh configuration flags
         cfmakeraw(&term);
 
         if (config.m_StopBits == 2)
@@ -170,6 +178,7 @@ namespace serial_util
 
         if (config.m_LowLatencyMode && !_setLowLatencyMode())
         {
+            // Error taken care of in serialClose() method
             serialClose();
 
             return false;
@@ -178,14 +187,21 @@ namespace serial_util
         return true;
     }
 
-    SerialPort::Result SerialPort::readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout) 
+    SerialPort::ReadResult SerialPort::readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout)
     {
         // TODO: Complete this
     }
 
     int32_t SerialPort::serialWrite(const std::vector<uint8_t> &input)
     {
-        return write(m_Fd, input.data(), input.size());
+        int32_t result =  write(m_Fd, input.data(), input.size());
+
+        if (result < 0)
+        {
+            m_ErrorMessage = "Failed to write to serial port: " + std::string(strerror(errno));
+        }
+
+        return result;
     }
 
     bool SerialPort::_setLowLatencyMode()

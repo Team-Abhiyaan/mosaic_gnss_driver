@@ -31,7 +31,13 @@ namespace serial_util
         /**
          * Configure using custom settings
          * 
-         * // TODO: add params description
+         * @param baudRate: Baud rate - maximum amount of bits transferable per second
+         * @param dataBits: Number of data bits
+         * @param stopBits: Number of stop bits
+         * @param parity: Type of parity checking
+         * @param flowControl: Flow control - Ability of device to tell another device to stop sending data for a while
+         * @param lowLatencyMode: Set to low latency mode
+         * @param writable: Make port writable, used to configure the module
          */
         Config(int32_t baudRate, int32_t dataBits, int32_t stopBits, Parity parity, bool flowControl, bool lowLatencyMode, bool writable);
 
@@ -47,7 +53,7 @@ namespace serial_util
     class SerialPort
     {
     public:
-        enum Result
+        enum ReadResult
         {
             SUCCESS,
             TIMEOUT,
@@ -55,7 +61,7 @@ namespace serial_util
             ERROR
         };
 
-        // File descriptor
+        // File descriptor representing the serial port
         int m_Fd;
         // For latest error message
         std::string m_ErrorMessage;
@@ -100,11 +106,12 @@ namespace serial_util
          * // TODO: Put description
          * 
          */
-        Result readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout);
+        ReadResult readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout);
 
         /**
-         * // TODO: Put description
+         * Configure the device
          * 
+         * @return Number of bytes written on success. On error, -1 is returned, and errno is set to indicate the cause of the error.
          */
         int32_t serialWrite(const std::vector<uint8_t> &input);
 

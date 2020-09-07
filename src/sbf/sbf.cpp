@@ -26,23 +26,6 @@ bool sbf::SBF::seek_block() {
     return false;
 }
 
-// Uses stream based operations:
-/*bool sbf::SBF::seek_block() {
-    char c;
-    while (data >> c) {
-        if (c == '$') {
-            if (data >> c) {
-                if (c == '@')
-                    return true;
-            } else {
-                return false;
-            }
-        }
-    }
-    return false;
-}*/
-
-
 /*
  * List of errors:
  *  data end
@@ -129,11 +112,6 @@ bool sbf::SBF::parse_next() {
      * parser(rev_num, pares_ptr, parse_ptr_end);
      */
 
-
-    /*// Time stamp
-    std::cout << "\t" << static_cast<int>( sbf::u4(parse_ptr) / 1e3) << "\t"
-              << static_cast<int>( sbf::u4(parse_ptr + 4));
-    */
 
     std::cout << std::endl;
     return true;

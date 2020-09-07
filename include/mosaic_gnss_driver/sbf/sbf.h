@@ -10,7 +10,6 @@ namespace sbf {
         static const size_t buffer_size = 256;
         char _buffer[buffer_size]; // Any point in std::array ?
         char *const buffer = _buffer;
-        // char *const buffer_end = buffer + buffer_size;
 
         bool seek_block();
 

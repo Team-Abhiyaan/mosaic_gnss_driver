@@ -61,40 +61,4 @@ namespace sbf {
     }
 }
 
-// Below is normal attempt without relying on architecture and should run anywhere, but not complete
-/*
-#if __cplusplus < 201300 // i.e before c++ 14
-#define unsign(number) (static_cast<unsigned>(number))
-#else
-
-template<typename T>
-auto unsign(T number) { return static_cast<unsigned>(number); }
-
-#endif
-
-namespace sbf {
-    // Here: we cant directly cast b/c that depends on the system we are running in.
-    // C++ does not guarantee little endian / big endian, twos complement ones complement.
-    // No idea
-    uint8_t u1(const uint8_t *buffer) {
-        return *buffer;
-    }
-
-    uint16_t u2(const uint8_t *buffer) {
-        return unsign(buffer[0]) | (unsign(buffer[1]) << 8u);
-    }
-
-    uint16_t u4(const uint8_t *buffer) {
-        return unsign(buffer[0]) | (unsign(buffer[1]) << 8u) | (unsign(buffer[2]) << 16u) | (unsign(buffer[3]) << 24u);
-    }
-
-    int8_t i1(const uint8_t *buffer) {
-        return ~(buffer[0] & ~(1u << 7u)) - (buffer[0] & (1u << 7u));
-    }
-
-    int8_t i2(const uint8_t *buffer) {
-        return ~(buffer[0] & ~(1u << 7u)) - (buffer[0] & (1u << 7u));
-    }
-
-}*/
 #endif //MOSAIC_GNSS_DRIVER_HELPERS_H

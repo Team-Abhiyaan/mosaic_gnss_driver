@@ -138,7 +138,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME} 
   src/mosaic_gnss.cpp
-  src/serial.cpp
+  src/mosaic_utils/serial.cpp
 )
 
 ## Add cmake target dependencies of the library

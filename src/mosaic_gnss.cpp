@@ -50,17 +50,19 @@ namespace mosaic_gnss_driver
         switch (m_ConnectionType)
         {
         case SERIAL:
-
+        {
             m_SerialPort.serialClose();
             break;
+        }
 
         case TCP:
-
+        {
             m_TcpSocket.close();
             break;
+        }
 
         case UDP:
-
+        {
             if (m_UdpSocket)
             {
                 m_UdpSocket->close();
@@ -71,16 +73,17 @@ namespace mosaic_gnss_driver
                 m_UdpEndpoint.reset();
             }
             break;
+        }
 
         case PCAP:
-
+        {
             if (m_Pcap != nullptr)
             {
                 pcap_close(m_Pcap);
                 m_Pcap = nullptr;
             }
             break;
-
+        }
         default:
             break;
         }
@@ -122,29 +125,6 @@ namespace mosaic_gnss_driver
         }
     }
 
-    bool MosaicGNSS::_configure(MosaicGNSSMessageOpts const &opts)
-    {
-        // TODO: Complete this
-        return true;
-    }
-
-    bool MosaicGNSS::_createPcapConnection(const std::string &device, MosaicGNSSMessageOpts const &opts)
-    {
-        ROS_INFO("Opening pcap file: %s", device.c_str());
-
-        if ((m_Pcap = pcap_open_offline(device.c_str(), m_cPcapErrBuffer)) == nullptr)
-        {
-            ROS_FATAL("Unable to open pcap file");
-            m_bIsConnected = false;
-            return false;
-        }
-
-        pcap_compile(m_Pcap, &m_PcapPacketFilter, "tcp dst port 3001", 1, PCAP_NETMASK_UNKNOWN);
-        m_bIsConnected = true;
-
-        return true;
-    }
-
     MosaicGNSS::ReadResult MosaicGNSS::processData()
     {
         // TODO: complete this method
@@ -163,6 +143,97 @@ namespace mosaic_gnss_driver
         }
 
         return READ_SUCCESS;
+    }
+
+    void MosaicGNSS::setSerialBaud(int32_t serialBaud)
+    {
+        m_SerialBaud = serialBaud;
+        ROS_INFO("Serial baud rate: %d", serialBaud);
+    }
+
+    bool MosaicGNSS::_configure(MosaicGNSSMessageOpts const &opts)
+    {
+        // TODO: Complete this
+        return true;
+    }
+
+    bool MosaicGNSS::_write(const std::string &command)
+    {
+        std::vector<uint8_t> bytes(command.begin(), command.end());
+
+        switch (m_ConnectionType)
+        {
+        case SERIAL:
+        {
+            int32_t written = m_SerialPort.serialWrite(bytes);
+            bool success = (written == (int32_t)command.length());
+
+            if (!success)
+            {
+                ROS_ERROR("Failed to send command: %s", command.c_str());
+            }
+
+            return success;
+        }
+        case TCP:
+        case UDP:
+        {
+            boost::system::error_code error;
+
+            try
+            {
+                size_t written; // to store number of bytes written
+
+                if (m_ConnectionType == TCP)
+                {
+                    written = boost::asio::write(m_TcpSocket, boost::asio::buffer(bytes), error);
+                }
+                else
+                {
+                    written = m_UdpSocket->send_to(boost::asio::buffer(bytes), *m_UdpEndpoint, 0, error);
+                }
+
+                if (error)
+                {
+                    ROS_ERROR("Error writing IP data: %s", error.message().c_str());
+                    disconnect();
+                }
+                ROS_DEBUG("Wrote %lu bytes", written);
+
+                return (written == (int32_t)command.length());
+            }
+            catch (std::exception &e)
+            {
+                disconnect();
+                ROS_ERROR("Exception writing IP data: %s", e.what());
+                break;
+            }
+        }
+        case PCAP:
+        {
+            ROS_WARN_ONCE("Writing data is unsupported in PCAP mode.");
+            return true;
+        }
+        default:
+            return false;
+        }
+    }
+
+    bool MosaicGNSS::_createPcapConnection(const std::string &device, MosaicGNSSMessageOpts const &opts)
+    {
+        ROS_INFO("Opening pcap file: %s", device.c_str());
+
+        if ((m_Pcap = pcap_open_offline(device.c_str(), m_cPcapErrBuffer)) == nullptr)
+        {
+            ROS_FATAL("Unable to open pcap file");
+            m_bIsConnected = false;
+            return false;
+        }
+
+        pcap_compile(m_Pcap, &m_PcapPacketFilter, "tcp dst port 3001", 1, PCAP_NETMASK_UNKNOWN);
+        m_bIsConnected = true;
+
+        return true;
     }
 
     bool MosaicGNSS::_createSerialConnection(const std::string &device, MosaicGNSSMessageOpts const &opts)

@@ -141,6 +141,15 @@ namespace mosaic_gnss_driver
         bool _configure(MosaicGNSSMessageOpts const &opts);
 
         /**
+         * Write the given string of characters to the connected mosaic module.
+         * 
+         * @param command: String to transmit
+         * 
+         * @return True on success, false otherwise.
+         */
+        bool _write(const std::string &command);
+
+        /**
          * Create a PCAP device for playing back recorded data
          * 
          * @param device: PCAP file path

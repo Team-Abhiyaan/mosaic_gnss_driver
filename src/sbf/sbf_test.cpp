@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 
     std::string filename = "dump_master.sbf";
     if (argc == 2) {
-        filename = argv[2];
+        filename = argv[1];
     }
     std::cout << "Reading " << filename << std::endl;
     std::ifstream file(filename, std::ios::binary);

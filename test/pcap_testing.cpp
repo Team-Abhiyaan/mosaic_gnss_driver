@@ -13,7 +13,7 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 
     ASSERT_FALSE(gnss.isConnected());
 
-    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/capture_001.pcap", mosaic_gnss_driver::MosaicGNSS::PCAP));
+    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sbf/capture_001.pcap", mosaic_gnss_driver::MosaicGNSS::PCAP));
 
     while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS)
     {

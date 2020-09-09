@@ -553,6 +553,7 @@ namespace mosaic_gnss_driver
             }
             case 128: // SSCOPMCE
             {
+                ROS_WARN("Recieved data via SSCOPMCE protocol");
                 // TODO : research and handle
                 // Got this protocol while testing with the pcap file, no clue what this does
                 break;

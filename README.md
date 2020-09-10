@@ -2,13 +2,20 @@
 
 ## Description
 
-ROS Package(core library only) for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+ROS Driver Package for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+
+## Current status (master branch)
+
+- Core library in progress
+- Communication with the module is functional for all modes of connection, viz SERIAL, TCP, UDP and PCAP
+- Parsers for SBF and NMEA in progress
 
 ## Navigation
+
 - [Build workspace](#build-workspace)
 
 - [Other subcommands](#other-commands)
-<br>
+  <br>
 
 - [Wireshark Installation](#wireshark-installation-for-capturing-traffic-from-module)
 
@@ -16,9 +23,17 @@ ROS Package(core library only) for the [Septentrio Mosaic development kit](https
 
 ---
 
+## Install dependencies
+
+- C++ library for handling pcap files
+
+```bash
+sudo apt install libpcap-dev
+```
+
 ## Build workspace
 
-- Clone this repository **[ branch : libdriver-devel ]**
+- Clone this repository
 
 - Build
 
@@ -66,6 +81,8 @@ sudo apt -y install wireshark
 sudo usermod -aG wireshark $USER
 ```
 
+**NOTE : Relogin may be required for the changes to take effect**
+
 - Change `dumpcap` binary file permissions
 
 ```bash
@@ -88,3 +105,47 @@ Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
 ```bash
 sudo apt install libpcap-dev
 ```
+
+---
+
+**Please add any info that you think might be useful**
+
+---
+
+## Links
+
+[**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+
+[**Google drive link**](https://drive.google.com/drive/folders/14KQpB4tbFVY6TrVSzioFhG_bZOaW4NAf?usp=sharing)
+
+[Septentrio request for info](https://customersupport.septentrio.com/s/case/500f300001R3MOlAAN/configuration-setup-for-the-mosaic-dev-kit)
+
+[ROSCon 2012 - Writing Hardware Drivers](https://www.youtube.com/watch?v=pagC2WXT1x0)
+
+[Slides for the above](https://docs.google.com/presentation/d/13yyOB5CXOzpvMa0_wYxDvNzjb_9dfMjDuVo-CvBcoRw/edit#slide=id.p)
+
+---
+
+[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
+
+### Other open source drivers for reference
+
+[NMEA Navsat driver - GitHub : Python](https://github.com/ros-drivers/nmea_navsat_driver)
+
+[Novatel GPS Driver - GitHub : C++](https://github.com/swri-robotics/novatel_gps_driver)
+
+## General workflow of writing hardware drivers
+
+**As from the ROSCon video**
+
+- Starting driver
+
+  - [Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
+
+- Writing a standalone library
+
+- ROS wrapper
+
+- Dynamic reconfigure
+
+- Diagnostics

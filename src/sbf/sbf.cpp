@@ -108,7 +108,7 @@ bool sbf::SBF::parse_block() {
 
     // TODO: check CRC
 
-    std::cout << "blah!!" << id << "\t" << (int) rev_num << "\t" << length;
+    std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << crc;
 
 
     // Call the parser
@@ -257,6 +257,7 @@ const uint8_t *sbf::SBF::read(size_t size) {
                 return ret;
             } else {
                 read_ptr = data_start;
+                buffer_use = 0;
                 return read(size - data_in_buffer) ? ret : nullptr; // Get remaining data from data
             }
         }

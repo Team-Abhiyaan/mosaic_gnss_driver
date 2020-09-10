@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
         //     std::cout << "Read only " << bytes_read << " bytes" << std::endl;
         if (!bytes_read)
             break;
+        // std::cout <<"______________________" << std::endl;
         sbf.parse(reinterpret_cast<const uint8_t *>(buffer), bytes_read);
     }
 

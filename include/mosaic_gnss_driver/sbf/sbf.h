@@ -5,7 +5,7 @@
 
 namespace sbf {
     class SBF {
-        static constexpr const uint8_t sync_chars[] = {'$', '@'};
+        static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
         // Data Storages
         static const size_t buffer_size = 256;
@@ -20,10 +20,6 @@ namespace sbf {
         const uint8_t *read_ptr;
         const uint8_t *block_start;
 
-        const uint8_t *read(size_t size);
-
-        bool seek_block();
-
         // Helper functions for read()
         bool in_buffer(const uint8_t *const ptr) {
             return buffer <= ptr && ptr < buffer + buffer_size;
@@ -33,12 +29,17 @@ namespace sbf {
             return data_start <= ptr && ptr < data_start + data_length;
         }
 
+        bool seek_block();
+
+        const uint8_t *read(size_t size);
+
+        bool parse_block();
+
     public:
+
         SBF();
 
         void parse(const uint8_t *data, size_t size);
-
-        bool parse_block();
     };
 }
 

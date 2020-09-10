@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     sbf::SBF sbf;
 
     char buffer[256];
-    size_t bytes_read = 0;
+    size_t bytes_read;
     while (true) {
         bytes_read = file.readsome(buffer, sizeof(buffer));
         // if (0 < bytes_read && bytes_read != sizeof(buffer))

@@ -49,12 +49,24 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     data_length = size;
 
 
-    // std::cout << "Buffer use " << buffer_use;
-    if (!in_buffer(read_ptr)) {
-        read_ptr = buffer_use ? buffer : data_start;
-        // std::cout << " not in buffer ";
+    /*   // std::cout << "Buffer use " << buffer_use;
+       if (buffer_use > buffer_size) buffer_use = 0;
+       if (!in_buffer(read_ptr)) {
+           read_ptr = buffer_use ? buffer : data_start;
+           // std::cout << " not in buffer ";
+       }*/
+    if (buffer_use) {
+        if (!in_buffer(read_ptr))
+            read_ptr = buffer;
+    } else {
+        read_ptr = data_start;
     }
     // std::cout << std::endl;
+
+    if (buffer_use) {
+        // std::cout << buffer_use << " in buffer" << std::endl;
+        // std::cout << buffer[0] << std::endl;
+    }
 
 
     while (seek_block() && parse_block());
@@ -129,6 +141,7 @@ bool sbf::SBF::seek_block() {
         if (*read_ptr == sync_chars[0]) {
             block_start = read_ptr;
             read_ptr += 1;
+            // std::cout << "only dollar found" << std::endl;
             read(0); // Copy '$' to the buffer
 
             return false;
@@ -136,6 +149,7 @@ bool sbf::SBF::seek_block() {
         read_ptr += 1;
         return false;
     } else if (in_buffer(read_ptr)) {
+        // std::cout << "seek in buffer" << buffer_use << "\t" << read_ptr - buffer << std::endl;
         while (read_ptr < buffer + buffer_use - 1) {
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 read_ptr += 2;

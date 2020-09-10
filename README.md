@@ -1,47 +1,90 @@
 # mosaic_gnss_driver
 
-A ROS driver for the Septentrio mosaic development kit GNSS/GPS module
+## Description
+
+ROS Package(core library only) for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+
+## Navigation
+- [Build workspace](#build-workspace)
+
+- [Other subcommands](#other-commands)
+<br>
+
+- [Wireshark Installation](#wireshark-installation-for-capturing-traffic-from-module)
+
+- [C++ libraries for data playback](#install-c-libraries-for-traffic-playback)
 
 ---
 
-**Please add any info that you think might be useful**
+## Build workspace
 
----
-## Links
+- Clone this repository **[ branch : libdriver-devel ]**
 
-[**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
+- Build
 
-[**Google drive link**](https://drive.google.com/drive/folders/14KQpB4tbFVY6TrVSzioFhG_bZOaW4NAf?usp=sharing)
+```bash
+make build
+```
 
-[Septentrio request for info](https://customersupport.septentrio.com/s/case/500f300001R3MOlAAN/configuration-setup-for-the-mosaic-dev-kit)
+### Other commands
 
-[ROSCon 2012 - Writing Hardware Drivers](https://www.youtube.com/watch?v=pagC2WXT1x0)
+- Cleanup
 
-[Slides for the above](https://docs.google.com/presentation/d/13yyOB5CXOzpvMa0_wYxDvNzjb_9dfMjDuVo-CvBcoRw/edit#slide=id.p)
+```bash
+make clean
+```
 
----
+- Generate documentation
 
-[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
+```bash
+make gendoc
+```
 
-### Other open source drivers for reference
+- Run unit tests
 
-[NMEA Navsat driver - GitHub : Python](https://github.com/ros-drivers/nmea_navsat_driver)
+```bash
+make test
+```
 
-[Novatel GPS Driver - GitHub : C++](https://github.com/swri-robotics/novatel_gps_driver)
+## Notes
 
-## General workflow of writing hardware drivers
+### Wireshark installation for capturing traffic from module
 
-**As from the ROSCon video**
+- Install wireshark
 
-* Starting driver
+```bash
+sudo add-apt-repository ppa:wireshark-dev/stable
+sudo apt update
+sudo apt -y install wireshark
+```
 
-  * [Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
+> When asked whether to allow non-superusers to capture packets, select **<Yes\>** and finish installation.
 
+- Configure wireshark
 
-* Writing a standalone library
+```bash
+sudo usermod -aG wireshark $USER
+```
 
-* ROS wrapper
+- Change `dumpcap` binary file permissions
 
-* Dynamic reconfigure
+```bash
+sudo chgrp wireshark /usr/bin/dumpcap
+sudo chmod 750 /usr/bin/dumpcap
+sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/dumpcap
+```
 
-* Diagnostics
+- Verify configuration
+
+```bash
+sudo getcap /usr/bin/dumpcap
+```
+
+Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
+<br>
+
+### Install C++ libraries for traffic playback
+
+```bash
+sudo apt install libpcap-dev
+```

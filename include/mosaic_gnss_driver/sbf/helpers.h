@@ -29,6 +29,22 @@ namespace sbf {
         uint16_t ID;
         uint16_t length;
     };
+    struct PVTGeodetic { //
+        uint32_t TOW;
+        uint16_t  WNc;
+        uint8_t Mode, Error;
+        float8_t Latitude, Longitude, Height;
+        float4_t undulation, vn, ve, vu, cog;
+        float8_t rxclkbias;
+        float4_t rxclkdrifk;
+        uint8_t time_system, datum, num_satellites, wa_corr_info;
+        uint16_t referenceID, mean_corr_age;
+        uint32_t signal_info;
+        uint8_t alert_flag, num_bases;
+        uint16_t ppp_info, latency, haccuracy;
+        uint8_t misc;
+
+    };
 #pragma pack ( pop )
 
     uint8_t u1(const uint8_t *buffer) {

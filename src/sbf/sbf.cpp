@@ -5,9 +5,7 @@
 #include <cassert>
 #include <cstring>
 
-sbf::SBF::SBF() {
-
-}
+sbf::SBF::SBF() = default;
 
 /*
  * List of errors:
@@ -49,28 +47,15 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     data_length = size;
 
 
-    /*   // std::cout << "Buffer use " << buffer_use;
-       if (buffer_use > buffer_size) buffer_use = 0;
-       if (!in_buffer(read_ptr)) {
-           read_ptr = buffer_use ? buffer : data_start;
-           // std::cout << " not in buffer ";
-       }*/
     if (buffer_use) {
-        if (!in_buffer(read_ptr))
-            read_ptr = buffer;
+        read_ptr = buffer;
     } else {
         read_ptr = data_start;
-    }
-    // std::cout << std::endl;
-
-    if (buffer_use) {
-        // std::cout << buffer_use << " in buffer" << std::endl;
-        // std::cout << buffer[0] << std::endl;
     }
 
 
     while (seek_block() && parse_block());
-
+    // Only buffer and buffer_use should persist.
 }
 
 bool sbf::SBF::parse_block() {
@@ -95,6 +80,7 @@ bool sbf::SBF::parse_block() {
     if (length % 4 != 0 || length <= 8) {
         // std::cout << "Invalid block length" << std::endl;
         block_start = nullptr;
+        read_ptr -= sizeof(Header);
         return true;
     }
 
@@ -111,6 +97,7 @@ bool sbf::SBF::parse_block() {
     std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << crc;
 
 
+
     // Call the parser
     // TODO: Implement
     // auto parser = parsers[id]
@@ -118,6 +105,19 @@ bool sbf::SBF::parse_block() {
 
 
     std::cout << std::endl;
+
+    /*if (id == 4007) {
+        std::cout << "Found PVTGeodictic" << std::endl;
+        auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
+        std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
+                  << pvtgeodectic->Longitude * 180 / 3.14159 << std::endl <<
+                  (int) pvtgeodectic->Mode << std::endl <<
+                  (int) pvtgeodectic->Error << std::endl
+                  << (int) pvtgeodectic->num_bases << std::endl <<
+                  (int) pvtgeodectic->num_satellites << std::endl;
+
+        std::cout << length << " " << sizeof(PVTGeodetic) << std::endl;
+    }*/
     return true;
 }
 

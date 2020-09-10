@@ -12,12 +12,17 @@ int main(int argc, char **argv) {
     std::cout << "Reading " << filename << std::endl;
     std::ifstream file(filename, std::ios::binary);
 
+    sbf::SBF sbf;
 
-    sbf::SBF sbf(file);
+    char buffer[256];
+    size_t bytes_read = 0;
+    while (true) {
+        bytes_read = file.readsome(buffer, sizeof(buffer));
+        // std::cout << "Read " << bytes_read << " bytes" << std::endl;
+        if (!bytes_read)
+            break;
+        sbf.parse(reinterpret_cast<const uint8_t *>(buffer), bytes_read);
+    }
 
-    size_t num_sync_chars = 0;
-    while (sbf.parse_next())
-        num_sync_chars++;
-    std::cout << "Found " << num_sync_chars << " blocks." << std::endl;
-
+    file.close();
 }

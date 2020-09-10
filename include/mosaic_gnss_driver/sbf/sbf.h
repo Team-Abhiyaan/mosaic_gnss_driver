@@ -11,6 +11,7 @@ namespace sbf {
         static const size_t buffer_size = 256;
         char _buffer[buffer_size]; // Any point in std::array ?
         uint8_t *const buffer = reinterpret_cast<uint8_t *const>(_buffer);
+        // int buffer_use;
         size_t buffer_use;
 
         const uint8_t *data_start;

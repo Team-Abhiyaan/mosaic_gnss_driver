@@ -45,6 +45,7 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     if (data == nullptr || size == 0) return;
     data_start = data;
     data_length = size;
+    block_start = nullptr;
 
 
     if (buffer_use) {
@@ -58,10 +59,19 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     // Only buffer and buffer_use should persist.
 }
 
+/**
+ * TODO: convert IO errors to exceptions
+ * @return false for IO error, true otherwise
+ */
 bool sbf::SBF::parse_block() {
-    // Read CRC
     const uint8_t *ret;
 
+    // SYNC Chars
+    ret = read(2);
+    if (!ret) return false;
+    if (ret[0] != sync_chars[0] && ret[1] != sync_chars[1]) return true;
+
+    // Read CRC
     ret = read(2);
     if (!ret) return false;
     const auto crc = sbf::u2(ret);
@@ -77,15 +87,12 @@ bool sbf::SBF::parse_block() {
 
 
     // Check Length
-    if (length % 4 != 0 || length <= 8) {
+    if (length % 4 != 0 || length <= 8 || length > 123) {
         // std::cout << "Invalid block length" << std::endl;
         block_start = nullptr;
         read_ptr -= sizeof(Header);
         return true;
     }
-
-    // Read the rest of the block
-    // Also, we dont want to overwrite ID and length so we can perform CRC checks.
 
     // Block Length is
     const auto block_data_length = length - 8;
@@ -132,7 +139,6 @@ bool sbf::SBF::seek_block() {
     if (in_data(read_ptr)) {
         while (read_ptr < data_start + data_length - 1) {
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
-                read_ptr += 2;
                 block_start = read_ptr;
                 return true;
             }
@@ -140,40 +146,29 @@ bool sbf::SBF::seek_block() {
         }
         if (*read_ptr == sync_chars[0]) {
             block_start = read_ptr;
-            read_ptr += 1;
-            // std::cout << "only dollar found" << std::endl;
+            read_ptr += 1; // Force save to buffer
             read(0); // Copy '$' to the buffer
-
             return false;
         }
         read_ptr += 1;
         return false;
     } else if (in_buffer(read_ptr)) {
-        // std::cout << "seek in buffer" << buffer_use << "\t" << read_ptr - buffer << std::endl;
         while (read_ptr < buffer + buffer_use - 1) {
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
-                read_ptr += 2;
                 block_start = read_ptr;
-
                 return true;
             }
             read_ptr++;
         }
         if (*read_ptr == sync_chars[0]) {
-            // TODO: data_length = 0 or 1
-            if (*data_start == sync_chars[1]) {
-                block_start = data_start + 1;
-                read_ptr = data_start + 1;
-
+            if (*data_start == sync_chars[1]) { // Data is guaranteed to have one byte
+                block_start = read_ptr;
                 return true;
             }
-            // Check in data
-            read_ptr = data_start;
-            return seek_block();
         }
-        read_ptr += 1;
-        buffer_use = 0;
-        return false;
+        // Check in data
+        read_ptr = data_start;
+        return seek_block();
     }
 
     buffer_use = 0;

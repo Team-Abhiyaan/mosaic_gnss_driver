@@ -67,30 +67,21 @@ bool sbf::SBF::parse_block() {
     const uint8_t *ret;
 
     // SYNC Chars
-    ret = read(2);
-    if (!ret) return false;
-    if (ret[0] != sync_chars[0] && ret[1] != sync_chars[1]) return true;
-
-    // Read CRC
-    ret = read(2);
-    if (!ret) return false;
-    const auto crc = sbf::u2(ret);
-
-    // Read Header (ID and Length)
-    ret = read(4);
+    ret = read(8);
     if (!ret) return false;
 
-    // Get Header
     auto header = reinterpret_cast<const sbf::Header *>(ret);
+
+    if (header->sync_chars[0] != sync_chars[0] && header->sync_chars[1] != sync_chars[1]) return true;
+
     const auto[id, rev_num] = sbf::parse_id(header->ID);
     auto length = header->length;
-
 
     // Check Length
     if (length % 4 != 0 || length <= 8 || length > 123) {
         // std::cout << "Invalid block length" << std::endl;
         block_start = nullptr;
-        read_ptr -= sizeof(Header);
+        read_ptr -= sizeof(Header) - 2; // Go through header bytes except previous sync bytes
         return true;
     }
 
@@ -101,7 +92,7 @@ bool sbf::SBF::parse_block() {
 
     // TODO: check CRC
 
-    std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << crc;
+    std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << header->CRC;
 
 
 

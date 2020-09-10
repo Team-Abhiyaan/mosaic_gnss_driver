@@ -26,12 +26,14 @@ namespace sbf {
 
 #pragma pack ( push, 1) // Packs the struct tightly, no gaps b/w objs
     struct Header {
+        char sync_chars[2];
+        uint16_t CRC;
         uint16_t ID;
         uint16_t length;
     };
     struct PVTGeodetic { //
         uint32_t TOW;
-        uint16_t  WNc;
+        uint16_t WNc;
         uint8_t Mode, Error;
         float8_t Latitude, Longitude, Height;
         float4_t undulation, vn, ve, vu, cog;

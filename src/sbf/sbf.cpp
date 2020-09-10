@@ -49,12 +49,12 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     data_length = size;
 
 
-    std::cout << "Buffer use " << buffer_use;
+    // std::cout << "Buffer use " << buffer_use;
     if (!in_buffer(read_ptr)) {
         read_ptr = buffer_use ? buffer : data_start;
-        std::cout << " not in buffer ";
+        // std::cout << " not in buffer ";
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
 
     while (seek_block() && parse_block());
@@ -62,14 +62,12 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
 }
 
 bool sbf::SBF::parse_block() {
-    std::cout << "Starting block parse..." << std::endl;
     // Read CRC
     const uint8_t *ret;
 
     ret = read(2);
     if (!ret) return false;
     const auto crc = sbf::u2(ret);
-    std::cout << "crc " << crc << std::endl;
 
     // Read Header (ID and Length)
     ret = read(4);
@@ -80,11 +78,10 @@ bool sbf::SBF::parse_block() {
     const auto[id, rev_num] = sbf::parse_id(header->ID);
     auto length = header->length;
 
-    std::cout << "Header: " << id << "\t" << (int) rev_num << "\t" << length << std::endl;
 
     // Check Length
     if (length % 4 != 0 || length <= 8) {
-        std::cout << "Invalid block length" << std::endl;
+        // std::cout << "Invalid block length" << std::endl;
         block_start = nullptr;
         return true;
     }
@@ -120,15 +117,11 @@ bool sbf::SBF::parse_block() {
 bool sbf::SBF::seek_block() {
     block_start = nullptr;
 
-    std::cout << "Seeking block\t";
-
     if (in_data(read_ptr)) {
-        std::cout << "In data" << std::endl;
         while (read_ptr < data_start + data_length - 1) {
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 read_ptr += 2;
                 block_start = read_ptr;
-                std::cout << "Found in data! " << read_ptr - data_start << std::endl;
                 return true;
             }
             read_ptr++;
@@ -138,19 +131,16 @@ bool sbf::SBF::seek_block() {
             read_ptr += 1;
             read(0); // Copy '$' to the buffer
 
-            std::cout << "Found in end of data!" << std::endl;
             return false;
         }
         read_ptr += 1;
         return false;
     } else if (in_buffer(read_ptr)) {
-        std::cout << "In buffer" << std::endl;
         while (read_ptr < buffer + buffer_use - 1) {
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 read_ptr += 2;
                 block_start = read_ptr;
 
-                std::cout << "Found in buffer!" << std::endl;
                 return true;
             }
             read_ptr++;
@@ -161,7 +151,6 @@ bool sbf::SBF::seek_block() {
                 block_start = data_start + 1;
                 read_ptr = data_start + 1;
 
-                std::cout << "Found in end of buffer!" << std::endl;
                 return true;
             }
             // Check in data

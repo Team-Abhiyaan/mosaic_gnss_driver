@@ -38,16 +38,15 @@ sbf::SBF::SBF() = default;
  */
 void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     if (data == nullptr || size == 0) return;
+
     data_start = data;
     data_end = data_start + size;
 
-
+    // Read from buffer if it has data
     read_ptr = buffer_use ? buffer : data_start;
 
-    // Parse Blocks until IO Error
-    // while (seek_block()) parse_block();
-    while (seek_block())
-        parse_block();
+    // Parse Blocks until data exhausted
+    while (seek_block() && parse_block());
 }
 
 /**
@@ -75,8 +74,15 @@ bool sbf::SBF::parse_block() {
     // Check Length
     if (length % 4 != 0 || length <= 8 || length > 123) {
         // std::cout << "Invalid block length" << std::endl;
-        block_start = nullptr;
-        read_ptr -= sizeof(Header) - 2; // Go through header bytes except previous sync bytes
+        auto rewind_len = sizeof(Header) - 2;
+        if (in_buffer(block_start) && in_data(read_ptr) && rewind_len > (read_ptr - data_start)) {
+            buffer_use -= read_ptr - data_start; // Forget the copied data
+            read_ptr = buffer + buffer_use - (rewind_len - (read_ptr - data_start));
+            // read_ptr = data_start;
+        } else
+            read_ptr -= rewind_len;
+
+        // read_ptr -= ; // Go through header bytes except previous sync bytes
         return true;
     }
 
@@ -99,7 +105,7 @@ bool sbf::SBF::parse_block() {
 
     std::cout << std::endl;
 
-    /*if (id == 4007) {
+    if (id == 4007) {
         std::cout << "Found PVTGeodictic" << std::endl;
         auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
         std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
@@ -110,7 +116,7 @@ bool sbf::SBF::parse_block() {
                   (int) pvtgeodectic->num_satellites << std::endl;
 
         std::cout << length << " " << sizeof(PVTGeodetic) << std::endl;
-    }*/
+    }
     return true;
 }
 
@@ -127,7 +133,7 @@ bool sbf::SBF::seek_block() {
     block_start = nullptr;
 
     if (read_ptr == data_end) {
-        buffer_use = 0; // We are seeking, no data to store
+        buffer_use = 0;
         return false;
     }
 
@@ -140,11 +146,11 @@ bool sbf::SBF::seek_block() {
             read_ptr++;
         }
         if (*read_ptr == sync_chars[0]) { // Sync broken bw iterations
-            block_start = read_ptr;
-            read_ptr++; /*read_ptr = data_end */ // Force save to buffer
-            read(0); // Copy '$' to the buffer // TODO: Check!
+            buffer[0] = sync_chars[0];
+            buffer_use = 1;
             return false;
         }
+        buffer_use = 0;
         return false;
     } else if (in_buffer(read_ptr)) {
         while (read_ptr < buffer + buffer_use - 1) { // All but last buffer byte
@@ -160,7 +166,7 @@ bool sbf::SBF::seek_block() {
                 return true;
             }
         }
-        // Not in buffer, check in data
+        // No block in buffer, check in data
         read_ptr = data_start;
         return seek_block();
     }
@@ -198,8 +204,10 @@ bool sbf::SBF::seek_block() {
  */
 
 /**
- * When inside a block, reads bytes. Ensures the read bytes are stored contigously with the rest of the block.
- * requires `block_start` to be set
+ * When inside a block, reads bytes. Ensures the read bytes are stored contiguously with the rest of the block.
+ * requires `block_start` to be set.
+ *
+ * Responsible for dealing with incomplete blocks to buffer when data over.
  *
  * @param size number of bytes to read
  * @return pointer to the location of the read bytes.
@@ -209,31 +217,23 @@ const uint8_t *sbf::SBF::read(size_t size) {
 
     // Ran out of data !
     if (read_ptr == data_end) { // NO MORE DATA
-        if (!block_start) {
-            buffer_use = 0;
-            return nullptr;
-        }
-        if (buffer <= block_start && block_start < buffer + buffer_size) { // Block already in buffer
-            std::cout << buffer_use << " " << buffer_size << std::endl;
-        } else if (data_start <= block_start && block_start < data_end) { // Move block to buffer
+        if (in_data(block_start)) { // Block in data, move to buffer
             auto block_size = data_end - block_start;
             if (block_size > buffer_size) { // Buffer overflow: Can't move block to buffer
-                buffer_use = 0;
+                buffer_use = 0; // TODO: Warn?
             } else {
                 // Store the current block in buffer, parse on next call
                 std::memcpy(buffer, block_start, block_size);
                 buffer_use = block_size;
-                return nullptr;
             }
         }
-
-        assert(false);
+        return nullptr;
     }
 
     auto ret = read_ptr;
 
     if (in_data(block_start)) {
-        if (read_ptr + size >= data_end) {
+        if (read_ptr + size >= data_end) { // Not enough data
             auto remaining = read_ptr + size - (data_end);
             read_ptr = data_end;
 
@@ -259,7 +259,7 @@ const uint8_t *sbf::SBF::read(size_t size) {
 
         if (in_data(read_ptr)) { // reading from data
             if (buffer_use + size > buffer_size) { // Buffer Overflow
-                // TODO: Do we move rad pointer ahead?
+                // TODO: Do we move read pointer ahead?
                 read_ptr = std::min(data_start + size, data_end);
                 return nullptr;
             }
@@ -271,7 +271,7 @@ const uint8_t *sbf::SBF::read(size_t size) {
                 read_ptr += avail_data;
                 // We know the following will return a nullptr
                 // Supposed to run the (read_ptr == data_end) branch
-                return read(size - avail_data); // Get remaining data from data
+                return read(size - avail_data);
             }
             std::memcpy(buffer + buffer_use, read_ptr, size);
             buffer_use += size;

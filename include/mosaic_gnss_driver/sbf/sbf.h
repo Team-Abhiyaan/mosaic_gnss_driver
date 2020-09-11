@@ -32,17 +32,22 @@ namespace sbf {
             return data_start <= ptr && ptr < data_end;
         }
 
-
+        // Returns pointer to the next `size` bits of the current block, ensuring contiguous storage of the block
+        // Returns nullptr if end of data
         const uint8_t *read(size_t size);
 
+        // Sets read pointer to the starting of the next block
+        // Returns nullptr if end of data
         bool seek_block();
 
+        // Uses `read` to read block. Parses read data.
         bool parse_block();
 
     public:
 
         SBF();
 
+        // Calls seek and parse_block
         void parse(const uint8_t *data, size_t size);
     };
 }

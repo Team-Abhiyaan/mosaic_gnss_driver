@@ -48,15 +48,10 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     block_start = nullptr;
 
 
-    if (buffer_use) {
-        read_ptr = buffer;
-    } else {
-        read_ptr = data_start;
-    }
+    read_ptr = buffer_use ? buffer : data_start;
 
-
+    // Parse Blocks until IO Error
     while (seek_block() && parse_block());
-    // Only buffer and buffer_use should persist.
 }
 
 /**
@@ -72,7 +67,10 @@ bool sbf::SBF::parse_block() {
 
     auto header = reinterpret_cast<const sbf::Header *>(ret);
 
-    if (header->sync_chars[0] != sync_chars[0] && header->sync_chars[1] != sync_chars[1]) return true;
+    if (header->sync_chars[0] != sync_chars[0] || header->sync_chars[1] != sync_chars[1]) {
+        std::cout << "SYNC CHARS DONT MATCH" << "NOT POSSIBLE" << std::endl;
+        return true;
+    }
 
     const auto[id, rev_num] = sbf::parse_id(header->ID);
     auto length = header->length;
@@ -125,44 +123,48 @@ bool sbf::SBF::parse_block() {
  * @return true on block found, false on IO error
  */
 bool sbf::SBF::seek_block() {
-    block_start = nullptr;
+    assert(!block_start);
+    // block_start = nullptr;
 
     if (in_data(read_ptr)) {
-        while (read_ptr < data_start + data_length - 1) {
+        while (read_ptr < data_start + data_length - 1) { // For all but the last data byte
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 block_start = read_ptr;
                 return true;
             }
             read_ptr++;
         }
-        if (*read_ptr == sync_chars[0]) {
+        if (*read_ptr == sync_chars[0]) { // Sync broken bw iterations
             block_start = read_ptr;
             read_ptr += 1; // Force save to buffer
-            read(0); // Copy '$' to the buffer
+            read(0); // Copy '$' to the buffer // TODO: Check!
             return false;
         }
         read_ptr += 1;
         return false;
     } else if (in_buffer(read_ptr)) {
-        while (read_ptr < buffer + buffer_use - 1) {
+        while (read_ptr < buffer + buffer_use - 1) { // All but last buffer byte
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 block_start = read_ptr;
                 return true;
             }
             read_ptr++;
         }
-        if (*read_ptr == sync_chars[0]) {
+        if (*read_ptr == sync_chars[0]) { // Sync broken bw buffer and data
             if (*data_start == sync_chars[1]) { // Data is guaranteed to have one byte
                 block_start = read_ptr;
                 return true;
             }
         }
-        // Check in data
+        // Not in buffer, check in data
         read_ptr = data_start;
         return seek_block();
     }
 
-    buffer_use = 0;
+    if (buffer_use) {
+        std::cout << "Buffer use not zero!" << std::endl;
+        buffer_use = 0;
+    }
     return false;
 }
 

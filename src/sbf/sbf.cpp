@@ -121,6 +121,11 @@ bool sbf::SBF::parse_block() {
 bool sbf::SBF::seek_block() {
     block_start = nullptr;
 
+    if (read_ptr == data_end) {
+        buffer_use = 0; // We are seeking, no data to store
+        return false;
+    }
+
     if (in_data(read_ptr)) {
         while (read_ptr < data_end - 1) { // For all but the last data byte
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
@@ -135,7 +140,6 @@ bool sbf::SBF::seek_block() {
             read(0); // Copy '$' to the buffer // TODO: Check!
             return false;
         }
-        read_ptr++;
         return false;
     } else if (in_buffer(read_ptr)) {
         while (read_ptr < buffer + buffer_use - 1) { // All but last buffer byte
@@ -156,7 +160,8 @@ bool sbf::SBF::seek_block() {
         return seek_block();
     }
 
-    return false;
+    // This should never be reached
+    assert(false);
 }
 
 
@@ -235,7 +240,6 @@ const uint8_t *sbf::SBF::read(size_t size) {
                 return ret;
             } else {
                 read_ptr = data_start;
-                buffer_use = 0;
                 return read(size - data_in_buffer) ? ret : nullptr; // Get remaining data from data
             }
         }

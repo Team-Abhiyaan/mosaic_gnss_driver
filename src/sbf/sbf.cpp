@@ -51,8 +51,9 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
 }
 
 /**
- * TODO: convert IO errors to exceptions
- * @return false for IO error, true otherwise
+ * Parses the block starting at `block_start`
+ *
+ * @return success
  */
 bool sbf::SBF::parse_block() {
     const uint8_t *ret;
@@ -116,7 +117,11 @@ bool sbf::SBF::parse_block() {
 /**
  * Seeks until sync str of block found, i.e. [0x24, 0x40]
  *
- * @return true on block found, false on IO error
+ * Sets `block_start` and `read_ptr` to the location where block is found.
+ * If reaches end of data without finding a block, resets the internal buffer
+ * If data ends with the first sync char, copies that to the internal buffer.
+ *
+ * @return true on block found, false on end of data
  */
 bool sbf::SBF::seek_block() {
     block_start = nullptr;
@@ -190,6 +195,14 @@ bool sbf::SBF::seek_block() {
  *
  *
  * If not enough data: return nullptr.
+ */
+
+/**
+ * When inside a block, reads bytes. Ensures the read bytes are stored contigously with the rest of the block.
+ * requires `block_start` to be set
+ *
+ * @param size number of bytes to read
+ * @return pointer to the location of the read bytes.
  */
 const uint8_t *sbf::SBF::read(size_t size) {
     assert(block_start); // Make sure we are in a block

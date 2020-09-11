@@ -22,11 +22,6 @@ sbf::SBF::SBF() = default;
  * A block has the following format:
  * sync | CRC | ID | Length | Actual Data ....
  *
- * Sync is eaten up by seek_block
- * CRC is stored in a local variable
- *
- * Everything onwards is stored in the buffer and is required for the CRC check.
- *
  * Length of the block has to be a multiple of 4 and that check is applied
  * Based on the block id, a parser is chosen.
  *
@@ -44,14 +39,15 @@ sbf::SBF::SBF() = default;
 void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     if (data == nullptr || size == 0) return;
     data_start = data;
-    data_length = size;
-    block_start = nullptr;
+    data_end = data_start + size;
 
 
     read_ptr = buffer_use ? buffer : data_start;
 
     // Parse Blocks until IO Error
-    while (seek_block() && parse_block());
+    // while (seek_block()) parse_block();
+    while (seek_block())
+        parse_block();
 }
 
 /**
@@ -123,11 +119,10 @@ bool sbf::SBF::parse_block() {
  * @return true on block found, false on IO error
  */
 bool sbf::SBF::seek_block() {
-    assert(!block_start);
-    // block_start = nullptr;
+    block_start = nullptr;
 
     if (in_data(read_ptr)) {
-        while (read_ptr < data_start + data_length - 1) { // For all but the last data byte
+        while (read_ptr < data_end - 1) { // For all but the last data byte
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1]) {
                 block_start = read_ptr;
                 return true;
@@ -136,11 +131,11 @@ bool sbf::SBF::seek_block() {
         }
         if (*read_ptr == sync_chars[0]) { // Sync broken bw iterations
             block_start = read_ptr;
-            read_ptr += 1; // Force save to buffer
+            read_ptr++; /*read_ptr = data_end */ // Force save to buffer
             read(0); // Copy '$' to the buffer // TODO: Check!
             return false;
         }
-        read_ptr += 1;
+        read_ptr++;
         return false;
     } else if (in_buffer(read_ptr)) {
         while (read_ptr < buffer + buffer_use - 1) { // All but last buffer byte
@@ -161,10 +156,6 @@ bool sbf::SBF::seek_block() {
         return seek_block();
     }
 
-    if (buffer_use) {
-        std::cout << "Buffer use not zero!" << std::endl;
-        buffer_use = 0;
-    }
     return false;
 }
 
@@ -199,35 +190,34 @@ const uint8_t *sbf::SBF::read(size_t size) {
     assert(block_start); // Make sure we are in a block
 
     // Ran out of data !
-    if (read_ptr == data_start + data_length) { // NO MORE DATA
+    if (read_ptr == data_end) { // NO MORE DATA
+        if (!block_start) {
+            buffer_use = 0;
+            return nullptr;
+        }
         if (buffer <= block_start && block_start < buffer + buffer_size) { // Block already in buffer
-            read_ptr = buffer;
-        } else if (data_start <= block_start && block_start < data_start + data_length) { // Move block to buffer
-            auto block_size = data_start + data_length - block_start;
+            std::cout << buffer_use << " " << buffer_size << std::endl;
+        } else if (data_start <= block_start && block_start < data_end) { // Move block to buffer
+            auto block_size = data_end - block_start;
             if (block_size > buffer_size) { // Buffer overflow: Can't move block to buffer
                 buffer_use = 0;
-                read_ptr = nullptr;
             } else {
                 // Store the current block in buffer, parse on next call
                 std::memcpy(buffer, block_start, block_size);
                 buffer_use = block_size;
-                read_ptr = buffer;
+                return nullptr;
             }
         }
 
-        // This iteration of parse is done, reset vars.
-        block_start = nullptr;
-        data_start = nullptr;
-        data_length = 0;
-        return nullptr;
+        assert(false);
     }
 
     auto ret = read_ptr;
 
     if (in_data(block_start)) {
-        if (read_ptr + size >= data_start + data_length) {
-            auto remaining = read_ptr + size - (data_start + data_length);
-            read_ptr = data_start + data_length;
+        if (read_ptr + size >= data_end) {
+            auto remaining = read_ptr + size - (data_end);
+            read_ptr = data_end;
 
             // Will return nullptr
             return read(remaining);
@@ -252,17 +242,18 @@ const uint8_t *sbf::SBF::read(size_t size) {
 
         if (in_data(read_ptr)) { // reading from data
             if (buffer_use + size > buffer_size) { // Buffer Overflow
-                read_ptr = data_start + std::min(size, data_length);
+                // TODO: Do we move rad pointer ahead?
+                read_ptr = std::min(data_start + size, data_end);
                 return nullptr;
             }
 
-            if (read_ptr + size > data_start + data_length) { // Not enough data
-                auto avail_data = data_start + data_length - read_ptr;
+            if (read_ptr + size > data_end) { // Not enough data
+                auto avail_data = data_end - read_ptr;
                 std::memcpy(buffer + buffer_use, read_ptr, avail_data);
                 buffer_use += avail_data;
                 read_ptr += avail_data;
                 // We know the following will return a nullptr
-                // Supposed to run the (read_ptr == data_start + data_length) branch
+                // Supposed to run the (read_ptr == data_end) branch
                 return read(size - avail_data); // Get remaining data from data
             }
             std::memcpy(buffer + buffer_use, read_ptr, size);

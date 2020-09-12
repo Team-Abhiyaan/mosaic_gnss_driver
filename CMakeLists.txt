@@ -151,7 +151,8 @@ add_library(${PROJECT_NAME}
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/main.cpp)
-
+add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
+add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -164,6 +165,13 @@ add_executable(${PROJECT_NAME}_node src/main.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${libpcap_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}_noross
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${libpcap_LIBRARIES}
@@ -245,5 +253,3 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)

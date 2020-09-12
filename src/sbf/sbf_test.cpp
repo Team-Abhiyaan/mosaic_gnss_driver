@@ -2,13 +2,18 @@
 #include <fstream>
 #include <iostream>
 
+/*
+ * Reads a binary file and passes it to an SBF parser.
+ * Filename should be parsed as a commandline argument.
+ */
+
 int main(int argc, char **argv) {
     std::cout << "Starting sbf test" << std::endl;
 
     std::string filename = "dump_master.sbf";
-    if (argc == 2) {
+    if (argc == 2)
         filename = argv[1];
-    }
+
     std::cout << "Reading " << filename << std::endl;
     std::ifstream file(filename, std::ios::binary);
 

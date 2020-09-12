@@ -14,17 +14,10 @@ int main(int argc, char **argv) {
 
     sbf::SBF sbf;
 
-    char buffer[20];
+    char buffer[150];
     size_t bytes_read;
-    while (true) {
-        bytes_read = file.readsome(buffer, sizeof(buffer));
-        // if (0 < bytes_read && bytes_read != sizeof(buffer))
-        //     std::cout << "Read only " << bytes_read << " bytes" << std::endl;
-        if (!bytes_read)
-            break;
-        // std::cout <<"______________________" << std::endl;
+    while ((bytes_read = file.readsome(buffer, sizeof(buffer))))
         sbf.parse(reinterpret_cast<const uint8_t *>(buffer), bytes_read);
-    }
 
     file.close();
 }

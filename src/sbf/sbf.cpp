@@ -80,7 +80,10 @@ bool sbf::SBF::parse_block() {
     ret = read(block_data_length);
     if (!ret) return false;
 
-    // TODO: check CRC
+    if (!check_crc(block_start + 4, length - 4, header->CRC)) {
+        unread(length - 2);
+        return true;
+    }
 
     std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << header->CRC;
 
@@ -284,4 +287,8 @@ void sbf::SBF::unread(size_t rewind_len) {
         // read_ptr = data_start;
     } else
         read_ptr -= rewind_len;
+}
+
+bool sbf::SBF::check_crc(const uint8_t *bytes, size_t length, uint16_t crc) {
+    return true;
 }

@@ -45,6 +45,8 @@ namespace sbf {
         // Uses `read` to read block. Parses read data.
         bool parse_block();
 
+        static bool check_crc(const uint8_t *bytes, size_t length, uint16_t crc);
+
     public:
 
         SBF();

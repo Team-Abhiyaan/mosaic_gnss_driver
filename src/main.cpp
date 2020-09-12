@@ -3,7 +3,7 @@
 
 #include <mosaic_gnss_driver/mosaic_gnss.h>
 
-void connectViaPcap(void)
+void connectViaPcap()
 {
     mosaic_gnss_driver::MosaicGNSS gnss;
 
@@ -12,10 +12,7 @@ void connectViaPcap(void)
 
     gnss.connect(testFile, mosaic_gnss_driver::MosaicGNSS::PCAP);
 
-    while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS)
-    {
-        ;
-    }
+    while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS);
 
     gnss.bufferDump();
 
@@ -23,7 +20,7 @@ void connectViaPcap(void)
 
 }
 
-void connectViaTcp(void)
+void connectViaTcp()
 {
     mosaic_gnss_driver::MosaicGNSS gnss;
 

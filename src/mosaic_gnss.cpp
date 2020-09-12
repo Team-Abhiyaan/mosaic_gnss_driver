@@ -206,7 +206,7 @@ namespace mosaic_gnss_driver
             {
                 disconnect();
                 ROS_ERROR("Exception writing IP data: %s", e.what());
-                break;
+                return false;
             }
         }
         case PCAP:
@@ -275,7 +275,7 @@ namespace mosaic_gnss_driver
         std::string ip;
         std::string port;
         uint16_t numPort;
-        size_t separatorPosition = endpoint.find(":");
+        size_t separatorPosition = endpoint.find(':');
 
         if (separatorPosition == std::string::npos || separatorPosition == endpoint.size() - 1)
         {
@@ -467,6 +467,7 @@ namespace mosaic_gnss_driver
         catch (const std::exception &e)
         {
             ROS_WARN("TCP Connection error: %s", e.what());
+            return READ_ERROR;
         }
     }
 

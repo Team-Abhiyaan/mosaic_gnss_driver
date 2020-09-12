@@ -218,9 +218,9 @@ namespace mosaic_gnss_driver
          */
         ReadResult _readPcapData();
 
-        static constexpr uint16_t DEFAULT_TCP_PORT = 3001;
-        static constexpr uint16_t DEFAULT_UDP_PORT = 3002;
-        static constexpr size_t MAX_BUFFER_SIZE = 100;
+        static const uint16_t DEFAULT_TCP_PORT = 3001;
+        static const uint16_t DEFAULT_UDP_PORT = 3002;
+        static const size_t MAX_BUFFER_SIZE = 100;
 
         ConnectionType m_ConnectionType;
         bool m_bIsConnected;

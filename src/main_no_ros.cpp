@@ -10,7 +10,7 @@ void connectViaPcap(const std::string &filename = "/test/data/capture_002.pcap")
 
     while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS);
 
-    gnss.bufferDump();
+    // gnss.bufferDump();
     gnss.disconnect();
 }
 
@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    ros::Time::init();
     switch (runType) {
         case TCP:
             if (tcp_device.empty()) connectViaTcp();

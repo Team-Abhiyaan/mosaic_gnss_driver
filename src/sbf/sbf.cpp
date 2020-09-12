@@ -63,10 +63,7 @@ bool sbf::SBF::parse_block() {
 
     auto header = reinterpret_cast<const sbf::Header *>(ret);
 
-    if (header->sync_chars[0] != sync_chars[0] || header->sync_chars[1] != sync_chars[1]) {
-        std::cout << "SYNC CHARS DONT MATCH" << "NOT POSSIBLE" << std::endl;
-        return true;
-    }
+    assert(header->sync_chars[0] == sync_chars[0] && header->sync_chars[1] == sync_chars[1]);
 
     const auto[id, rev_num] = sbf::parse_id(header->ID);
     auto length = header->length;
@@ -74,15 +71,7 @@ bool sbf::SBF::parse_block() {
     // Check Length
     if (length % 4 != 0 || length <= 8 || length > 123) {
         // std::cout << "Invalid block length" << std::endl;
-        auto rewind_len = sizeof(Header) - 2;
-        if (in_buffer(block_start) && in_data(read_ptr) && rewind_len > (read_ptr - data_start)) {
-            buffer_use -= read_ptr - data_start; // Forget the copied data
-            read_ptr = buffer + buffer_use - (rewind_len - (read_ptr - data_start));
-            // read_ptr = data_start;
-        } else
-            read_ptr -= rewind_len;
-
-        // read_ptr -= ; // Go through header bytes except previous sync bytes
+        unread(sizeof(Header) - 2);
         return true;
     }
 
@@ -285,4 +274,14 @@ const uint8_t *sbf::SBF::read(size_t size) {
 
     // Unreachable:
     assert(false);
+}
+
+void sbf::SBF::unread(size_t rewind_len) {
+    if (in_buffer(block_start) && in_data(read_ptr) &&
+        rewind_len > (read_ptr - data_start)) {
+        buffer_use -= read_ptr - data_start; // Forget the copied data
+        read_ptr = buffer + buffer_use - (rewind_len - (read_ptr - data_start));
+        // read_ptr = data_start;
+    } else
+        read_ptr -= rewind_len;
 }

@@ -36,6 +36,8 @@ namespace sbf {
         // Returns nullptr if end of data
         const uint8_t *read(size_t size);
 
+        void unread(size_t rewind_len);
+
         // Sets read pointer to the starting of the next block
         // Returns nullptr if end of data
         bool seek_block();

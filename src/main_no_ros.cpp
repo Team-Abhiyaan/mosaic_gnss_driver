@@ -23,7 +23,7 @@ void connectViaTcp(const std::string &device = "192.168.3.1:3001") {
         bool success = gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS;
 
         if (!success) {
-            std::cout << "Error, non successful termination" << std::endl;
+            std::cout << "Error, unsuccessful termination" << std::endl;
             std::cout << gnss.errorMsg() << std::endl;
 
             break;

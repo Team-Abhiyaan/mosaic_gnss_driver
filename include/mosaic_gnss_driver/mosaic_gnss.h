@@ -240,6 +240,7 @@ namespace mosaic_gnss_driver {
         char m_cPcapErrBuffer[MAX_BUFFER_SIZE];
         std::vector<uint8_t> m_vLastTcpPacket;
 
+        // For parsing SBF data
         sbf::SBF m_sbf;
 
         /*************** Buffers ***************/

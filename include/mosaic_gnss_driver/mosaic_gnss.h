@@ -12,16 +12,15 @@
 
 #include <mosaic_utils/serial.h>
 
-namespace mosaic_gnss_driver
-{
+#include <mosaic_gnss_driver/sbf/sbf.h>
+
+namespace mosaic_gnss_driver {
     /// Options
     typedef std::map<std::string, double> MosaicGNSSMessageOpts;
 
-    class MosaicGNSS
-    {
+    class MosaicGNSS {
     public:
-        enum ConnectionType
-        {
+        enum ConnectionType {
             /// For connection via Serial port
             SERIAL,
             /// For connection via TCP
@@ -34,8 +33,7 @@ namespace mosaic_gnss_driver
             INVALID
         };
 
-        enum ReadResult
-        {
+        enum ReadResult {
             /// Data read successfully
             READ_SUCCESS = 0,
             READ_INSUFFICIENT_DATA = 1,
@@ -48,6 +46,7 @@ namespace mosaic_gnss_driver
 
         /// Constructor
         MosaicGNSS();
+
         /// Destructor
         ~MosaicGNSS();
 
@@ -84,8 +83,7 @@ namespace mosaic_gnss_driver
          * 
          * @return True if connection exists
          */
-        bool isConnected() const
-        {
+        bool isConnected() const {
             return m_bIsConnected;
         }
 
@@ -94,8 +92,7 @@ namespace mosaic_gnss_driver
          * 
          * @return The most recent error message
          */
-        std::string errorMsg() const
-        {
+        std::string errorMsg() const {
             return m_sErrorMessage;
         }
 
@@ -242,6 +239,8 @@ namespace mosaic_gnss_driver
         bpf_program m_PcapPacketFilter;
         char m_cPcapErrBuffer[MAX_BUFFER_SIZE];
         std::vector<uint8_t> m_vLastTcpPacket;
+
+        sbf::SBF m_sbf;
 
         /*************** Buffers ***************/
         // Buffer for holding read, raw data

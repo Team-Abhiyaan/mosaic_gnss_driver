@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <mosaic_gnss_driver/mosaic_gnss.h>
+#include <mosaic_gnss_driver/sbf/sbf.h>
 
 #include <ros/ros.h>
 
@@ -139,7 +140,7 @@ namespace mosaic_gnss_driver
 
         if (!m_vDataBuffer.empty())
         {
-            ;
+            m_sbf.parse(m_vDataBuffer.data(),m_vDataBuffer.size());
         }
 
         return READ_SUCCESS;

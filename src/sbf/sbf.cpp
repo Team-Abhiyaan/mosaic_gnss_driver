@@ -7,34 +7,12 @@
 
 sbf::SBF::SBF() = default;
 
-/*
- * List of errors:
- *  data end
- */
-
-/* Things that cause seek_block
- *   Need block
- *   Invalid length
- *   buffer overflow
- */
-
-/*
- * A block has the following format:
- * sync | CRC | ID | Length | Actual Data ....
- *
- * Length of the block has to be a multiple of 4 and that check is applied
- * Based on the block id, a parser is chosen.
- *
- * The parser receives the revision number and two pointers, the start and end of the Actual Data.
- * The parser _must_ copy any data it requires, as buffer will be overwritten after the parser is called.
- *
- */
 
 /**
- * Parses the given chunk of binary data
+ * Searches for and parses SBF blocks.
  *
- * @param data pointer to the data, none of the data is modified
- * @param size size of the passed data
+ * @param data Points to the new set of data
+ * @param size Size of the new set of data
  */
 void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     if (data == nullptr || size == 0) return;
@@ -45,22 +23,22 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size) {
     // Read from buffer if it has data
     read_ptr = buffer_use ? buffer : data_start;
 
-    // Parse Blocks until data exhausted
+    // Parse Blocks until no more data
     while (seek_block() && parse_block());
 }
+
 
 /**
  * Parses the block starting at `block_start`
  *
- * @return success
+ * @return Whether data is not exhausted (i.e. if any read returns nullptr, returns false)
  */
 bool sbf::SBF::parse_block() {
     const uint8_t *ret;
 
-    // SYNC Chars
+    // Read Header
     ret = read(8);
     if (!ret) return false;
-
     auto header = reinterpret_cast<const sbf::Header *>(ret);
 
     assert(header->sync_chars[0] == sync_chars[0] && header->sync_chars[1] == sync_chars[1]);
@@ -85,39 +63,35 @@ bool sbf::SBF::parse_block() {
         return true;
     }
 
-    std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << header->CRC;
-
-
+    std::cout << id << "\t" << (int) rev_num << "\t" << length << "\t" << header->CRC << std::endl;
 
     // Call the parser
     // TODO: Implement
     // auto parser = parsers[id]
     // parser(rev_num, pares_ptr, parse_ptr_end);
 
-
-    std::cout << std::endl;
-
     if (id == 4007) {
         std::cout << "Found PVTGeodictic" << std::endl;
         auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
         std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
-                  << pvtgeodectic->Longitude * 180 / 3.14159 << std::endl <<
-                  (int) pvtgeodectic->Mode << std::endl <<
-                  (int) pvtgeodectic->Error << std::endl
-                  << (int) pvtgeodectic->num_bases << std::endl <<
-                  (int) pvtgeodectic->num_satellites << std::endl;
-
-        std::cout << length << " " << sizeof(PVTGeodetic) << std::endl;
+                  << pvtgeodectic->Longitude * 180 / 3.14159 << std::endl
+                  << (int) pvtgeodectic->Mode << std::endl
+                  << (int) pvtgeodectic->Error << std::endl
+                  << (int) pvtgeodectic->num_bases << std::endl
+                  << (int) pvtgeodectic->num_satellites << std::endl;
     }
+
     return true;
 }
 
+
 /**
- * Seeks until sync str of block found, i.e. [0x24, 0x40]
+ * Seeks until sync str of block found, `sync_chars`
  *
  * Sets `block_start` and `read_ptr` to the location where block is found.
- * If reaches end of data without finding a block, resets the internal buffer
- * If data ends with the first sync char, copies that to the internal buffer.
+ *
+ * If no more bytes to be read, clears the internal buffer and returns false.
+ * If last byte is the first sync char, copies it to the internal buffer and returns false.
  *
  * @return true on block found, false on end of data
  */
@@ -152,57 +126,27 @@ bool sbf::SBF::seek_block() {
             }
             read_ptr++;
         }
-        if (*read_ptr == sync_chars[0]) { // Sync broken bw buffer and data
-            if (*data_start == sync_chars[1]) { // Data is guaranteed to have one byte
-                block_start = read_ptr;
-                return true;
-            }
+        // Sync broken bw buffer and data
+        if (*read_ptr == sync_chars[0] &&
+            *data_start == sync_chars[1]) { // TODO: Is Data is guaranteed to have one byte
+            block_start = read_ptr;
+            return true;
         }
         // No block in buffer, check in data
         read_ptr = data_start;
         return seek_block();
     }
-
-    // This should never be reached
-    assert(false);
+    assert(false); // Unreachable
 }
-
-
-/*
- * We are in a block
- *
- * read_ptr at end of data:
- *   store current block in buffer
- *   return nullptr
- *
- * block in buffer:
- *   read_ptr in buffer:
- *     increment read_ptr
- *     If need more data:
- *        move read_ptr to data i
- *        call read again if more data required than in buffer
- *   read_ptr in data:
- *     copy from data to buffer
- *     increment buffer_use, read_ptr
- *
- *   block in data:
- *     increment read_ptr
- *     if not enough data:
- *        copy from block_start to the buffer
- *        set buffer_use
- *
- *
- * If not enough data: return nullptr.
- */
 
 /**
  * When inside a block, reads bytes. Ensures the read bytes are stored contiguously with the rest of the block.
  * requires `block_start` to be set.
  *
- * Responsible for dealing with incomplete blocks to buffer when data over.
+ * If no more bytes to read, copies partially read block to buffer, and returns nullptr
  *
  * @param size number of bytes to read
- * @return pointer to the location of the read bytes.
+ * @return pointer to the location of the read bytes, nullptr if data over
  */
 const uint8_t *sbf::SBF::read(size_t size) {
     assert(block_start); // Make sure we are in a block
@@ -229,7 +173,7 @@ const uint8_t *sbf::SBF::read(size_t size) {
             auto remaining = read_ptr + size - (data_end);
             read_ptr = data_end;
 
-            // Will return nullptr
+            // END OF DATA
             return read(remaining);
         }
         read_ptr += size;
@@ -261,8 +205,8 @@ const uint8_t *sbf::SBF::read(size_t size) {
                 std::memcpy(buffer + buffer_use, read_ptr, avail_data);
                 buffer_use += avail_data;
                 read_ptr += avail_data;
-                // We know the following will return a nullptr
-                // Supposed to run the (read_ptr == data_end) branch
+
+                // END OF DATA
                 return read(size - avail_data);
             }
             std::memcpy(buffer + buffer_use, read_ptr, size);
@@ -270,15 +214,17 @@ const uint8_t *sbf::SBF::read(size_t size) {
             read_ptr += size;
             return ret;
         }
-
-        // Unreachable:
-        assert(false);
+        assert(false); // Unreachable:
     }
-
-    // Unreachable:
-    assert(false);
+    assert(false); // Unreachable:
 }
 
+/**
+ * Moves the read pointer backwards.
+ * Used when a block turns out to be invalid.
+ * @param rewind_len
+ */
+// TODO: Check
 void sbf::SBF::unread(size_t rewind_len) {
     if (in_buffer(block_start) && in_data(read_ptr) &&
         rewind_len > (read_ptr - data_start)) {
@@ -287,8 +233,19 @@ void sbf::SBF::unread(size_t rewind_len) {
         // read_ptr = data_start;
     } else
         read_ptr -= rewind_len;
+
+    // assert( read_ptr != block start) // We dont want to read the same block again and again
 }
 
-bool sbf::SBF::check_crc(const uint8_t *bytes, size_t length, uint16_t crc) {
+/**
+ * Performs CRC check according to the SBF specification
+ *
+ * @param bytes : Start of bytes to be CRC checked
+ * @param length  : Number of bytes to be CRC checked
+ * @param crc : The correct CRC value
+ * @return : Pass/Fail
+ */
+// TODO: Implement
+/*static*/ bool sbf::SBF::check_crc(const uint8_t *bytes, size_t length, uint16_t crc) {
     return true;
 }

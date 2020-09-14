@@ -8,12 +8,6 @@
 
 sbf::SBF::SBF() = default;
 
-/**
- * Searches for and parses SBF blocks.
- *
- * @param data Points to the new set of data
- * @param size Size of the new set of data
- */
 void sbf::SBF::parse(const uint8_t *const data, size_t size)
 {
     if (data == nullptr || size == 0)
@@ -30,11 +24,6 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size)
         ;
 }
 
-/**
- * Parses the block starting at `block_start`
- *
- * @return Whether data is not exhausted (i.e. if any read returns nullptr, returns false)
- */
 bool sbf::SBF::parse_block()
 {
     const uint8_t *ret;
@@ -94,16 +83,6 @@ bool sbf::SBF::parse_block()
     return true;
 }
 
-/**
- * Seeks until sync str of block found, `sync_chars`
- *
- * Sets `block_start` and `read_ptr` to the location where block is found.
- *
- * If no more bytes to be read, clears the internal buffer and returns false.
- * If last byte is the first sync char, copies it to the internal buffer and returns false.
- *
- * @return true on block found, false on end of data
- */
 bool sbf::SBF::seek_block()
 {
     block_start = nullptr;
@@ -159,15 +138,6 @@ bool sbf::SBF::seek_block()
     assert(false); // Unreachable
 }
 
-/**
- * When inside a block, reads bytes. Ensures the read bytes are stored contiguously with the rest of the block.
- * requires `block_start` to be set.
- *
- * If no more bytes to read, copies partially read block to buffer, and returns nullptr
- *
- * @param size number of bytes to read
- * @return pointer to the location of the read bytes, nullptr if data over
- */
 const uint8_t *sbf::SBF::read(size_t size)
 {
     assert(block_start); // Make sure we are in a block
@@ -255,12 +225,6 @@ const uint8_t *sbf::SBF::read(size_t size)
     assert(false); // Unreachable:
 }
 
-/**
- * Moves the read pointer backwards.
- * Used when a block turns out to be invalid.
- * @param rewind_len
- */
-// TODO: Check
 void sbf::SBF::unread(size_t rewind_len)
 {
     if (in_buffer(block_start) && in_data(read_ptr) &&
@@ -276,14 +240,6 @@ void sbf::SBF::unread(size_t rewind_len)
     // assert( read_ptr != block start) // We dont want to read the same block again and again
 }
 
-/**
- * Performs CRC check according to the SBF specification
- *
- * @param bytes : Start of bytes to be CRC checked
- * @param length  : Number of bytes to be CRC checked
- * @param crc : The correct CRC value
- * @return : Pass/Fail
- */
 // TODO: Implement
 /*static*/ bool sbf::SBF::check_crc(const uint8_t *bytes, size_t length, uint16_t crc)
 {

@@ -3,21 +3,19 @@
 
 #include <fstream>
 
-namespace sbf
-{
+namespace sbf {
     /**
      * Using this class:
      *     - Construct and object of the class. This also initializes the various parsers.
-     *     - Whenever you receive data, call `parse`.
+     *     - Whenever you receive data, call `parse` with the buffer storing the data.
      *
      * Adding more SBF Blocks:
      *     - `seek`, `read`, and `unread` are essentially black boxes and the implementation should not matter.
      *     - Add a parser in ____
-     *
      */
-    class SBF
-    {
-        /// This string demarcates START_OF_BLOCK
+
+    class SBF {
+        /// The string demarcating start of block.
         static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
         /// Internal Buffer
@@ -30,32 +28,23 @@ namespace sbf
         const uint8_t *data_start{nullptr};
         const uint8_t *data_end{nullptr};
 
-        /// Helper pointers while parsing the data
+        /// Next data to read
         const uint8_t *read_ptr{nullptr};    // Current position in buffer + data
-        const uint8_t *block_start{nullptr}; // Indicates the start of found block.
+        /// Start of block being parsed
+        const uint8_t *block_start{nullptr};
 
         /**
          * Parses the block starting at `block_start`
          *
-         * @return Whether data is not exhausted (i.e. if any read returns nullptr, returns false)
+         * @return Whether data is exhausted
          */
         bool parse_block();
 
-        /**
-         * Helper function for `seek`, `read`, and `unread`
-         * 
-         */
-        bool in_buffer(const uint8_t *const ptr)
-        {
+        bool in_buffer(const uint8_t *const ptr) {
             return buffer <= ptr && ptr < buffer + buffer_size;
         }
 
-        /**
-         * Helper function for `seek`, `read`, and `unread`
-         * 
-         */
-        bool in_data(const uint8_t *const ptr)
-        {
+        bool in_data(const uint8_t *const ptr) {
             return data_start <= ptr && ptr < data_end;
         }
 
@@ -78,7 +67,7 @@ namespace sbf
          * If no more bytes to read, copies partially read block to buffer, and returns nullptr
          *
          * @param size number of bytes to read
-         * @return pointer to the location of the read bytes, nullptr if data over
+         * @return pointer to the location of the read bytes, nullptr if data exhausted
          */
         const uint8_t *read(size_t size);
 
@@ -87,7 +76,6 @@ namespace sbf
          * Used when a block turns out to be invalid.
          * @param rewind_len
          */
-        // TODO: Check
         void unread(size_t rewind_len);
 
         /**
@@ -98,13 +86,9 @@ namespace sbf
          * @param crc : The correct CRC value
          * @return : Pass/Fail
          */
-        // TODO: Implement
         static bool check_crc(const uint8_t *bytes, size_t length, uint16_t crc);
 
     public:
-        /**
-         * Constructor
-         */
         SBF();
 
         /**

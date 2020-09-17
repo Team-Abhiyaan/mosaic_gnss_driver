@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
         NONE, PCAP, TCP, HELP
     } runType{NONE};
 
+    std::vector<std::string> args;
     std::string pcap_file, tcp_device;
 
     std::string *arg = nullptr;
@@ -70,7 +71,9 @@ int main(int argc, char **argv) {
             } else if (arg) {
                 *arg = argv[i];
                 arg = nullptr;
-            } // Argument
+            } else {
+                args.emplace_back(argv[i])
+            }
         }
     }
 

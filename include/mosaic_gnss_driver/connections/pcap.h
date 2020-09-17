@@ -7,8 +7,10 @@
 #include <memory>
 #include <vector>
 
-namespace mosaic_gnss_driver::connections {
-    class PCAP : public Connection {
+namespace mosaic_gnss_driver::connections
+{
+    class PCAP : public Connection
+    {
         static constexpr const char *const type = "PCAP";
 
     protected:
@@ -30,8 +32,10 @@ namespace mosaic_gnss_driver::connections {
 
         ReadResult read() override;
 
+        bool write(const std::string &command) override;
+
         ~PCAP();
     };
-}
+} // namespace mosaic_gnss_driver::connections
 
 #endif //MOSAIC_GNSS_DRIVER_PCAP_H

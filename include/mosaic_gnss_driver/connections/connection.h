@@ -5,8 +5,10 @@
 #include <map>
 #include <vector>
 
-namespace mosaic_gnss_driver::connections {
-    enum ReadResult {
+namespace mosaic_gnss_driver::connections
+{
+    enum ReadResult
+    {
         /// Data read successfully
         READ_SUCCESS = 0,
         READ_INSUFFICIENT_DATA = 1,
@@ -17,19 +19,22 @@ namespace mosaic_gnss_driver::connections {
         READ_PARSE_FAILED = -2
     };
 
-
     /**
      * Reperesents an connection to the GNSS device
      */
-    class Connection {
+    class Connection
+    {
         static const char *const type;
+
     public:
         using buffer_t = std::vector<uint8_t>;
         using Options = std::map<std::string, double>;
         using read_result = ReadResult;
+
     protected:
         bool connected{false};
         buffer_t &buffer;
+
     public:
         /**
          *
@@ -55,10 +60,11 @@ namespace mosaic_gnss_driver::connections {
          */
         virtual ReadResult read() = 0;
 
+        virtual bool write(const std::string &command) = 0;
 
         static const char *get_type() { return type; }
 
         // ~Connection() {disconnect();};
     };
-}
+} // namespace mosaic_gnss_driver::connections
 #endif //MOSAIC_GNSS_DRIVER_CONNECTION_H

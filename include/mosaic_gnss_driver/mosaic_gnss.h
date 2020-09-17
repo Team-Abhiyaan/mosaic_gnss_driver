@@ -16,10 +16,17 @@
 
 
 namespace mosaic_gnss_driver {
+    /**
+     *
+     * @tparam Connection Connection type, from  mosaic_gnss_driver::connections
+     * @tparam Parser An object with the method parse(buffer::type * , size_t)
+     */
     template<typename Connection, typename Parser>
     class GNSS {
+        // Internal Buffer for receiving data to and parsing from
         using buffer_t = typename Connection::buffer_t;
         buffer_t buffer;
+
     public:
         Connection conn;
         Parser p;
@@ -30,6 +37,10 @@ namespace mosaic_gnss_driver {
             // static_assert("PARse method is not ther)
         };
 
+        /**
+         * Receives data from the GNSS and parses it.
+         * @return Success
+         */
         bool tick() {
             if (!conn.is_connected()) return false;
             if (conn.read() != Connection::read_result::READ_SUCCESS) return false;

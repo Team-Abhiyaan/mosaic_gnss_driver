@@ -152,9 +152,9 @@ add_library(${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/main.cpp)
-add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
-add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
+# add_executable(${PROJECT_NAME}_node src/main.cpp)
+# add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
+# add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -166,19 +166,19 @@ add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${libpcap_LIBRARIES}
-    ${Boost_LIBRARIES}
-    )
+# target_link_libraries(${PROJECT_NAME}_node
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${libpcap_LIBRARIES}
+#     ${Boost_LIBRARIES}
+#     )
 
-target_link_libraries(${PROJECT_NAME}_noross
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${libpcap_LIBRARIES}
-    ${Boost_LIBRARIES}
-    )
+# target_link_libraries(${PROJECT_NAME}_noross
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${libpcap_LIBRARIES}
+#     ${Boost_LIBRARIES}
+#     )
 
 #############
 ## Install ##
@@ -197,12 +197,12 @@ target_link_libraries(${PROJECT_NAME}_noross
 # Mark executables for installation
 # See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 
-install(TARGETS ${PROJECT_NAME}_node
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-    )
-install(TARGETS ${PROJECT_NAME}_noross
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-    )
+# install(TARGETS ${PROJECT_NAME}_node
+#     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#     )
+# install(TARGETS ${PROJECT_NAME}_noross
+#     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#     )
 
 # Mark libraries for installation
 # See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
@@ -233,7 +233,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
 
-    catkin_add_gtest(pcap_test test/pcap_testing.cpp)
+    catkin_add_gtest(pcap_test test/pcap_test.cpp)
     target_link_libraries(pcap_test
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
@@ -241,7 +241,7 @@ if (CATKIN_ENABLE_TESTING)
         ${Boost_LIBRARIES}
         )
 
-    catkin_add_gtest(tcp_test test/tcp_testing.cpp)
+    catkin_add_gtest(tcp_test test/tcp_test.cpp)
     target_link_libraries(tcp_test
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}

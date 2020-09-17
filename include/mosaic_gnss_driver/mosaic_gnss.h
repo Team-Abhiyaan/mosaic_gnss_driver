@@ -11,9 +11,7 @@
 
 #include <mosaic_utils/serial.h>
 
-#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <mosaic_gnss_driver/connections/connection.h>
-#include <mosaic_gnss_driver/connections/pcap.h>
 
 namespace mosaic_gnss_driver
 {
@@ -57,6 +55,6 @@ namespace mosaic_gnss_driver
 } // namespace mosaic_gnss_driver
 
 // forcing the compiler to build to avoid linking issues
-template class mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF>;
+// template class mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF>;
 
 #endif // MOSAIC_GNSS_H_

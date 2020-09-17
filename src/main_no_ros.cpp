@@ -2,6 +2,9 @@
 #include <ros/ros.h>
 #include <mosaic_gnss_driver/mosaic_gnss.h>
 
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+#include <mosaic_gnss_driver/connections/pcap.h>
+
 void connectViaPcap(const std::string &filename = "/test/data/capture_002.pcap") {
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss{};
     if (!gnss.conn.connect(filename)) return;

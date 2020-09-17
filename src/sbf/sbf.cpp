@@ -1,5 +1,5 @@
-#include "mosaic_gnss_driver/sbf/sbf.h"
-#include "mosaic_gnss_driver/sbf/helpers.h"
+#include "mosaic_gnss_driver/parsers/sbf/sbf.h"
+#include "mosaic_gnss_driver/parsers/sbf/helpers.h"
 
 #include <iostream>
 #include <cassert>

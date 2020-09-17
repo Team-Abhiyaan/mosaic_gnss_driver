@@ -1,41 +1,14 @@
 #include <ros/package.h>
 #include <ros/ros.h>
-
 #include <mosaic_gnss_driver/mosaic_gnss.h>
+#include <mosaic_gnss_driver/connections/pcap.h>
 
 void connectViaPcap(const std::string &filename = "/test/data/capture_002.pcap") {
-    mosaic_gnss_driver::MosaicGNSS gnss;
-
-    gnss.connect(filename, mosaic_gnss_driver::MosaicGNSS::PCAP);
-
-    while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS);
-
-    // gnss.bufferDump();
-    gnss.disconnect();
+    mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss{};
+    if (!gnss.conn.connect(filename)) return;
+    while (gnss.tick());
 }
 
-void connectViaTcp(const std::string &device = "192.168.3.1:3001") {
-    mosaic_gnss_driver::MosaicGNSS gnss;
-
-    gnss.connect(device, mosaic_gnss_driver::MosaicGNSS::TCP);
-
-    for (int i = 0; i < 50; i++) {
-        bool success = gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS;
-
-        if (!success) {
-            std::cout << "Error, unsuccessful termination" << std::endl;
-            std::cout << gnss.errorMsg() << std::endl;
-
-            break;
-        } else {
-            std::cout << "Got stream: " << i + 1 << std::endl;
-        }
-    }
-
-    gnss.bufferDump();
-    gnss.disconnect();
-
-}
 
 int main(int argc, char **argv) {
     enum RUN_TYPE {
@@ -77,8 +50,8 @@ int main(int argc, char **argv) {
     ros::Time::init();
     switch (runType) {
         case TCP:
-            if (tcp_device.empty()) connectViaTcp();
-            else connectViaTcp(tcp_device);
+            // if (tcp_device.empty()) connectViaTcp();
+            // else connectViaTcp(tcp_device);
             break;
         case PCAP:
             if (pcap_file.empty()) connectViaPcap();

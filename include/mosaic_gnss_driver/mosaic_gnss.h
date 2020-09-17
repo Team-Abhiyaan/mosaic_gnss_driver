@@ -27,9 +27,10 @@ namespace mosaic_gnss_driver
         using buffer_t = typename Connection::buffer_t;
         buffer_t buffer;
         Parser p;
+        
+        Connection conn;
 
     public:
-        Connection conn;
 
         GNSS() : conn{buffer}, p{}
         {
@@ -51,6 +52,8 @@ namespace mosaic_gnss_driver
             p.parse(buffer.data(), buffer.size());
             return true;
         }
+
+        bool is_connected() const { return conn.is_connected(); }
     };
 } // namespace mosaic_gnss_driver
 

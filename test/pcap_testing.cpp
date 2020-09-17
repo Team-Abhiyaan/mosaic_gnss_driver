@@ -15,7 +15,7 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 
     ASSERT_TRUE(gnss.conn.connect(thisPackagePath + "/test/data/sbf/capture_001.pcap"));
 
-    while (gnss.conn.is_connected() && gnss.tick() == mosaic_gnss_driver::connections::READ_SUCCESS);
+    while (gnss.conn.is_connected() && gnss.tick());
 
     gnss.conn.disconnect();
 

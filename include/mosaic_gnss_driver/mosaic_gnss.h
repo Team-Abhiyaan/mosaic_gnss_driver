@@ -56,7 +56,4 @@ namespace mosaic_gnss_driver
     };
 } // namespace mosaic_gnss_driver
 
-// forcing the compiler to build to avoid linking issues
-template class mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF>;
-
 #endif // MOSAIC_GNSS_H_

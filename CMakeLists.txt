@@ -152,12 +152,12 @@ add_library(${PROJECT_NAME}
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/main.cpp)
-add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp
-        src/mosaic_utils/serial.cpp
-        src/sbf/sbf.cpp
-        src/connections/tcp.cpp
-        src/connections/pcap.cpp
-        src/connections/serial.cpp)
+add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
+        # src/mosaic_utils/serial.cpp
+        # src/sbf/sbf.cpp
+        # src/connections/tcp.cpp
+        # src/connections/pcap.cpp
+        # src/connections/serial.cpp)
 add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -178,7 +178,7 @@ target_link_libraries(${PROJECT_NAME}_node
         )
 
 target_link_libraries(${PROJECT_NAME}_noross
-        #  ${PROJECT_NAME}
+        ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${libpcap_LIBRARIES}
         ${Boost_LIBRARIES}

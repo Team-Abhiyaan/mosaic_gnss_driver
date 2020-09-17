@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.0.2)
 project(mosaic_gnss_driver)
 
 set(DEPS
-  roscpp
-  roslib
-  std_msgs
-)
+        roscpp
+        roslib
+        std_msgs
+        )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++14)
@@ -15,18 +15,18 @@ add_compile_options(-std=c++14)
 ## is used, also find other catkin packages
 
 find_package(Boost REQUIRED COMPONENTS
-  system
-)
+        system
+        )
 find_package(catkin REQUIRED COMPONENTS
-  ${DEPS}
-)
+        ${DEPS}
+        )
 
 find_library(libpcap_LIBRARIES pcap)
 if ("${libpcap_LIBRARIES}" STREQUAL "pcap-NOTFOUND")
-  set(libpcap_FOUND FALSE)
-else()
-  set(libpcap_FOUND TRUE)
-endif()
+    set(libpcap_FOUND FALSE)
+else ()
+    set(libpcap_FOUND TRUE)
+endif ()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -118,10 +118,10 @@ endif()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES ${PROJECT_NAME}
- CATKIN_DEPENDS ${DEPS}
- DEPENDS Boost libpcap
+        INCLUDE_DIRS include
+        LIBRARIES ${PROJECT_NAME}
+        CATKIN_DEPENDS ${DEPS}
+        DEPENDS Boost libpcap
 )
 
 ###########
@@ -131,17 +131,17 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/mosaic_utils/serial.cpp
-  src/sbf/sbf.cpp
-  src/connections/tcp.cpp
-  src/connections/pcap.cpp
-  src/connections/serial.cpp )
+        src/mosaic_utils/serial.cpp
+        src/sbf/sbf.cpp
+        src/connections/tcp.cpp
+        src/connections/pcap.cpp
+        src/connections/serial.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -157,7 +157,7 @@ add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp
         src/sbf/sbf.cpp
         src/connections/tcp.cpp
         src/connections/pcap.cpp
-        src/connections/serial.cpp )
+        src/connections/serial.cpp)
 add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -171,18 +171,18 @@ add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${libpcap_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${libpcap_LIBRARIES}
+        ${Boost_LIBRARIES}
+        )
 
 target_link_libraries(${PROJECT_NAME}_noross
-#  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${libpcap_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+        #  ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${libpcap_LIBRARIES}
+        ${Boost_LIBRARIES}
+        )
 
 #############
 ## Install ##
@@ -198,26 +198,30 @@ target_link_libraries(${PROJECT_NAME}_noross
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-## Mark executables for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+# Mark executables for installation
+# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 
-## Mark libraries for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}_node
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
+install(TARGETS ${PROJECT_NAME}_noross
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+# Mark libraries for installation
+# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
+install(TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+        )
+
+# Mark cpp header files for installation
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".svn" EXCLUDE
+        )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
@@ -230,26 +234,26 @@ target_link_libraries(${PROJECT_NAME}_noross
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
+if (CATKIN_ENABLE_TESTING)
+    find_package(rostest REQUIRED)
 
-  catkin_add_gtest(pcap_test test/pcap_testing.cpp)
-  target_link_libraries(pcap_test
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${libpcap_LIBRARIES}
-    ${Boost_LIBRARIES}
-  )
+    catkin_add_gtest(pcap_test test/pcap_testing.cpp)
+    target_link_libraries(pcap_test
+            ${PROJECT_NAME}
+            ${catkin_LIBRARIES}
+            ${libpcap_LIBRARIES}
+            ${Boost_LIBRARIES}
+            )
 
-  catkin_add_gtest(tcp_test test/tcp_testing.cpp)
-  target_link_libraries(tcp_test
-	${PROJECT_NAME}
-	${catkin_LIBRARIES}
-	${libpcap_LIBRARIES}
-	${Boost_LIBRARIES}
-  )
+    catkin_add_gtest(tcp_test test/tcp_testing.cpp)
+    target_link_libraries(tcp_test
+            ${PROJECT_NAME}
+            ${catkin_LIBRARIES}
+            ${libpcap_LIBRARIES}
+            ${Boost_LIBRARIES}
+            )
 
-endif()
+endif ()
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(sample_test test/sample_test.cpp)

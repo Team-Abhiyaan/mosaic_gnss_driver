@@ -38,7 +38,7 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
         ip = endpoint.substr(0, separatorPosition);
     }
 
-    ROS_INFO("Trying to connect to IP: %s at PORT: %s", ip.c_str(), port.c_str());
+    ROS_INFO("Trying to connect to IP: %s at PORT: %s via TCP", ip.c_str(), port.c_str());
 
     try
     {

@@ -7,7 +7,7 @@
 
 void connectViaPcap(const std::string &filename = "/test/data/capture_002.pcap") {
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss{};
-    if (!gnss.conn.connect(filename)) return;
+    if (!gnss.connect(filename)) return;
     while (gnss.tick());
 }
 

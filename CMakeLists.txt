@@ -233,16 +233,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
 
-    catkin_add_gtest(pcap_test test/pcap_test.cpp)
-    target_link_libraries(pcap_test
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
-        )
-
-    catkin_add_gtest(tcp_test test/tcp_test.cpp)
-    target_link_libraries(tcp_test
+    catkin_add_gtest(conn_test test/connections_test.cpp)
+    target_link_libraries(conn_test
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${libpcap_LIBRARIES}

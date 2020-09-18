@@ -15,19 +15,6 @@
 #include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
 
-struct ParseConnection
-{
-    using type = mosaic_gnss_driver::connections::Serial;
-
-    ParseConnection(const std::string &connection)
-    {
-        if (connection == "pcap")
-        {
-            using type = mosaic_gnss_driver::connections::PCAP;
-        }
-    }
-};
-
 namespace mosaic_gnss_driver
 {
     /**
@@ -39,15 +26,16 @@ namespace mosaic_gnss_driver
     template <typename Connection, typename Parser>
     class GNSS
     {
-        // Internal Buffer for receiving data to and parsing from
         using buffer_t = typename Connection::buffer_t;
+        /// Internal Buffer for storing raw data before parsing
         buffer_t buffer;
+        /// Message parser
         Parser p;
-
+        /// Represents the connection to the module
         Connection conn;
 
     public:
-
+        /// Constructor
         GNSS() : conn{buffer}, p{}
         {
             static_assert(std::is_base_of<connections::Connection, Connection>::value,
@@ -55,18 +43,30 @@ namespace mosaic_gnss_driver
             // static_assert("PARse method is not ther)
         };
 
-        
-
-        bool connect(const std::string& device, const connections::Connection::Options &opts={})
+        /**
+         * Attempts to connect to module and configure using given options
+         * 
+         * @param device: For serial connections, it is a filehandle. eg: /dev/TTYUSB0 \n
+         *                For IP connections, a host:port specification eg: 192.168.3.1:3001 \n
+         *                For PCAP connection, filename
+         * @param opts: Configuration options
+         * 
+         * @return True on success, false otherwise
+         */
+        bool connect(const std::string &device, const connections::Connection::Options &opts = {})
         {
             return conn.connect(device, opts);
         }
 
+        /**
+         * Disconnect from module
+         */
         void disconnect() { conn.disconnect(); }
 
         /**
          * Receives data from the GNSS and parses it.
-         * @return Success
+         * 
+         * @return True on success, false otherwise
          */
         bool tick()
         {
@@ -78,6 +78,11 @@ namespace mosaic_gnss_driver
             return true;
         }
 
+        /**
+         * Check if a connection to module exists
+         * 
+         * @return True if connection exists, false otherwise
+         */
         bool is_connected() const { return conn.is_connected(); }
     };
 } // namespace mosaic_gnss_driver

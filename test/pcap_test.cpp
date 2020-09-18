@@ -10,9 +10,6 @@
 
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {
-    std::string conn = "pcap";
-    // using conntype = ParseConnection(conn)::type;
-
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss;
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
 

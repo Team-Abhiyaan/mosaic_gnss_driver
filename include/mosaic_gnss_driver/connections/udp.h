@@ -7,6 +7,9 @@
 
 namespace mosaic_gnss_driver::connections
 {
+    /**
+     * Represents a UDP connection
+     */
     class UDP : public Connection
     {
     private:
@@ -17,25 +20,41 @@ namespace mosaic_gnss_driver::connections
         boost::shared_ptr<boost::asio::ip::udp::endpoint> m_UdpEndpoint;
         boost::array<uint8_t, 10000> m_SocketBuffer;
 
+        /**
+         * (Re)configure the driver with a set of message options
+         * 
+         * @param opts: Configuration options
+         * 
+         * @return True on success, false otherwise
+         */
         bool _configure(const Options &opts);
 
     protected:
         static const size_t DEFAULT_UDP_PORT = 3002;
 
     public:
+        /// Constructor
         explicit UDP(buffer_t &buf);
 
+        /**
+         * Attempts to connect to the module via UDP
+         * 
+         * @param device: A host:port specification eg: 192.168.3.1:3002
+         * @param opts: Configuration options
+         * 
+         * @return True if successful, false otherwise
+         */
         bool connect(const std::string &device, const Options &opts = {}) override;
 
         void disconnect() override;
 
-        // TODO: change this
         bool is_connected() const override { return connected; }
 
         ReadResult read() override;
 
         bool write(const std::string &command) override;
 
+        /// Destructor
         ~UDP();
     };
 } // namespace mosaic_gnss_driver::connections

@@ -9,6 +9,9 @@
 
 namespace mosaic_gnss_driver::connections
 {
+    /**
+     * Represents a PCAP connection
+     */
     class PCAP : public Connection
     {
         static constexpr const char *const type = "PCAP";
@@ -24,6 +27,14 @@ namespace mosaic_gnss_driver::connections
     public:
         using Connection::Connection; // Use superclass constructor
 
+        /**
+         * Tries to connect to a PCAP file
+         * 
+         * @param device: Path of file to connect to
+         * @param opts: Configuration options, redundant in this case
+         *
+         * @return True if successful, false otherwise
+         */
         bool connect(const std::string &device, const Options &opts = {}) override;
 
         void disconnect() override;
@@ -34,6 +45,7 @@ namespace mosaic_gnss_driver::connections
 
         bool write(const std::string &command) override;
 
+        /// Destructor
         ~PCAP();
     };
 } // namespace mosaic_gnss_driver::connections

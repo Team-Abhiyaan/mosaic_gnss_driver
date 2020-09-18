@@ -19,7 +19,7 @@
 #if defined RUN_SERIAL_TEST
 TEST(TcpTestSuite, testCaseTcpConnection)
 {
-	std::string fileHandle = "/dev/ttyUSB0";
+    std::string fileHandle = "/dev/ttyUSB0";
 
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::Serial, sbf::SBF> gnss;
 
@@ -34,12 +34,12 @@ TEST(TcpTestSuite, testCaseTcpConnection)
 
     ASSERT_FALSE(gnss.is_connected());
 }
-#endif 
+#endif
 
 #if defined RUN_TCP_TEST
 TEST(TcpTestSuite, testCaseTcpConnection)
 {
-	std::string endpoint = "192.168.3.1:9999";
+    std::string endpoint = "192.168.3.1:9999";
 
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::TCP, sbf::SBF> gnss;
 
@@ -54,12 +54,12 @@ TEST(TcpTestSuite, testCaseTcpConnection)
 
     ASSERT_FALSE(gnss.is_connected());
 }
-#endif 
+#endif
 
 #if defined RUN_UDP_TEST
 TEST(UdpTestSuite, testCaseTcpConnection)
 {
-	std::string endpoint = "192.168.3.1:9999";
+    std::string endpoint = ":6565"; // do not specify the ip for udp connections, just ask it to listen to a port
 
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::UDP, sbf::SBF> gnss;
 
@@ -74,7 +74,7 @@ TEST(UdpTestSuite, testCaseTcpConnection)
 
     ASSERT_FALSE(gnss.is_connected());
 }
-#endif 
+#endif
 
 #if defined RUN_PCAP_TEST
 TEST(PcapTestSuite, testCasePcapFileConnection)

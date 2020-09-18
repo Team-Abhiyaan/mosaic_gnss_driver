@@ -35,7 +35,7 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
         ip = endpoint.substr(0, separatorPosition);
     }
 
-    ROS_INFO("Trying to connect to IP: %s at PORT: %s", ip.c_str(), port.c_str());
+    ROS_INFO("Trying to connect to IP: %s at PORT: %s via UDP", ip.c_str(), port.c_str());
 
     try
     {
@@ -132,7 +132,7 @@ ReadResult UDP::read()
 
         if (error)
         {
-            ROS_ERROR("Error occured in TCP connection: %s", error.message().c_str());
+            ROS_ERROR("Error occured in UDP connection: %s", error.message().c_str());
 
             disconnect();
             return READ_ERROR;

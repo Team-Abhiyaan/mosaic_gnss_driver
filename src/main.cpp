@@ -13,7 +13,7 @@ template<typename conn_type>
 void start(const std::string &device) {
     mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{};
     if (!gnss.connect(device)) return;
-    while (gnss.tick());
+    while (gnss.tick()) ros::spinOnce();
     // gnss.disconnect(); // Destructors automatically disconnect
 }
 

@@ -1,9 +1,5 @@
-# vscode
-.vscode/
-*.code-workspace
-
 #docs
 docs/html
 docs/latex
 
-dump
+.vscode

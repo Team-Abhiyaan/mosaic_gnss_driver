@@ -1,3 +1,7 @@
+/**************\
+*  DEPRACATED  *
+\**************/
+
 #include <ros/package.h>
 #include <ros/ros.h>
 #include <mosaic_gnss_driver/mosaic_gnss.h>

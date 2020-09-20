@@ -14,21 +14,22 @@
 #include <mosaic_gnss_driver/connections/connection.h>
 #include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
+#include "data_buffers.h"
 
-namespace mosaic_gnss_driver
-{
+namespace mosaic_gnss_driver {
     /**
      * Main driver class
      * 
      * @tparam Connection Connection type, from  mosaic_gnss_driver::connections
      * @tparam Parser An object with the method parse(buffer::type * , size_t)
      */
-    template <typename Connection, typename Parser>
-    class GNSS
-    {
+    template<typename Connection, typename Parser>
+    class GNSS {
         using buffer_t = typename Connection::buffer_t;
         /// Internal Buffer for storing raw data before parsing
         buffer_t buffer;
+        /// Buffer for passing messages to ROS
+        mosaic_gnss_driver::DataBuffers &data_buf;
         /// Message parser
         Parser p;
         /// Represents the connection to the module
@@ -36,8 +37,7 @@ namespace mosaic_gnss_driver
 
     public:
         /// Constructor
-        GNSS() : conn{buffer}, p{}
-        {
+        explicit GNSS(mosaic_gnss_driver::DataBuffers &buffers) :  data_buf{buffers}, conn{buffer}, p{data_buf} {
             static_assert(std::is_base_of<connections::Connection, Connection>::value,
                           "Connection should be subclasss of connections::Connection");
             // static_assert("PARse method is not ther)
@@ -53,8 +53,7 @@ namespace mosaic_gnss_driver
          * 
          * @return True on success, false otherwise
          */
-        bool connect(const std::string &device, const connections::Connection::Options &opts = {})
-        {
+        bool connect(const std::string &device, const connections::Connection::Options &opts = {}) {
             return conn.connect(device, opts);
         }
 
@@ -68,8 +67,7 @@ namespace mosaic_gnss_driver
          * 
          * @return True on success, false otherwise
          */
-        bool tick()
-        {
+        bool tick() {
             if (!conn.is_connected())
                 return false;
             if (conn.read() != Connection::read_result::READ_SUCCESS)

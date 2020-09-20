@@ -3,6 +3,8 @@
 
 #include <mosaic_gnss_driver/mosaic_gnss.h>
 
+#include <mosaic_gnss_driver/data_buffers.h>
+
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
 #include <mosaic_gnss_driver/connections/tcp.h>
@@ -11,9 +13,40 @@
 
 template<typename conn_type>
 void start(const std::string &device) {
-    mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{};
+    ros::NodeHandle nh;
+    mosaic_gnss_driver::DataBuffers buf;
+
+    buf.nav_sat_fix.pub = nh.advertise<sensor_msgs::NavSatFix>("nav_sat_fix", 5, false);
+    // buf.nav_sat_fix.pub = nh.advertise<decltype(buf.nav_sat_fix.ptr.get())>("nav_sat_fix", 5, false);
+
+    mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{buf};
     if (!gnss.connect(device)) return;
-    while (gnss.tick()) ros::spinOnce();
+
+    auto start_time = ros::Time::now();
+    const auto duration = ros::Duration(0.2);
+
+    while (gnss.tick()) {
+        ros::Duration(0.1).sleep(); // Dummy
+
+        const auto cur = ros::Time::now();
+        if (cur - start_time > duration) { // We should publish
+            start_time = cur;
+
+            // Publish fields
+            { // Nav Sat Fix
+                auto &field = buf.nav_sat_fix;
+                if (!field.ptr) {
+                    ROS_WARN("Not enough msg");
+                } else {
+                    field.pub.publish(field.ptr);
+                    field.ptr.reset();
+                }
+            }
+
+        }
+
+        ros::spinOnce();
+    }
     // gnss.disconnect(); // Destructors automatically disconnect
 }
 

@@ -5,6 +5,7 @@ set(DEPS
         roscpp
         roslib
         std_msgs
+        sensor_msgs
         )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -154,7 +155,7 @@ add_library(${PROJECT_NAME}
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 # add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
-# add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

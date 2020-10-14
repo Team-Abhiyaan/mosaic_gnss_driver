@@ -5,12 +5,14 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
+#include <ros/ros.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
 #include <mosaic_utils/serial.h>
-
+#include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
+#include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
 #include <mosaic_gnss_driver/connections/connection.h>
 #include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
@@ -77,7 +79,31 @@ namespace mosaic_gnss_driver
             p.parse(buffer.data(), buffer.size());
             return true;
         }
+        
+        bool nmea_tick(sensor_msgs::NavSatFix& navSatFix)
+        {
+            if (!conn.is_connected())
+                return false;
+            if (conn.read() != Connection::read_result::READ_SUCCESS)
+                return false;
+            nmea::GPSService gps(p);
+            p.log = false;
+            p.readBuffer(buffer.data(), buffer.size());
+            navSatFix.altitude = gps.fix.altitude;
+            navSatFix.longitude =  gps.fix.longitude;
+            navSatFix.latitude = gps.fix.latitude;
+            navSatFix.header.stamp = ros::Time::now();
+            double hdop = gps.fix.horizontalDilution;
+            navSatFix.position_covariance[0] = hdop*hdop;
+            navSatFix.position_covariance[4] = hdop*hdop;
+            navSatFix.position_covariance[8] = (2 * hdop)*(2 * hdop) ;   //FIXME
+            navSatFix.position_covariance_type = 1;
 
+            //std::cout << gps.fix.toString() << std::endl;
+
+
+            return true;
+        }   
         /**
          * Check if a connection to module exists
          * 

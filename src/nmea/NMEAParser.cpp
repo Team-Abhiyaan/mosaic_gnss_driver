@@ -263,21 +263,6 @@ void NMEAParser::readSentence(std::string cmd){
 	}
 	cout.flags(oldflags);  //reset
 
-	// Handle/Throw parse errors
-	/*if (!nmea.valid()){
-
-		size_t linewidth = 35;
-		stringstream ss;
-		if (nmea.text.size() > linewidth){
-			ss << "Invalid text. (\"" << nmea.text.substr(0, linewidth) << "...\")";
-		}
-		else{
-			ss << "Invalid text. (\"" << nmea.text << "\")";
-		}
-
-		onError(nmea, ss.str());
-		return;
-	}*/
 	
 	// Call the "any sentence" event handler, even if invalid checksum, for possible logging elsewhere.
 	onInfo(nmea, "Calling generic onSentence().");

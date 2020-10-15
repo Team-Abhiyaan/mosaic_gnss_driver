@@ -126,7 +126,7 @@ public:
 
 	// Byte streaming functions
 	void readByte		(uint8_t b);
-	void readBuffer		(uint8_t* b, uint32_t size);
+	void readBuffer		(const uint8_t *b, uint32_t size);
 	void readLine		(std::string line);
 
 	// This function expects the data to be a single line with an actual sentence in it, else it throws an error.

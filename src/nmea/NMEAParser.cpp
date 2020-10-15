@@ -28,7 +28,7 @@ std::string NMEAParseError::what(){
 
 // --------- NMEA SENTENCE --------------
 
-NMEASentence::NMEASentence() 
+NMEASentence::NMEASentence()
 : isvalid(false)
 , checksumIsCalculated(false)
 , calculatedChecksum(0)
@@ -120,7 +120,7 @@ NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
 , data_buf(buffers) {
 };
 
-NMEAParser::~NMEAParser(){ 
+NMEAParser::~NMEAParser(){
 };
 
 void NMEAParser::setSentenceHandler(std::string cmdKey, std::function<void(const NMEASentence&)> handler){
@@ -185,7 +185,7 @@ void NMEAParser::readByte(uint8_t b){
 	}
 }
 
-void NMEAParser::readBuffer(uint8_t* b, uint32_t size){
+void NMEAParser::readBuffer(const uint8_t *b, uint32_t size){
 	for (uint32_t i = 0; i < size; ++i){
 		readByte(b[i]);
 	}
@@ -481,6 +481,8 @@ void NMEAParser::parseText(NMEASentence& nmea, string txt){
 void NMEAParser::parse(const uint8_t *data, size_t size) {
 	nmea::GPSService gps(*this);
 	log = false;
+
+    readBuffer(data, size);
 
 	auto & field = data_buf.nav_sat_fix;
 	if(!field.ptr) { // Message has been sent

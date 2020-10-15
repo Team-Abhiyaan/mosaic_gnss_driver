@@ -10,11 +10,11 @@
 using namespace std;
 using namespace nmea;
 
-  
+
 int main(){
 
 	// Fill with your NMEA bytes... make sure it ends with \n
-	//char bytestream[] = {"$GPGGA,123148.00,1118.6640322,N,07548.1240164,E,1,15,0.8,11.3353,M,-91.7608,M,,*73\n" 
+	//char bytestream[] = {"$GPGGA,123148.00,1118.6640322,N,07548.1240164,E,1,15,0.8,11.3353,M,-91.7608,M,,*73\n"
 	//					"$GPRMC,123148.00,A,1118.6640322,N,07548.1240164,E,0.0,,180920,1.3,E,A*12\n"};
 
     // Create a GPS service that will keep track of the fix data.
@@ -53,9 +53,11 @@ int main(){
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
     ifstream file(thisPackagePath + "/test/data/nmea/capture_004.nmea");
     while (getline(file, line)){
+        line += '\n';
 		try {
 			parser.parse(reinterpret_cast<const uint8_t *>(line.data()), line.length());
-			std::cout << db.nav_sat_fix.ptr->longitude << " " <<  db.nav_sat_fix.ptr->latitude << std::endl;
+			if ( db.nav_sat_fix.ptr->longitude *  db.nav_sat_fix.ptr->latitude)
+			    std::cout << db.nav_sat_fix.ptr->longitude << " " <<  db.nav_sat_fix.ptr->latitude << std::endl;
         }
 		catch (NMEAParseError& e){
 			cout << e.message << endl << endl;
@@ -63,7 +65,7 @@ int main(){
 			// The previous data is ignored and the parser is reset.
 		}
 	}
-	
+
 	// Show the final fix information*/
 	//cout << gps.fix.toString() << endl;
 

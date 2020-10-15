@@ -57,16 +57,16 @@ void start(const std::string &device) {
 
 int main(int argc, char **argv) {
 
-    ros::init(argc, argv, "sample_node", ros::init_options::AnonymousName);
-    ros::NodeHandle nh;
+    ros::init(argc, argv, "mosaic_gnss"); //, ros::init_options::AnonymousName);
+    ros::NodeHandle nh, pnh("~");
 
     std::string device, parser, type;
 
-    if (!nh.getParam("device", device))
+    if (!pnh.getParam("device", device))
         device = "";
-    if (!nh.getParam("parser", parser))
+    if (!pnh.getParam("parser", parser))
         parser = "";
-    if (!nh.getParam("conn", type))
+    if (!pnh.getParam("conn", type))
         type = "";
 
     if (parser.empty()) {

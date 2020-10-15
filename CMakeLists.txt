@@ -8,7 +8,6 @@ set(DEPS
         sensor_msgs
         )
 
-## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
@@ -31,12 +30,6 @@ endif ()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -139,44 +132,29 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
     src/mosaic_utils/serial.cpp
-    src/sbf/sbf.cpp
     src/connections/tcp.cpp
     src/connections/udp.cpp
     src/connections/pcap.cpp
     src/connections/serial.cpp
+
+    src/sbf/sbf.cpp
+
     src/nmea/NMEAParser.cpp
     src/nmea/GPSService.cpp
-    src/nmea/GPSFix.cpp)
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+    src/nmea/GPSFix.cpp
+)
 
 ## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
+
 add_executable(${PROJECT_NAME}_node src/main.cpp)
-# add_executable(${PROJECT_NAME}_noross src/main_no_ros.cpp)
-# add_executable(sbf_test src/sbf/sbf_test.cpp src/sbf/sbf.cpp)
+
 add_executable(nmea_parser_test src/nmea/nmea_parser_test.cpp src/nmea/NMEAParser.cpp src/nmea/GPSService.cpp src/nmea/GPSFix.cpp)
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(nmea_parser_test
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
-        )
 
 target_link_libraries(${PROJECT_NAME}_node
         ${PROJECT_NAME}
@@ -185,12 +163,12 @@ target_link_libraries(${PROJECT_NAME}_node
         ${Boost_LIBRARIES}
         )
 
-# target_link_libraries(${PROJECT_NAME}_noross
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#     ${libpcap_LIBRARIES}
-#     ${Boost_LIBRARIES}
-#     )
+target_link_libraries(nmea_parser_test
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${libpcap_LIBRARIES}
+        ${Boost_LIBRARIES}
+        )
 
 #############
 ## Install ##
@@ -254,12 +232,3 @@ if (CATKIN_ENABLE_TESTING)
         )
 
 endif ()
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(sample_test test/sample_test.cpp)
-# if(TARGET sample_test)
-#   target_link_libraries(sample_test countOnes)
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

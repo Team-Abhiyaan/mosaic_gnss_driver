@@ -1,17 +1,18 @@
-#include <ros/package.h>
 #include <ros/ros.h>
-
-#include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
-#include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
-#include <mosaic_gnss_driver/mosaic_gnss.h>
+#include <ros/package.h>
 
 #include <mosaic_gnss_driver/data_buffers.h>
 
-#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+#include <mosaic_gnss_driver/mosaic_gnss.h>
+
 #include <mosaic_gnss_driver/connections/pcap.h>
 #include <mosaic_gnss_driver/connections/tcp.h>
 #include <mosaic_gnss_driver/connections/udp.h>
 #include <mosaic_gnss_driver/connections/serial.h>
+
+#include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+
 
 template<typename parser_type>
 void start(std::string &device, const std::string &type);

@@ -13,7 +13,10 @@
 #include <mosaic_gnss_driver/connections/udp.h>
 #include <mosaic_gnss_driver/connections/serial.h>
 
-template<typename conn_type>
+template<typename parser_type>
+void start(std::string &device, const std::string &type);
+
+template<typename conn_type, typename parser_type>
 void start(const std::string &device) {
     ros::NodeHandle nh;
     mosaic_gnss_driver::DataBuffers buf;
@@ -21,7 +24,7 @@ void start(const std::string &device) {
     buf.nav_sat_fix.pub = nh.advertise<sensor_msgs::NavSatFix>("nav_sat_fix", 5, false);
     // buf.nav_sat_fix.pub = nh.advertise<decltype(buf.nav_sat_fix.ptr.get())>("nav_sat_fix", 5, false);
 
-    mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{buf};
+    mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
 
     auto start_time = ros::Time::now();
@@ -57,29 +60,46 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "sample_node", ros::init_options::AnonymousName);
     ros::NodeHandle nh;
 
-    std::string device;
+    std::string device, parser, type;
+
     if (!nh.getParam("device", device))
         device = "";
+    if (!nh.getParam("parser", parser))
+        parser = "";
+    if (!nh.getParam("conn", type))
+        type = "";
 
-    std::string type;
-    nh.getParam("conn", type);
-
-    if (type.empty()) {
-        ROS_FATAL("No connection type set.");
-        return 1;
-    } else if (type == "pcap") {
-        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/sbf/capture_001.pcap";
-        start<mosaic_gnss_driver::connections::PCAP>(device);
-    } else if (type == "serial") {
-        if (device.empty()) device = "/dev/ACM0";
-        start<mosaic_gnss_driver::connections::Serial>(device);
-    } else if (type == "tcp") {
-        if (device.empty()) device = "192.168.1.101";
-        start<mosaic_gnss_driver::connections::TCP>(device);
-    } else if (type == "udp") {
-        if (device.empty()) device = "192.168.1.101";
-        start<mosaic_gnss_driver::connections::UDP>(device);
+    if (parser.empty()) {
+        ROS_FATAL("No parser type set.");
+    } else if (parser == "sbf") {
+        start<sbf::SBF>(device, type);
+    } else if (parser == "nmea") {
+        start<nmea::NMEAParser>(device, type);
+    } else {
+        ROS_FATAL("Invalid parser type set.");
     }
 
+
     return 0;
+}
+
+template<typename parser_type>
+void start(std::string &device, const std::string &type) {
+    if (type.empty()) {
+        ROS_FATAL("No connection type set.");
+    } else if (type == "pcap") {
+        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/sbf/capture_001.pcap";
+        start<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
+    } else if (type == "serial") {
+        if (device.empty()) device = "/dev/ACM0";
+        start<mosaic_gnss_driver::connections::Serial, parser_type>(device);
+    } else if (type == "tcp") {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::TCP, parser_type>(device);
+    } else if (type == "udp") {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::UDP, parser_type>(device);
+    } else {
+        ROS_FATAL("Invalid connection type set.");
+    }
 }

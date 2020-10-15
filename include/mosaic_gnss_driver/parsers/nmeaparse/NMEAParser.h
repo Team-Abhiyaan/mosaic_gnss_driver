@@ -13,6 +13,7 @@
 #include <exception>
 #include <cstdint>
 #include <sstream>
+#include <mosaic_gnss_driver/data_buffers.h>
 
 
 
@@ -108,10 +109,13 @@ private:
 	void onInfo		(NMEASentence& n, std::string s);
 	void onWarning	(NMEASentence& n, std::string s);
 	void onError	(NMEASentence& n, std::string s);
+
+    mosaic_gnss_driver::DataBuffers &data_buf;
 public:
 
-	NMEAParser();
-	virtual ~NMEAParser();
+    explicit NMEAParser(mosaic_gnss_driver::DataBuffers &buffers);
+
+    virtual ~NMEAParser();
 
 	bool log;
 

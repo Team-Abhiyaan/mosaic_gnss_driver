@@ -112,10 +112,11 @@ int64_t nmea::parseInt(std::string s, int radix){
 
 // --------- NMEA PARSER --------------
 
-NMEAParser::NMEAParser() 
+NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
 : log(false)
 , maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE)
-, fillingbuffer(false){ 
+, fillingbuffer(false)
+, data_buf(buffers) {
 };
 
 NMEAParser::~NMEAParser(){ 

@@ -1,84 +1,85 @@
 #include <ros/package.h>
 #include <ros/ros.h>
-#include <sensor_msgs/NavSatFix.h>
 
 #include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
 #include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
 #include <mosaic_gnss_driver/mosaic_gnss.h>
 
+#include <mosaic_gnss_driver/data_buffers.h>
+
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
+#include <mosaic_gnss_driver/connections/tcp.h>
+#include <mosaic_gnss_driver/connections/udp.h>
+#include <mosaic_gnss_driver/connections/serial.h>
 
-void connectViaPcap(const std::string &data_type)
-{
-    std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
-    if(data_type == "sbf"){
-        std::string testFile = thisPackagePath + "/test/data/capture_002.pcap";
-        mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss{};
-        if (!gnss.connect(testFile)) return;
-        while (gnss.tick());
+template<typename conn_type>
+void start(const std::string &device) {
+    ros::NodeHandle nh;
+    mosaic_gnss_driver::DataBuffers buf;
+
+    buf.nav_sat_fix.pub = nh.advertise<sensor_msgs::NavSatFix>("nav_sat_fix", 5, false);
+    // buf.nav_sat_fix.pub = nh.advertise<decltype(buf.nav_sat_fix.ptr.get())>("nav_sat_fix", 5, false);
+
+    mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{buf};
+    if (!gnss.connect(device)) return;
+
+    auto start_time = ros::Time::now();
+    const auto duration = ros::Duration(0.2);
+
+    while (gnss.tick()) {
+        ros::Duration(0.1).sleep(); // Dummy
+
+        const auto cur = ros::Time::now();
+        if (cur - start_time > duration) { // We should publish
+            start_time = cur;
+
+            // Publish fields
+            { // Nav Sat Fix
+                auto &field = buf.nav_sat_fix;
+                if (!field.ptr) {
+                    ROS_WARN("Not enough msg");
+                } else {
+                    field.pub.publish(field.ptr);
+                    field.ptr.reset();
+                }
+            }
+
+        }
+
+        ros::spinOnce();
     }
-    if(data_type == "nmea"){
-        std::string testFile = thisPackagePath + "/test/data/nmea/capture_004.pcap";
-        mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, nmea::NMEAParser> gnss{};
-        if (!gnss.connect(testFile)) return;
-        ros::NodeHandle n;
-        ros::Publisher pub = n.advertise<sensor_msgs::NavSatFix>("NavSatFix", 10);
-        sensor_msgs::NavSatFix navSatFix;
-        while (gnss.nmea_tick(navSatFix)) {
-        
-            pub.publish(navSatFix);
-
-            ros::spinOnce();
-        };
-    }
-
-    
-
     // gnss.disconnect(); // Destructors automatically disconnect
-
 }
 
-// void connectViaTcp()
-// {
-//     mosaic_gnss_driver::MosaicGNSS gnss;
-//
-//     std::string device = "192.168.3.1:3001";
-//
-//     gnss.connect(device, mosaic_gnss_driver::MosaicGNSS::TCP);
-//
-// 	for (int i = 0; i < 50; i++)
-// 	{
-// 		bool success = gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS;
-//
-// 		if (!success)
-//         {
-// 			std::cout << "Error, non successful termination" << std::endl;
-//            	std::cout << gnss.errorMsg() << std::endl;
-//
-// 			break;
-// 		}
-//         else
-//         {
-// 			std::cout << "Got stream: " << i + 1 << std::endl;
-// 		}
-// 	}
-//
-// 	gnss.bufferDump();
-//     gnss.disconnect();
-//
-// }
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
     ros::init(argc, argv, "sample_node", ros::init_options::AnonymousName);
     ros::NodeHandle nh;
-    std::string data_type;
-    nh.param<std::string>("data_type",data_type,"nmea");
 
-    connectViaPcap(data_type);
-    // connectViaTcp();
+    std::string device;
+    if (!nh.getParam("device", device))
+        device = "";
+
+    std::string type;
+    nh.getParam("conn", type);
+
+    if (type.empty()) {
+        ROS_FATAL("No connection type set.");
+        return 1;
+    } else if (type == "pcap") {
+        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/sbf/capture_001.pcap";
+        start<mosaic_gnss_driver::connections::PCAP>(device);
+    } else if (type == "serial") {
+        if (device.empty()) device = "/dev/ACM0";
+        start<mosaic_gnss_driver::connections::Serial>(device);
+    } else if (type == "tcp") {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::TCP>(device);
+    } else if (type == "udp") {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::UDP>(device);
+    }
 
     return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef MOSAIC_GNSS_DRIVER_SBF_H
 #define MOSAIC_GNSS_DRIVER_SBF_H
 
-#include <fstream>
+#include <mosaic_gnss_driver/data_buffers.h>
 
 namespace sbf {
     /**
@@ -32,6 +32,8 @@ namespace sbf {
         const uint8_t *read_ptr{nullptr};    // Current position in buffer + data
         /// Start of block being parsed
         const uint8_t *block_start{nullptr};
+
+        mosaic_gnss_driver::DataBuffers &data_buf;
 
         /**
          * Parses the block starting at `block_start`
@@ -89,7 +91,7 @@ namespace sbf {
         static bool check_crc(const uint8_t *bytes, size_t length, uint16_t crc);
 
     public:
-        SBF();
+        explicit SBF(mosaic_gnss_driver::DataBuffers &buffers);
 
         /**
          * Searches for and parses SBF blocks.

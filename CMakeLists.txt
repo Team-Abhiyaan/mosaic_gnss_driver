@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.0.2)
 project(mosaic_gnss_driver)
 
 set(DEPS
-    roscpp
-    roslib
-    std_msgs
-)
+        roscpp
+        roslib
+        std_msgs
+        sensor_msgs
+        )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++14)
@@ -143,8 +144,8 @@ add_library(${PROJECT_NAME}
     src/connections/udp.cpp
     src/connections/pcap.cpp
     src/connections/serial.cpp
-    src/nmea/NMEAParser.cpp  
-    src/nmea/GPSService.cpp 
+    src/nmea/NMEAParser.cpp
+    src/nmea/GPSService.cpp
     src/nmea/GPSFix.cpp)
 
 ## Add cmake target dependencies of the library
@@ -170,12 +171,12 @@ add_executable(nmea_parser_test src/nmea/nmea_parser_test.cpp src/nmea/NMEAParse
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#     ${libpcap_LIBRARIES}
-#     ${Boost_LIBRARIES}
-#     )
+target_link_libraries(${PROJECT_NAME}_node
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${libpcap_LIBRARIES}
+        ${Boost_LIBRARIES}
+        )
 
 # target_link_libraries(${PROJECT_NAME}_noross
 #     ${PROJECT_NAME}

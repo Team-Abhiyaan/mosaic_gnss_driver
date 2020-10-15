@@ -1,12 +1,12 @@
-#include "mosaic_gnss_driver/parsers/sbf/sbf.h"
-#include "mosaic_gnss_driver/parsers/sbf/helpers.h"
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+#include <mosaic_gnss_driver/parsers/sbf/helpers.h>
 
 #include <iostream>
 #include <cassert>
 #include <cstring>
 #include <tuple>
 
-sbf::SBF::SBF() = default;
+sbf::SBF::SBF(mosaic_gnss_driver::DataBuffers& buffers) : data_buf{buffers} {}
 
 void sbf::SBF::parse(const uint8_t *const data, size_t size)
 {
@@ -20,8 +20,7 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size)
     read_ptr = buffer_use ? buffer : data_start;
 
     // Parse Blocks until no more data
-    while (seek_block() && parse_block())
-        ;
+    while (seek_block() && parse_block());
 }
 
 bool sbf::SBF::parse_block()
@@ -61,7 +60,7 @@ bool sbf::SBF::parse_block()
         return true;
     }
 
-    std::cout << id << "\t" << (int)rev_num << "\t" << length << "\t" << header->CRC << std::endl;
+    // std::cout << id << "\t" << (int)rev_num << "\t" << length << "\t" << header->CRC << std::endl;
 
     // Call the parser
     // TODO: Implement
@@ -70,14 +69,26 @@ bool sbf::SBF::parse_block()
 
     if (id == 4007)
     {
-        std::cout << "Found PVTGeodetic" << std::endl;
         auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
-        std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
+        // std::cout << "Found PVTGeodetic" << std::endl;
+        /*std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
                   << pvtgeodectic->Longitude * 180 / 3.14159 << std::endl
                   << (int)pvtgeodectic->Mode << std::endl
                   << (int)pvtgeodectic->Error << std::endl
                   << (int)pvtgeodectic->num_bases << std::endl
-                  << (int)pvtgeodectic->num_satellites << std::endl;
+                  << (int)pvtgeodectic->num_satellites << std::endl;*/
+
+        // NOTE: Mutex if publisher in seperate thread.
+        auto & field = data_buf.nav_sat_fix;
+        if(!field.ptr) { // Message has been sent
+            field.ptr = boost::make_shared<sensor_msgs::NavSatFix>();
+        }
+
+        field.ptr->latitude = pvtgeodectic->Latitude;
+        field.ptr->longitude = pvtgeodectic->Longitude;
+        field.ptr->altitude = pvtgeodectic->Height;
+        // field.ptr->status =
+        // field.ptr->header.stamp = // TODO: Convert sbf stamp to ros stamp.
     }
 
     return true;

@@ -79,7 +79,7 @@ TEST(UdpTestSuite, testCaseTcpConnection)
 #if defined RUN_PCAP_TEST
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {
-    mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss;
+    mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss(nullptr);
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
 
     ASSERT_FALSE(gnss.is_connected());

@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(mosaic_gnss_driver)
 
+add_compile_options(-std=c++14)
+
+## Build only relevant tests
+option(TEST_CONN_PCAP    "Run tests for PCAP connection"    ON)
+option(TEST_CONN_TCP     "Run tests for TCP connection"     OFF)
+option(TEST_CONN_UDP     "Run tests for UCP connection"     OFF)
+option(TEST_CONN_SERIAL  "Run tests for SERIAL connection"  OFF)
+
+include(cmake/TestConnections.cmake)
+
 set(DEPS
         roscpp
         roslib
@@ -8,7 +18,6 @@ set(DEPS
         sensor_msgs
         )
 
-add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

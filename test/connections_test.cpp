@@ -12,12 +12,8 @@
 
 #include <iostream>
 
-// #define RUN_SERIAL_TEST
-// #define RUN_TCP_TEST
-// #define RUN_UDP_TEST
-#define RUN_PCAP_TEST
-
-#if defined RUN_SERIAL_TEST
+// Macros will be defined at compile time based on the options specified in the CMakeLists.txt
+#ifdef RUN_SERIAL_TEST
 TEST(TcpTestSuite, testCaseTcpConnection)
 {
     std::string fileHandle = "/dev/ttyUSB0";
@@ -37,7 +33,7 @@ TEST(TcpTestSuite, testCaseTcpConnection)
 }
 #endif
 
-#if defined RUN_TCP_TEST
+#ifdef RUN_TCP_TEST
 TEST(TcpTestSuite, testCaseTcpConnection)
 {
     std::string endpoint = "192.168.3.1:9999";
@@ -57,7 +53,7 @@ TEST(TcpTestSuite, testCaseTcpConnection)
 }
 #endif
 
-#if defined RUN_UDP_TEST
+#ifdef RUN_UDP_TEST
 TEST(UdpTestSuite, testCaseTcpConnection)
 {
     std::string endpoint = ":6565"; // do not specify the ip for udp connections, just ask it to listen to a port
@@ -77,8 +73,7 @@ TEST(UdpTestSuite, testCaseTcpConnection)
 }
 #endif
 
-#if defined RUN_PCAP_TEST
-
+#ifdef RUN_PCAP_TEST
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {
     mosaic_gnss_driver::DataBuffers db;
@@ -89,13 +84,13 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 
     ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sbf/capture_001.pcap"));
 
-    while (gnss.is_connected() && gnss.tick());
+    while (gnss.is_connected() && gnss.tick())
+        ;
 
     gnss.disconnect();
 
     ASSERT_FALSE(gnss.is_connected());
 }
-
 #endif
 
 int main(int argc, char **argv)

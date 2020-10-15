@@ -56,13 +56,11 @@ ReadResult Serial::read()
     {
         ROS_ERROR("%s", serial_port.errorMsg().c_str());
         return READ_ERROR;
-    }
-    else if (result == serial_util::SerialPort::TIMEOUT)
+    } else if (result == serial_util::SerialPort::TIMEOUT)
     {
         ROS_ERROR("Timed out waiting for serial device.");
         return READ_TIMEOUT;
-    }
-    else if (result == serial_util::SerialPort::INTERRUPTED)
+    } else if (result == serial_util::SerialPort::INTERRUPTED)
     {
         ROS_ERROR("Interrupted during read from serial device.");
         return READ_INTERRUPTED;

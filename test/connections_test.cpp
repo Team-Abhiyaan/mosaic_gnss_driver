@@ -78,6 +78,7 @@ TEST(UdpTestSuite, testCaseTcpConnection)
 #endif
 
 #if defined RUN_PCAP_TEST
+
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {
     mosaic_gnss_driver::DataBuffers db;
@@ -88,13 +89,13 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 
     ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sbf/capture_001.pcap"));
 
-    while (gnss.is_connected() && gnss.tick())
-        ;
+    while (gnss.is_connected() && gnss.tick());
 
     gnss.disconnect();
 
     ASSERT_FALSE(gnss.is_connected());
 }
+
 #endif
 
 int main(int argc, char **argv)

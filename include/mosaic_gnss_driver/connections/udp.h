@@ -48,7 +48,8 @@ namespace mosaic_gnss_driver::connections
 
         void disconnect() override;
 
-        bool is_connected() const override { return connected; }
+        bool is_connected() const override
+        { return connected; }
 
         ReadResult read() override;
 

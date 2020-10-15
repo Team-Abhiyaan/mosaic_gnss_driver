@@ -44,14 +44,16 @@ namespace mosaic_gnss_driver::connections
          * 
          * @param buf: a vector to which incoming data is stored
          */
-        explicit Connection(buffer_t &buf) : buffer{buf} {}
+        explicit Connection(buffer_t &buf) : buffer{buf}
+        {}
 
         /**
          * Check if a connection to module exists
          * 
          * @return True if connection exists, false otherwise
          */
-        virtual bool is_connected() const { return connected; };
+        virtual bool is_connected() const
+        { return connected; };
 
         /**
          * Attempts to connect to the GNSS Device
@@ -89,7 +91,8 @@ namespace mosaic_gnss_driver::connections
          * 
          * @return String representing current mode of connection
          */
-        static const char *get_type() { return type; }
+        static const char *get_type()
+        { return type; }
     };
 } // namespace mosaic_gnss_driver::connections
 

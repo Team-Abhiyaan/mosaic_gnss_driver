@@ -24,8 +24,7 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
 
         ss << numPort;
         port = ss.str();
-    }
-    else
+    } else
     {
         port = endpoint.substr(separatorPosition + 1);
     }
@@ -50,12 +49,12 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
             m_UdpSocket->open(boost::asio::ip::udp::v4());
 
             ROS_INFO("Connecting via UDP to %s:%s", ip.c_str(), port.c_str());
-        }
-        else
+        } else
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), portNumber)));
+            m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService, boost::asio::ip::udp::endpoint(
+                    boost::asio::ip::udp::v4(), portNumber)));
 
             boost::array<char, 1> recvBuffer;
 
@@ -85,8 +84,7 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
     if (_configure(opts))
     {
         ROS_INFO("Configured Mosaic module.");
-    }
-    else
+    } else
     {
         // We will not kill the connection here, because the device may already
         // be setup to communicate correctly, but we will print a warning
@@ -164,7 +162,7 @@ bool UDP::write(const std::string &command)
         }
         ROS_DEBUG("Wrote %lu bytes", written);
 
-        return (written == (int32_t)command.length());
+        return (written == (int32_t) command.length());
     }
     catch (std::exception &e)
     {

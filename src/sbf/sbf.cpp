@@ -6,7 +6,8 @@
 #include <cstring>
 #include <tuple>
 
-sbf::SBF::SBF(mosaic_gnss_driver::DataBuffers& buffers) : data_buf{buffers} {}
+sbf::SBF::SBF(mosaic_gnss_driver::DataBuffers &buffers) : data_buf{buffers}
+{}
 
 void sbf::SBF::parse(const uint8_t *const data, size_t size)
 {
@@ -79,8 +80,9 @@ bool sbf::SBF::parse_block()
                   << (int)pvtgeodectic->num_satellites << std::endl;*/
 
         // NOTE: Mutex if publisher in seperate thread.
-        auto & field = data_buf.nav_sat_fix;
-        if(!field.ptr) { // Message has been sent
+        auto &field = data_buf.nav_sat_fix;
+        if (!field.ptr)
+        { // Message has been sent
             field.ptr = boost::make_shared<sensor_msgs::NavSatFix>();
         }
 
@@ -123,8 +125,7 @@ bool sbf::SBF::seek_block()
         }
         buffer_use = 0;
         return false;
-    }
-    else if (in_buffer(read_ptr))
+    } else if (in_buffer(read_ptr))
     {
         while (read_ptr < buffer + buffer_use - 1)
         { // All but last buffer byte
@@ -162,8 +163,7 @@ const uint8_t *sbf::SBF::read(size_t size)
             if (block_size > buffer_size)
             {                   // Buffer overflow: Can't move block to buffer
                 buffer_use = 0; // TODO: Warn?
-            }
-            else
+            } else
             {
                 // Store the current block in buffer, parse on next call
                 std::memcpy(buffer, block_start, block_size);
@@ -199,8 +199,7 @@ const uint8_t *sbf::SBF::read(size_t size)
             { // Need only buffer data
                 read_ptr += size;
                 return ret;
-            }
-            else
+            } else
             {
                 read_ptr = data_start;
                 return read(size - data_in_buffer) ? ret : nullptr; // Get remaining data from data
@@ -244,8 +243,7 @@ void sbf::SBF::unread(size_t rewind_len)
         buffer_use -= read_ptr - data_start; // Forget the copied data
         read_ptr = buffer + buffer_use - (rewind_len - (read_ptr - data_start));
         // read_ptr = data_start;
-    }
-    else
+    } else
         read_ptr -= rewind_len;
 
     // assert( read_ptr != block start) // We dont want to read the same block again and again

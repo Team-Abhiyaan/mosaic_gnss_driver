@@ -27,8 +27,7 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
 
         ss << numPort;
         port = ss.str();
-    }
-    else
+    } else
     {
         port = endpoint.substr(separatorPosition + 1);
     }
@@ -51,18 +50,20 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
             boost::asio::connect(m_TcpSocket, iter);
 
             ROS_INFO("Connecting via TCP to %s:%s", ip.c_str(), port.c_str());
-        }
-        else
+        } else
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            boost::asio::ip::tcp::acceptor acceptor(m_IoService, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), portNumber));
+            boost::asio::ip::tcp::acceptor acceptor(m_IoService,
+                                                    boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
+                                                                                   portNumber));
 
             ROS_INFO("Listening to TCP port %s", port.c_str());
 
             acceptor.accept(m_TcpSocket);
 
-            ROS_INFO("Accepted TCP Connection from client: %s", m_TcpSocket.remote_endpoint().address().to_string().c_str());
+            ROS_INFO("Accepted TCP Connection from client: %s",
+                     m_TcpSocket.remote_endpoint().address().to_string().c_str());
         }
     }
     catch (const std::exception &e)
@@ -76,8 +77,7 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
     if (_configure(opts))
     {
         ROS_INFO("Configured Mosaic module.");
-    }
-    else
+    } else
     {
         // We will not kill the connection here, because the device may already
         // be setup to communicate correctly, but we will print a warning
@@ -146,7 +146,7 @@ bool TCP::write(const std::string &command)
         }
         ROS_DEBUG("Wrote %lu bytes", written);
 
-        return (written == (int32_t)command.length());
+        return (written == (int32_t) command.length());
     }
     catch (std::exception &e)
     {

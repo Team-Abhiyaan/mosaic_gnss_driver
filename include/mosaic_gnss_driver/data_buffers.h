@@ -7,9 +7,12 @@
 
 #include <ros/publisher.h>
 
-namespace mosaic_gnss_driver {
-    struct DataBuffers {
-        struct NavSatFix {
+namespace mosaic_gnss_driver
+{
+    struct DataBuffers
+    {
+        struct NavSatFix
+        {
             // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
             sensor_msgs::NavSatFix::Ptr ptr;
             ros::Publisher pub;

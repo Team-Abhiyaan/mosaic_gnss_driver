@@ -3,7 +3,8 @@
 
 #include <mosaic_gnss_driver/data_buffers.h>
 
-namespace sbf {
+namespace sbf
+{
     /**
      * Using this class:
      *     - Construct and object of the class. This also initializes the various parsers.
@@ -14,7 +15,8 @@ namespace sbf {
      *     - Add a parser in ____
      */
 
-    class SBF {
+    class SBF
+    {
         /// The string demarcating start of block.
         static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
@@ -42,11 +44,13 @@ namespace sbf {
          */
         bool parse_block();
 
-        bool in_buffer(const uint8_t *const ptr) {
+        bool in_buffer(const uint8_t *const ptr)
+        {
             return buffer <= ptr && ptr < buffer + buffer_size;
         }
 
-        bool in_data(const uint8_t *const ptr) {
+        bool in_data(const uint8_t *const ptr)
+        {
             return data_start <= ptr && ptr < data_end;
         }
 

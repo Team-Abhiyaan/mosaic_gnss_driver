@@ -46,7 +46,8 @@ namespace serial_util
          * and control the port via inb/outb to port registers.
          * The downside is you don't get interrupts when data arrives and you have to poll the register. often. Hence not preferred.
          */
-        Config(int32_t baudRate, int32_t dataBits, int32_t stopBits, Parity parity, bool flowControl, bool lowLatencyMode, bool writable);
+        Config(int32_t baudRate, int32_t dataBits, int32_t stopBits, Parity parity, bool flowControl,
+               bool lowLatencyMode, bool writable);
 
         int32_t m_BaudRate;
         int32_t m_DataBits;

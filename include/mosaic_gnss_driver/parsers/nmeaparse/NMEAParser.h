@@ -114,6 +114,7 @@ private:
 public:
 
     explicit NMEAParser(mosaic_gnss_driver::DataBuffers &buffers);
+    void parse(const uint8_t *data, size_t size);
 
     virtual ~NMEAParser();
 

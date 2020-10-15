@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
 
 using namespace std;
 using namespace nmea;
@@ -475,6 +476,26 @@ void NMEAParser::parseText(NMEASentence& nmea, string txt){
 
 	return;
 
+}
+
+void NMEAParser::parse(const uint8_t *data, size_t size) {
+	nmea::GPSService gps(*this);
+	log = false;
+
+	auto & field = data_buf.nav_sat_fix;
+	if(!field.ptr) { // Message has been sent
+		field.ptr = boost::make_shared<sensor_msgs::NavSatFix>();
+	}
+
+	field.ptr->altitude = gps.fix.altitude;
+	field.ptr->longitude =  gps.fix.longitude;
+	field.ptr->latitude = gps.fix.latitude;
+	field.ptr->header.stamp = ros::Time::now();
+	double hdop = gps.fix.horizontalDilution;
+	field.ptr->position_covariance[0] = hdop*hdop;
+	field.ptr->position_covariance[4] = hdop*hdop;
+	field.ptr->position_covariance[8] = (2 * hdop)*(2 * hdop) ;   //FIXME
+	field.ptr->position_covariance_type = 1;
 }
 
 

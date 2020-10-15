@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
 //#include <nmeaparse/NMEACommand.h>
-#include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
+#include <mosaic_gnss_driver/data_buffers.h>
 
 using namespace std;
 using namespace nmea;
@@ -16,8 +16,8 @@ int main(){
 	//					"$GPRMC,123148.00,A,1118.6640322,N,07548.1240164,E,0.0,,180920,1.3,E,A*12\n"};
 
 	// Create a GPS service that will keep track of the fix data.
-	NMEAParser parser;
-	GPSService gps(parser);
+    mosaic_gnss_driver::DataBuffers db;
+	NMEAParser parser(db);
 	parser.log = false;
 	
 	/*cout << "Fix  Sats  Sig\t\tSpeed    Dir  Lat         , Lon           Accuracy" << endl;
@@ -50,8 +50,7 @@ int main(){
 	ifstream file("/home/sachi/catkin_ws/src/mosaic_gnss_driver/test/data/nmea/capture_004.nmea");
 	while (getline(file, line)){
 		try {
-			parser.readSentence(line);
-			cout << gps.fix.toString() << endl;
+			parser.parse(reinterpret_cast<const uint8_t *>(line.data()), line.length());
 		}
 		catch (NMEAParseError& e){
 			cout << e.message << endl << endl;

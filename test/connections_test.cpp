@@ -4,6 +4,7 @@
 #include <mosaic_gnss_driver/connections/udp.h>
 #include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+#include <mosaic_gnss_driver/data_buffers.h>
 
 #include <gtest/gtest.h>
 #include <ros/ros.h>
@@ -79,7 +80,8 @@ TEST(UdpTestSuite, testCaseTcpConnection)
 #if defined RUN_PCAP_TEST
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {
-    mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss(nullptr);
+    mosaic_gnss_driver::DataBuffers db;
+    mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::PCAP, sbf::SBF> gnss(db);
     std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
 
     ASSERT_FALSE(gnss.is_connected());

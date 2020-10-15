@@ -171,6 +171,13 @@ add_executable(nmea_parser_test src/nmea/nmea_parser_test.cpp src/nmea/NMEAParse
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(nmea_parser_test
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${libpcap_LIBRARIES}
+        ${Boost_LIBRARIES}
+        )
+
 target_link_libraries(${PROJECT_NAME}_node
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}

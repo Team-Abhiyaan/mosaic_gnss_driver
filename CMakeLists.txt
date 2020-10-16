@@ -3,6 +3,9 @@ project(mosaic_gnss_driver)
 
 add_compile_options(-std=c++14)
 
+add_compile_options(-DMOSAIC_SBF_PRINT_ID)
+# add_compile_options(-DMOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
+
 ## Build only relevant tests
 option(TEST_CONN_PCAP    "Run tests for PCAP connection"    ON)
 option(TEST_CONN_TCP     "Run tests for TCP connection"     OFF)

@@ -1,0 +1,14 @@
+1188	5914	ReceiverTime	Current receiver and UTC time
+1161	5943	EndOfAtt	GNSS attitude epoch marker
+1161	5939	AttCovEuler	Covariance matrix of attitude
+1161	5938	AttEuler	GNSS attitude expressed as Euler angles
+1161	5908	VelCovGeodetic	Velocity covariance matrix (North, East, Up)
+1161	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)
+1161	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)
+1161	5905	PosCovCartesian	Position covariance matrix (X,Y, Z)
+1161	4052	PosLocal	Position in a local datum
+1161	4043	BaseVectorCart	XYZ relative position and velocity with respect to base(s)
+1161	4028	BaseVectorGeod	ENU relative position and velocity with respect to base(s)
+1161	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates
+1161	4006	PVTCartesian	Position, velocity, and time in Cartesian coordinates
+1133	5911	xPPSOffset	Offset of the xPPS pulse with respect to GNSS time

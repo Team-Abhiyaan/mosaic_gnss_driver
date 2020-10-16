@@ -68,6 +68,10 @@ bool sbf::SBF::parse_block()
     // auto parser = parsers[id]
     // parser(rev_num, pares_ptr, parse_ptr_end);
 
+#ifdef MOSAIC_SBF_PRINT_ID
+    std::cout << id << std::endl;
+#endif
+
     if (id == 4007)
     {
         auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);

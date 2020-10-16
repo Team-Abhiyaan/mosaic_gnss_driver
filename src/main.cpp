@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <ros/package.h>
-
+#include <ros/console.h>
 #include <mosaic_gnss_driver/data_buffers.h>
 
 #include <mosaic_gnss_driver/mosaic_gnss.h>
@@ -26,14 +26,18 @@ void start(const std::string &device)
     if (!gnss.connect(device)) return;
 
     auto start_time = ros::Time::now();
-    const auto duration = ros::Duration(0.2);
+
+    const auto publish_dration = ros::Duration(0.2);
 
     while (gnss.tick())
     {
-        ros::Duration(0.1).sleep(); // Dummy
+
+#ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
+         ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
+#endif
 
         const auto cur = ros::Time::now();
-        if (cur - start_time > duration)
+        if (cur - start_time > publish_dration)
         { // We should publish
             start_time = cur;
 

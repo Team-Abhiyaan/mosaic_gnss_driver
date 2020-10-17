@@ -3,9 +3,6 @@ project(mosaic_gnss_driver)
 
 add_compile_options(-std=c++14)
 
-# add_compile_options(-DMOSAIC_SBF_PRINT_ID)
-add_compile_options(-DMOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
-
 ## Build only relevant tests
 option(TEST_CONN_PCAP    "Run tests for PCAP connection"    ON)
 option(TEST_CONN_TCP     "Run tests for TCP connection"     OFF)
@@ -14,6 +11,8 @@ option(TEST_CONN_SERIAL  "Run tests for SERIAL connection"  OFF)
 
 include(cmake/TestConnections.cmake)
 
+# TODO: roscpp and roslib are not dependencies for the core_lib
+# Maybe one CMakeLists.txt per target?
 set(DEPS
         roscpp
         roslib
@@ -142,7 +141,7 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
+## Core Library
 add_library(${PROJECT_NAME}
         src/core/util/serial.cpp
         src/core/connections/tcp.cpp
@@ -156,11 +155,13 @@ add_library(${PROJECT_NAME}
         src/core/parsers/nmea/GPSService.cpp
         src/core/parsers/nmea/GPSFix.cpp
         )
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_SBF_PRINT_ID)
 
-## Declare a C++ executable
-
+# Driver
 add_executable(${PROJECT_NAME}_node src/main.cpp)
+target_compile_definitions(${PROJECT_NAME}_node PRIVATE MOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
 
 add_executable(nmea_parser_test src/core/parsers/nmea/nmea_parser_test.cpp src/core/parsers/nmea/NMEAParser.cpp src/core/parsers/nmea/GPSService.cpp src/core/parsers/nmea/GPSFix.cpp)
 

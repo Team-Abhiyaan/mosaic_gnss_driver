@@ -550,21 +550,17 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
 
     readBuffer(data, size);
 
-    auto &field = data_buf.nav_sat_fix;
-    if (!field.ptr)
-    { // Message has been sent
-        field.ptr = boost::make_shared<sensor_msgs::NavSatFix>();
-    }
-
-    field.ptr->altitude = gps.fix.altitude;
-    field.ptr->longitude = gps.fix.longitude;
-    field.ptr->latitude = gps.fix.latitude;
-    field.ptr->header.stamp = ros::Time::now();
+    auto ptr = data_buf.nav_sat_fix.get_new_ptr();
+    ptr->altitude = gps.fix.altitude;
+    ptr->longitude = gps.fix.longitude;
+    ptr->latitude = gps.fix.latitude;
+    ptr->header.stamp = ros::Time::now();
     double hdop = gps.fix.horizontalDilution;
-    field.ptr->position_covariance[0] = hdop * hdop;
-    field.ptr->position_covariance[4] = hdop * hdop;
-    field.ptr->position_covariance[8] = (2 * hdop) * (2 * hdop);   //FIXME
-    field.ptr->position_covariance_type = 1;
+    ptr->position_covariance[0] = hdop * hdop;
+    ptr->position_covariance[4] = hdop * hdop;
+    ptr->position_covariance[8] = (2 * hdop) * (2 * hdop);   //FIXME
+    ptr->position_covariance_type = 1;
+    data_buf.nav_sat_fix.set_ptr(ptr);
 }
 
 

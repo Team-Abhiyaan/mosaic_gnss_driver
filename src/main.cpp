@@ -19,8 +19,7 @@ void start(const std::string &device)
     ros::NodeHandle nh;
     mosaic_gnss_driver::DataBuffers buf;
 
-    buf.nav_sat_fix.pub = nh.advertise<sensor_msgs::NavSatFix>("nav_sat_fix", 5, false);
-    // buf.nav_sat_fix.pub = nh.advertise<decltype(buf.nav_sat_fix.ptr.get())>("nav_sat_fix", 5, false);
+    buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
@@ -33,7 +32,7 @@ void start(const std::string &device)
     {
 
 #ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
-         ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
+        ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
 #endif
 
         const auto cur = ros::Time::now();
@@ -42,18 +41,8 @@ void start(const std::string &device)
             start_time = cur;
 
             // Publish fields
-            { // Nav Sat Fix
-                auto &field = buf.nav_sat_fix;
-                if (!field.ptr)
-                {
-                    ROS_WARN("Not enough msg");
-                } else
-                {
-                    field.pub.publish(field.ptr);
-                    field.ptr.reset();
-                }
-            }
-
+            // Nav Sat Fix
+            buf.nav_sat_fix.publish();
         }
 
         ros::spinOnce();

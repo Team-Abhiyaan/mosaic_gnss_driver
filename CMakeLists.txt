@@ -156,6 +156,7 @@ add_library(${PROJECT_NAME}
         src/nmea/GPSService.cpp
         src/nmea/GPSFix.cpp
         )
+target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 
 ## Declare a C++ executable
 

@@ -83,16 +83,12 @@ bool sbf::SBF::parse_block()
                   << (int)pvtgeodectic->num_bases << std::endl
                   << (int)pvtgeodectic->num_satellites << std::endl;*/
 
-        // NOTE: Mutex if publisher in seperate thread.
-        auto &field = data_buf.nav_sat_fix;
-        if (!field.ptr)
-        { // Message has been sent
-            field.ptr = boost::make_shared<sensor_msgs::NavSatFix>();
-        }
+        auto ptr = data_buf.nav_sat_fix.get_new_ptr();
+        ptr->latitude = pvtgeodectic->Latitude;
+        ptr->longitude = pvtgeodectic->Longitude;
+        ptr->altitude = pvtgeodectic->Height;
+        data_buf.nav_sat_fix.set_ptr(ptr);
 
-        field.ptr->latitude = pvtgeodectic->Latitude;
-        field.ptr->longitude = pvtgeodectic->Longitude;
-        field.ptr->altitude = pvtgeodectic->Height;
         // field.ptr->status =
         // field.ptr->header.stamp = // TODO: Convert sbf stamp to ros stamp.
     }

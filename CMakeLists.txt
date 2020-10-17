@@ -3,8 +3,8 @@ project(mosaic_gnss_driver)
 
 add_compile_options(-std=c++14)
 
-add_compile_options(-DMOSAIC_SBF_PRINT_ID)
-# add_compile_options(-DMOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
+# add_compile_options(-DMOSAIC_SBF_PRINT_ID)
+add_compile_options(-DMOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
 
 ## Build only relevant tests
 option(TEST_CONN_PCAP    "Run tests for PCAP connection"    ON)
@@ -29,6 +29,7 @@ set(DEPS
 find_package(Boost REQUIRED COMPONENTS
         system
         )
+
 find_package(catkin REQUIRED COMPONENTS
         ${DEPS}
         )

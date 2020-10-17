@@ -144,17 +144,17 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-        src/mosaic_utils/serial.cpp
-        src/connections/tcp.cpp
-        src/connections/udp.cpp
-        src/connections/pcap.cpp
-        src/connections/serial.cpp
+        src/core/util/serial.cpp
+        src/core/connections/tcp.cpp
+        src/core/connections/udp.cpp
+        src/core/connections/pcap.cpp
+        src/core/connections/serial.cpp
 
-        src/sbf/sbf.cpp
+        src/core/parsers/sbf/sbf.cpp
 
-        src/nmea/NMEAParser.cpp
-        src/nmea/GPSService.cpp
-        src/nmea/GPSFix.cpp
+        src/core/parsers/nmea/NMEAParser.cpp
+        src/core/parsers/nmea/GPSService.cpp
+        src/core/parsers/nmea/GPSFix.cpp
         )
 target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 
@@ -162,7 +162,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 
-add_executable(nmea_parser_test src/nmea/nmea_parser_test.cpp src/nmea/NMEAParser.cpp src/nmea/GPSService.cpp src/nmea/GPSFix.cpp)
+add_executable(nmea_parser_test src/core/parsers/nmea/nmea_parser_test.cpp src/core/parsers/nmea/NMEAParser.cpp src/core/parsers/nmea/GPSService.cpp src/core/parsers/nmea/GPSFix.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

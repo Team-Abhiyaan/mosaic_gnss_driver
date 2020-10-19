@@ -2,16 +2,16 @@
 156904	4026	GLORawCA	GLONASS CA navigation string
 126025	4047	BDSRaw	BeiDou navigation page
 73998	5922	EndOfMeas	Measurement epoch marker
-73998	5914	ReceiverTime	Current receiver and UTC time
+73998	5914	ReceiverTime	Current receiver and UTC time                             **********************
 73823	5921	EndOfPVT	PVT epoch marker
-73823	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)
-73823	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)
-73823	5905	PosCovCartesian	Position covariance matrix (X,Y, Z)
-73823	4044	PosCart	Position, variance and baseline in Cartesian coordinates
-73823	4043	BaseVectorCart	XYZ relative position and velocity with respect to base(s)
+73823	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)                      ----------------
+73823	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)                 +++++++++++++++++++++
+73823	5905	PosCovCartesian	Position covariance matrix (X,Y, Z)                        ----------------
+73823	4044	PosCart	Position, variance and baseline in Cartesian coordinates           ------------------
+73823	4043	BaseVectorCart	XYZ relative position and velocity with respect to base(s) -----------------
 73823	4028	BaseVectorGeod	ENU relative position and velocity with respect to base(s)
-73823	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates
-73823	4006	PVTCartesian	Position, velocity, and time in Cartesian coordinates
+73823	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates           +++++++++++++++++++++
+73823	4006	PVTCartesian	Position, velocity, and time in Cartesian coordinates      ------------------
 73823	4001	DOP	Dilution of precision
 73694	5938	AttEuler	GNSS attitude expressed as Euler angles
 73661	4094	PosProjected	Plane grid coordinates

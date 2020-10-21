@@ -28,7 +28,7 @@ void start(const std::string &device)
 
     const auto publish_dration = ros::Duration(0.2);
 
-    while (gnss.tick())
+    while (ros::ok() && gnss.tick())
     {
 
 #ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
@@ -47,7 +47,6 @@ void start(const std::string &device)
 
         ros::spinOnce();
     }
-    // gnss.disconnect(); // Destructors automatically disconnect
 }
 
 template<typename parser_type>

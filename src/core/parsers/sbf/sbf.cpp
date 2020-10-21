@@ -75,17 +75,11 @@ bool sbf::SBF::parse_block()
     if (id == 4007)
     {
         auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
-        // std::cout << "Found PVTGeodetic" << std::endl;
-        /*std::cout << pvtgeodectic->Latitude * 180 / 3.14159 << std::endl
-                  << pvtgeodectic->Longitude * 180 / 3.14159 << std::endl
-                  << (int)pvtgeodectic->Mode << std::endl
-                  << (int)pvtgeodectic->Error << std::endl
-                  << (int)pvtgeodectic->num_bases << std::endl
-                  << (int)pvtgeodectic->num_satellites << std::endl;*/
 
+        static auto rad2deg = [](auto val) {return val * 180 / 3.141592653;};
         auto ptr = data_buf.nav_sat_fix.get_new_ptr();
-        ptr->latitude = pvtgeodectic->Latitude;
-        ptr->longitude = pvtgeodectic->Longitude;
+        ptr->latitude = rad2deg(pvtgeodectic->Latitude);
+        ptr->longitude = rad2deg(pvtgeodectic->Longitude);
         ptr->altitude = pvtgeodectic->Height;
         data_buf.nav_sat_fix.set_ptr(ptr);
 

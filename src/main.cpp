@@ -1,66 +1,114 @@
-#include <ros/package.h>
 #include <ros/ros.h>
+#include <ros/package.h>
+#include <ros/console.h>
+#include <mosaic_gnss_driver/data_buffers.h>
 
 #include <mosaic_gnss_driver/mosaic_gnss.h>
 
-void connectViaPcap(void)
+#include <mosaic_gnss_driver/connections/pcap.h>
+#include <mosaic_gnss_driver/connections/tcp.h>
+#include <mosaic_gnss_driver/connections/udp.h>
+#include <mosaic_gnss_driver/connections/serial.h>
+
+#include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+
+template<typename conn_type, typename parser_type>
+void start(const std::string &device)
 {
-    mosaic_gnss_driver::MosaicGNSS gnss;
+    ros::NodeHandle nh;
+    mosaic_gnss_driver::DataBuffers buf;
 
-    std::string thisPackagePath = ros::package::getPath("mosaic_gnss_driver");
-    std::string testFile = thisPackagePath + "/test/data/capture_002.pcap";
+    buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
 
-    gnss.connect(testFile, mosaic_gnss_driver::MosaicGNSS::PCAP);
+    mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
+    if (!gnss.connect(device)) return;
 
-    while (gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS)
+    auto start_time = ros::Time::now();
+
+    const auto publish_dration = ros::Duration(0.2);
+
+    while (gnss.tick())
     {
-        ;
+
+#ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
+        ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
+#endif
+
+        const auto cur = ros::Time::now();
+        if (cur - start_time > publish_dration)
+        { // We should publish
+            start_time = cur;
+
+            // Publish fields
+            // Nav Sat Fix
+            buf.nav_sat_fix.publish();
+        }
+
+        ros::spinOnce();
     }
-
-    gnss.bufferDump();
-
-    gnss.disconnect();
-
+    // gnss.disconnect(); // Destructors automatically disconnect
 }
 
-void connectViaTcp(void)
+template<typename parser_type>
+void start(std::string &device, const std::string &type)
 {
-    mosaic_gnss_driver::MosaicGNSS gnss;
-
-    std::string device = "192.168.3.1:3001";
-
-    gnss.connect(device, mosaic_gnss_driver::MosaicGNSS::TCP);
-
-	for (int i = 0; i < 50; i++)
-	{
-		bool success = gnss.isConnected() && gnss.processData() == mosaic_gnss_driver::MosaicGNSS::READ_SUCCESS;
-
-		if (!success)
-        {
-			std::cout << "Error, non successful termination" << std::endl;
-           	std::cout << gnss.errorMsg() << std::endl;
-
-			break;
-		}
-        else
-        {
-			std::cout << "Got stream: " << i + 1 << std::endl;
-		}
-	}
-
-	gnss.bufferDump();
-    gnss.disconnect();
-
+    if (type.empty())
+    {
+        ROS_FATAL("No connection type set.");
+    } else if (type == "pcap")
+    {
+        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/sbf/capture_001.pcap";
+        start<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
+    } else if (type == "serial")
+    {
+        if (device.empty()) device = "/dev/ACM0";
+        start<mosaic_gnss_driver::connections::Serial, parser_type>(device);
+    } else if (type == "tcp")
+    {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::TCP, parser_type>(device);
+    } else if (type == "udp")
+    {
+        if (device.empty()) device = "192.168.1.101";
+        start<mosaic_gnss_driver::connections::UDP, parser_type>(device);
+    } else
+    {
+        ROS_FATAL("Invalid connection type set.");
+    }
 }
 
 int main(int argc, char **argv)
 {
 
-    ros::init(argc, argv, "sample_node", ros::init_options::AnonymousName);
-    ros::NodeHandle nh;
+    ros::init(argc, argv, "mosaic_gnss"); //, ros::init_options::AnonymousName);
+    ros::NodeHandle nh, pnh("~");
 
-    // connectViaPcap();
-    connectViaTcp();
+    std::string device, parser, type;
+
+    if (!pnh.getParam("device", device))
+        device = "";
+    if (!pnh.getParam("parser", parser))
+        parser = "";
+    if (!pnh.getParam("conn", type))
+        type = "";
+
+    if (parser.empty())
+    {
+        ROS_FATAL("No parser type set.");
+    } else if (parser == "sbf")
+    {
+        start<sbf::SBF>(device, type);
+    } else if (parser == "nmea")
+    {
+        start<nmea::NMEAParser>(device, type);
+    } else
+    {
+        ROS_FATAL("Invalid parser type set.");
+    }
+
 
     return 0;
 }
+
+

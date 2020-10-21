@@ -88,7 +88,8 @@ namespace serial_util
         }
 
         // Validate parity checking
-        if (config.m_Parity != Config::NO_PARITY && config.m_Parity != Config::EVEN_PARITY && config.m_Parity != Config::ODD_PARITY)
+        if (config.m_Parity != Config::NO_PARITY && config.m_Parity != Config::EVEN_PARITY &&
+            config.m_Parity != Config::ODD_PARITY)
         {
             m_ErrorMessage = "Invalid parity mode";
 
@@ -121,40 +122,38 @@ namespace serial_util
         if (config.m_StopBits == 2)
         {
             term.c_cflag |= CSTOPB;
-        }
-        else
+        } else
         {
             term.c_cflag &= ~CSTOPB;
         }
 
         switch (config.m_Parity)
         {
-        case Config::EVEN_PARITY:
-            term.c_cflag |= PARENB;
-            term.c_cflag &= ~PARODD;
-            break;
+            case Config::EVEN_PARITY:
+                term.c_cflag |= PARENB;
+                term.c_cflag &= ~PARODD;
+                break;
 
-        case Config::ODD_PARITY:
-            term.c_cflag |= PARENB;
-            term.c_cflag |= PARODD;
-            break;
+            case Config::ODD_PARITY:
+                term.c_cflag |= PARENB;
+                term.c_cflag |= PARODD;
+                break;
 
-        case Config::NO_PARITY:
-            term.c_cflag &= ~PARENB;
-            term.c_cflag &= ~PARODD;
-            break;
+            case Config::NO_PARITY:
+                term.c_cflag &= ~PARENB;
+                term.c_cflag &= ~PARODD;
+                break;
 
-        default:
-            // will never reach here, case taken care of during validation
-            break;
+            default:
+                // will never reach here, case taken care of during validation
+                break;
         }
 
         if (config.m_DataBits == 8)
         {
             term.c_cflag &= ~CSIZE;
             term.c_cflag |= CS8;
-        }
-        else
+        } else
         {
             term.c_cflag &= ~CSIZE;
             term.c_cflag |= CS7;
@@ -211,17 +210,16 @@ namespace serial_util
         {
             m_ErrorMessage = "Timed out while waiting for data";
             return TIMEOUT;
-        }
-        else if (pollReturn < 0) // Failure
+        } else if (pollReturn < 0) // Failure
         {
             int errorNumber = errno;
             switch (errorNumber)
             {
-            case EINTR:
-                return INTERRUPTED;
-            default:
-                m_ErrorMessage = "Error polling serial port: " + std::string(strerror(errno));
-                return ERROR;
+                case EINTR:
+                    return INTERRUPTED;
+                default:
+                    m_ErrorMessage = "Error polling serial port: " + std::string(strerror(errno));
+                    return ERROR;
             }
         }
 
@@ -234,7 +232,8 @@ namespace serial_util
             ioctl(m_Fd, FIONREAD, &bytes);
             if (bytes < 0)
             {
-                m_ErrorMessage = "Error getting number of available bytes from serial port: " + std::string(strerror(errno));
+                m_ErrorMessage =
+                        "Error getting number of available bytes from serial port: " + std::string(strerror(errno));
                 return ERROR;
             }
 
@@ -249,8 +248,7 @@ namespace serial_util
         if (result > 0)
         {
             output.resize(outputSize + result);
-        }
-        else
+        } else
         {
             output.resize(outputSize);
         }
@@ -258,22 +256,20 @@ namespace serial_util
         if (result > 0) // Success
         {
             return SUCCESS;
-        }
-        else if (result == 0) // Interruption
+        } else if (result == 0) // Interruption
         {
             return INTERRUPTED;
-        }
-        else
+        } else
         {
             int errorNumber = errno;
             switch (errorNumber)
             {
-            case EINTR:
-                return INTERRUPTED;
+                case EINTR:
+                    return INTERRUPTED;
 
-            default:
-                m_ErrorMessage = "Error reading from serial port: " + std::string(strerror(errno));
-                return ERROR;
+                default:
+                    m_ErrorMessage = "Error reading from serial port: " + std::string(strerror(errno));
+                    return ERROR;
             }
         }
     }
@@ -302,7 +298,8 @@ namespace serial_util
 
         if (ioctl(m_Fd, TIOCGSERIAL, &serialInfo) < 0)
         {
-            m_ErrorMessage = "Failed to set low latency mode.  Cannot get serial configuration: " + std::string(strerror(errno));
+            m_ErrorMessage =
+                    "Failed to set low latency mode.  Cannot get serial configuration: " + std::string(strerror(errno));
             return false;
         }
 
@@ -310,7 +307,8 @@ namespace serial_util
 
         if (ioctl(m_Fd, TIOCSSERIAL, &serialInfo) < 0)
         {
-            m_ErrorMessage = "Failed to set low latency mode.  Cannot set serial configuration: " + std::string(strerror(errno));
+            m_ErrorMessage =
+                    "Failed to set low latency mode.  Cannot set serial configuration: " + std::string(strerror(errno));
             return false;
         }
 
@@ -324,116 +322,88 @@ namespace serial_util
         if (baudRate == B50 || baudRate == 50)
         {
             value = B50;
-        }
-        else if (baudRate == B75 || baudRate == 75)
+        } else if (baudRate == B75 || baudRate == 75)
         {
             value = B75;
-        }
-        else if (baudRate == B110 || baudRate == 110)
+        } else if (baudRate == B110 || baudRate == 110)
         {
             value = B110;
-        }
-        else if (baudRate == B134 || baudRate == 134)
+        } else if (baudRate == B134 || baudRate == 134)
         {
             value = B134;
-        }
-        else if (baudRate == B150 || baudRate == 150)
+        } else if (baudRate == B150 || baudRate == 150)
         {
             value = B150;
-        }
-        else if (baudRate == B200 || baudRate == 200)
+        } else if (baudRate == B200 || baudRate == 200)
         {
             value = B200;
-        }
-        else if (baudRate == B300 || baudRate == 300)
+        } else if (baudRate == B300 || baudRate == 300)
         {
             value = B300;
-        }
-        else if (baudRate == B600 || baudRate == 600)
+        } else if (baudRate == B600 || baudRate == 600)
         {
             value = B600;
-        }
-        else if (baudRate == B1200 || baudRate == 1200)
+        } else if (baudRate == B1200 || baudRate == 1200)
         {
             value = B1200;
-        }
-        else if (baudRate == B1800 || baudRate == 1800)
+        } else if (baudRate == B1800 || baudRate == 1800)
         {
             value = B1800;
-        }
-        else if (baudRate == B2400 || baudRate == 2400)
+        } else if (baudRate == B2400 || baudRate == 2400)
         {
             value = B2400;
-        }
-        else if (baudRate == B4800 || baudRate == 4800)
+        } else if (baudRate == B4800 || baudRate == 4800)
         {
             value = B4800;
-        }
-        else if (baudRate == B9600 || baudRate == 9600)
+        } else if (baudRate == B9600 || baudRate == 9600)
         {
             value = B9600;
-        }
-        else if (baudRate == B19200 || baudRate == 19200)
+        } else if (baudRate == B19200 || baudRate == 19200)
         {
             value = B19200;
-        }
-        else if (baudRate == B38400 || baudRate == 38400)
+        } else if (baudRate == B38400 || baudRate == 38400)
         {
             value = B38400;
-        }
-        else if (baudRate == B57600 || baudRate == 57600)
+        } else if (baudRate == B57600 || baudRate == 57600)
         {
             value = B57600;
-        }
-        else if (baudRate == B115200 || baudRate == 115200)
+        } else if (baudRate == B115200 || baudRate == 115200)
         {
             value = B115200;
-        }
-        else if (baudRate == B230400 || baudRate == 230400)
+        } else if (baudRate == B230400 || baudRate == 230400)
         {
             value = B230400;
-        }
-        else if (baudRate == B460800 || baudRate == 460800)
+        } else if (baudRate == B460800 || baudRate == 460800)
         {
             value = B460800;
-        }
-        else if (baudRate == B576000 || baudRate == 576000)
+        } else if (baudRate == B576000 || baudRate == 576000)
         {
             value = B576000;
-        }
-        else if (baudRate == B921600 || baudRate == 921600)
+        } else if (baudRate == B921600 || baudRate == 921600)
         {
             value = B921600;
-        }
-        else if (baudRate == B1000000 || baudRate == 1000000)
+        } else if (baudRate == B1000000 || baudRate == 1000000)
         {
             value = B1000000;
-        }
-        else if (baudRate == B1152000 || baudRate == 1152000)
+        } else if (baudRate == B1152000 || baudRate == 1152000)
         {
             value = B1152000;
-        }
-        else if (baudRate == B1500000 || baudRate == 1500000)
+        } else if (baudRate == B1500000 || baudRate == 1500000)
         {
             value = B1500000;
-        }
-        else if (baudRate == B2000000 || baudRate == 2000000)
+        } else if (baudRate == B2000000 || baudRate == 2000000)
         {
             value = B2000000;
-        }
-        else if (baudRate == B2500000 || baudRate == 2500000)
+        } else if (baudRate == B2500000 || baudRate == 2500000)
         {
             value = B2500000;
-        }
-        else if (baudRate == B3000000 || baudRate == 3000000)
+        } else if (baudRate == B3000000 || baudRate == 3000000)
         {
             value = B3000000;
-        }
-        else if (baudRate == B3500000 || baudRate == 3500000)
+        } else if (baudRate == B3500000 || baudRate == 3500000)
         {
             value = B3500000;
-        }
-        else if (baudRate == B4000000 || baudRate == 4000000)
+        } else if (baudRate == B4000000 || baudRate == 4000000)
         {
             value = B4000000;
         }

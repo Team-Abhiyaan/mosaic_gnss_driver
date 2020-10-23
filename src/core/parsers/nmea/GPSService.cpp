@@ -184,7 +184,7 @@ void GPSService::read_GPGGA(const NMEASentence &nmea)
         // ALTITUDE
         if (!nmea.parameters[8].empty())
         {
-            this->fix.altitude = parseDouble(nmea.parameters[8]);
+            this->fix.altitude = parseDouble(nmea.parameters[8]) + parseDouble(nmea.parameters[10]);
         } else
         {
             // leave old value

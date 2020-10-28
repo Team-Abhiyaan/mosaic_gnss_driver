@@ -20,17 +20,19 @@ namespace mosaic_gnss_driver
     struct Buffer
     {
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
-        typename msg_type::Ptr ptr;
+        using ptr_t = std::unique_ptr<msg_type>;
+        ptr_t ptr;
+        using shared_ptr_t = typename msg_type::Ptr;
 
-        auto get_new_ptr()
+        ptr_t get_new_ptr()
         {
             // TODO: Reuse old ptr if not sent yet ?
-            return boost::make_shared<msg_type>();
+            return std::make_unique<msg_type>();
         }
 
-        void set_ptr(typename msg_type::Ptr new_ptr)
+        void set_ptr(ptr_t new_ptr)
         {
-            ptr = new_ptr;
+            ptr = std::move(new_ptr);
         }
 
 // We do this to compile core library without ros.
@@ -51,8 +53,8 @@ namespace mosaic_gnss_driver
                 ROS_WARN("Not enough msg");
             } else
             {
-                pub.publish(ptr);
-                ptr.reset();
+                shared_ptr_t shr = std::move(ptr);
+                pub.publish(shr);
             }
         }
 
@@ -62,7 +64,9 @@ namespace mosaic_gnss_driver
     struct DataBuffers
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
-        void aa() {
+
+        void aa()
+        {
         }
     };
 }

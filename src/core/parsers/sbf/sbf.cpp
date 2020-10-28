@@ -81,7 +81,7 @@ bool sbf::SBF::parse_block()
         ptr->latitude = rad2deg(pvtgeodectic->Latitude);
         ptr->longitude = rad2deg(pvtgeodectic->Longitude);
         ptr->altitude = pvtgeodectic->Height;
-        data_buf.nav_sat_fix.set_ptr(ptr);
+        data_buf.nav_sat_fix.set_ptr(std::move(ptr));
 
         // field.ptr->status =
         // field.ptr->header.stamp = // TODO: Convert sbf stamp to ros stamp.

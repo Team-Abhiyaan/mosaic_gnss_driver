@@ -19,11 +19,13 @@ namespace mosaic_gnss_driver
     template<typename msg_type>
     struct Buffer
     {
-        // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
+    // public:
         using ptr_t = std::unique_ptr<msg_type>;
+    // private:
+        // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
         ptr_t ptr;
         using shared_ptr_t = typename msg_type::Ptr;
-
+    // public:
         ptr_t get_new_ptr()
         {
             // TODO: Reuse old ptr if not sent yet ?
@@ -64,10 +66,6 @@ namespace mosaic_gnss_driver
     struct DataBuffers
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
-
-        void aa()
-        {
-        }
     };
 }
 

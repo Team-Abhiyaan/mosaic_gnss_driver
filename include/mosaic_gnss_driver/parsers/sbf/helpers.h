@@ -60,12 +60,21 @@ namespace sbf
     };
 
     struct PosCovGeodetic
-    { /// SBF BlockNum 4007
+    { /// SBF BlockNum 5906
         u4 TOW;
         u2 WNc;
         u1 Mode, Error;
         // lat - Latitude, lon - Longitude, hgt - Height, bias - Clock Bias
         f4 lat_lat, lon_lon, hgt_hgt, bias_bias, lat_lon, lat_hgt, lat_bias, lon_hgt, lon_bias, hgt_bias;
+    };
+
+    struct VelCovGeodetic
+    { /// SBF BlockNum 5908
+        u4 TOW;
+        u2 WNc;
+        u1 Mode, Error;
+        // Covariances
+        f4 vn_vn, ve_ve, vu_vu, dt_dt, vn_ve, vn_vu, vn_dt, ve_vu, ve_dt, vu_dt;
     };
 
 #pragma pack(pop)

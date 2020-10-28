@@ -2,17 +2,18 @@
 #define MOSAIC_GNSS_DRIVER_DATA_BUFFERS_H
 
 // #include <mutex>
-
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
+
+#ifdef __JETBRAINS_IDE__
+#undef MOSAIC_GNSS_CORE_ONLY
+#endif
 
 #ifndef MOSAIC_GNSS_CORE_ONLY
 
 #include <ros/ros.h>
 #include <ros/publisher.h>
 
-#else
-#include <boost/make_shared.hpp>
 #endif
 
 namespace mosaic_gnss_driver
@@ -25,7 +26,6 @@ namespace mosaic_gnss_driver
     // private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
         ptr_t ptr;
-        using shared_ptr_t = typename msg_type::Ptr;
     // public:
         ptr_t get_new_ptr()
         {
@@ -47,6 +47,8 @@ namespace mosaic_gnss_driver
         {
             pub = nh.advertise<msg_type>(topic, queue, latch);
         }
+
+        using shared_ptr_t = typename msg_type::Ptr;
 
         void publish()
         {

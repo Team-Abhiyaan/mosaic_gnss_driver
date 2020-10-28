@@ -39,6 +39,7 @@ namespace sbf
 
         mosaic_gnss_driver::DataBuffers &data_buf;
 
+        // Block Parsers
         struct
         {
             mosaic_gnss_driver::DataBuffers &data_buf;
@@ -46,9 +47,12 @@ namespace sbf
         } parsers{data_buf};
 
         std::unordered_map<sbf::u4, std::function<void(const uint8_t *, const sbf::u2, const sbf::u1)>> parse_table{
-                {4007, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num) { g.PVTGeodetic(block_ptr, len); }},
-                {5906, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num) { g.PosCovGeodetic(block_ptr, len); }},
-                {5908, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num) { g.VelCovGeodetic(block_ptr, len); }}
+                {4007, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.PVTGeodetic(block_ptr, len); }},
+                {5906, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.PosCovGeodetic(block_ptr, len); }},
+                {5908, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.VelCovGeodetic(block_ptr, len); }}
         };
 
         /**

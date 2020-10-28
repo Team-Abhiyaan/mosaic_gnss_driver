@@ -4,11 +4,13 @@
 #include <cinttypes>
 
 /**
- * Contains functions for:
- *  - converting SBF types to c++ types
- *  - Parsing common sbf fields
+ * Contains:
+ *  - SBF <=> c++ types
+ *  - Structs for common sbf fields
  */
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedTypeAliasInspection" // Ignore unused sbf types
 namespace sbf
 {
     /*
@@ -42,41 +44,6 @@ namespace sbf
         u2 ID;
         u2 length;
     };
-    struct PVTGeodetic
-    { /// SBF BlockNum 4007
-        u4 TOW; // DO_NOT_USE: 4294967295
-        u2 WNc;
-        u1 Mode, Error;
-        f8 Latitude, Longitude, Height;
-        f4 undulation, vn, ve, vu, cog;
-        f8 rxclkbias;
-        f4 rxclkdrifk;
-        u1 time_system, datum, num_satellites, wa_corr_info;
-        u2 referenceID, mean_corr_age;
-        u4 signal_info;
-        u1 alert_flag, num_bases;
-        u2 ppp_info, latency, haccuracy;
-        u1 misc;
-    };
-
-    struct PosCovGeodetic
-    { /// SBF BlockNum 5906
-        u4 TOW;
-        u2 WNc;
-        u1 Mode, Error;
-        // lat - Latitude, lon - Longitude, hgt - Height, bias - Clock Bias
-        f4 lat_lat, lon_lon, hgt_hgt, bias_bias, lat_lon, lat_hgt, lat_bias, lon_hgt, lon_bias, hgt_bias;
-    };
-
-    struct VelCovGeodetic
-    { /// SBF BlockNum 5908
-        u4 TOW;
-        u2 WNc;
-        u1 Mode, Error;
-        // Covariances
-        f4 vn_vn, ve_ve, vu_vu, dt_dt, vn_ve, vn_vu, vn_dt, ve_vu, ve_dt, vu_dt;
-    };
-
 #pragma pack(pop)
 
     /// Gets the ID and Revision Number from the SBF ID field
@@ -85,5 +52,6 @@ namespace sbf
         return {raw_id & 0b0001111111111111u, (raw_id & 0b1110000000000000u) >> 13u};
     }
 } // namespace sbf
-
+#pragma clang diagnostic pop
 #endif //MOSAIC_GNSS_DRIVER_HELPERS_H
+

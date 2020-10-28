@@ -20,13 +20,14 @@ void start(const std::string &device)
     mosaic_gnss_driver::DataBuffers buf;
 
     buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+    buf.velocity.init(nh, "velocity", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
 
     auto start_time = ros::Time::now();
 
-    const auto publish_dration = ros::Duration(0.2);
+    const auto publish_duration = ros::Duration(0.2);
 
     while (ros::ok() && gnss.tick())
     {
@@ -36,13 +37,13 @@ void start(const std::string &device)
 #endif
 
         const auto cur = ros::Time::now();
-        if (cur - start_time > publish_dration)
+        if (cur - start_time > publish_duration)
         { // We should publish
             start_time = cur;
 
             // Publish fields
-            // Nav Sat Fix
             buf.nav_sat_fix.publish();
+            buf.velocity.publish();
         }
 
         ros::spinOnce();

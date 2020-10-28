@@ -4,6 +4,7 @@
 // #include <mutex>
 
 #include <sensor_msgs/NavSatFix.h>
+#include <geometry_msgs/TwistWithCovarianceStamped.h>
 
 #ifndef MOSAIC_GNSS_CORE_ONLY
 
@@ -66,6 +67,7 @@ namespace mosaic_gnss_driver
     struct DataBuffers
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
+        Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
     };
 }
 

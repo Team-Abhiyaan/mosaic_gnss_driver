@@ -47,7 +47,8 @@ namespace sbf
 #pragma pack(pop)
 
     /// Gets the ID and Revision Number from the SBF ID field
-    std::pair<uint16_t, uint8_t> parse_id(const uint16_t raw_id)
+    // TODO: Find the double definition and remove the `inline`
+    inline std::pair<uint16_t, uint8_t> parse_id(const uint16_t raw_id)
     {
         return {raw_id & 0b0001111111111111u, (raw_id & 0b1110000000000000u) >> 13u};
     }

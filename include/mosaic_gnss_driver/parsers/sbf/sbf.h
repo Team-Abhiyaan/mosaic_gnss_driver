@@ -45,11 +45,9 @@ namespace sbf
             sbf::block_parsers::Geodetic geodetic{data_buf};
         } parsers{data_buf};
 
-        std::unordered_map<sbf::u4, std::function<void(const uint8_t *)>> parse_table{
-                // {4007, data_bufstd::bind(parsers.geodetic.PVTGeodetic, &parsers.geodetic, std::placeholders::_1)}
-                {4007, [&g = parsers.geodetic](auto block_ptr) { g.PVTGeodetic(block_ptr); }},
-                {5906, [&g = parsers.geodetic](auto block_ptr) { g.PosCovGeodetic(block_ptr); }}
-
+        std::unordered_map<sbf::u4, std::function<void(const uint8_t *, const sbf::u2, const sbf::u1)>> parse_table{
+                {4007, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num) { g.PVTGeodetic(block_ptr, len); }},
+                {5906, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num) { g.PosCovGeodetic(block_ptr, len); }}
         };
 
         /**

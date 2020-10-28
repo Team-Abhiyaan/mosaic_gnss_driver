@@ -61,20 +61,13 @@ bool sbf::SBF::parse_block()
         return true;
     }
 
-    // std::cout << id << "\t" << (int)rev_num << "\t" << length << "\t" << header->CRC << std::endl;
-
-    // Call the parser
-    // TODO: Implement
-    // auto parser = parsers[id]
-    // parser(rev_num, pares_ptr, parse_ptr_end);
-
 #ifdef MOSAIC_SBF_PRINT_ID
     std::cout << id << std::endl;
 #endif
 
     const auto iter = parse_table.find(id);
     if (iter != parse_table.end())
-        iter->second(ret);
+        iter->second(ret, block_data_length, rev_num);
 
     return true;
 }

@@ -19,8 +19,13 @@ namespace sbf::block_parsers
         Geodetic(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
         {}
 
-        void PVTGeodetic(const uint8_t *block_ptr)
+        void PVTGeodetic(const uint8_t *block_ptr, const sbf::u2 length)
         {
+            if (length < sizeof(sbf::PVTGeodetic))
+            {
+                std::cout << "[WARN] Block is too small." << std::endl;
+                return;
+            }
             auto block = reinterpret_cast<const sbf::PVTGeodetic *>(block_ptr);
             if ((block->Mode & 0b1111u) == 0u) // PVT Error
             {
@@ -62,8 +67,13 @@ namespace sbf::block_parsers
 
         }
 
-        void PosCovGeodetic(const uint8_t *block_ptr)
+        void PosCovGeodetic(const uint8_t *block_ptr, const sbf::u2 length)
         {
+            if (length < sizeof(sbf::PosCovGeodetic))
+            {
+                std::cout << "[WARN] Block is too small." << std::endl;
+                return;
+            }
             auto block = reinterpret_cast<const sbf::PosCovGeodetic *>(block_ptr);
             if ((block->Mode & 0b1111u) == 0u) // PVT Error
             {

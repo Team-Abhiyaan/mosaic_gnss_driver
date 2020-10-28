@@ -44,7 +44,7 @@ namespace sbf
     };
     struct PVTGeodetic
     { /// SBF BlockNum 4007
-        u4 TOW;
+        u4 TOW; // DO_NOT_USE: 4294967295
         u2 WNc;
         u1 Mode, Error;
         f8 Latitude, Longitude, Height;

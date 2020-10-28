@@ -1,7 +1,9 @@
 #ifndef MOSAIC_GNSS_DRIVER_SBF_H
 #define MOSAIC_GNSS_DRIVER_SBF_H
 
+#include <unordered_map>
 #include <mosaic_gnss_driver/data_buffers.h>
+#include "block_parsers.h"
 
 namespace sbf
 {
@@ -36,6 +38,19 @@ namespace sbf
         const uint8_t *block_start{nullptr};
 
         mosaic_gnss_driver::DataBuffers &data_buf;
+
+        struct
+        {
+            mosaic_gnss_driver::DataBuffers &data_buf;
+            sbf::block_parsers::Geodetic geodetic{data_buf};
+        } parsers{data_buf};
+
+        std::unordered_map<sbf::u4, std::function<void(const uint8_t *)>> parse_table{
+                // {4007, data_bufstd::bind(parsers.geodetic.PVTGeodetic, &parsers.geodetic, std::placeholders::_1)}
+                {4007, [&g = parsers.geodetic](auto block_ptr) { g.PVTGeodetic(block_ptr); }},
+                {5906, [&g = parsers.geodetic](auto block_ptr) { g.PosCovGeodetic(block_ptr); }}
+
+        };
 
         /**
          * Parses the block starting at `block_start`

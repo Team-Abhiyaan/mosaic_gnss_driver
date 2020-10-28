@@ -72,20 +72,9 @@ bool sbf::SBF::parse_block()
     std::cout << id << std::endl;
 #endif
 
-    if (id == 4007)
-    {
-        auto pvtgeodectic = reinterpret_cast<const sbf::PVTGeodetic *>(ret);
-
-        static auto rad2deg = [](auto val) {return val * 180 / 3.141592653;};
-        auto ptr = data_buf.nav_sat_fix.get_new_ptr();
-        ptr->latitude = rad2deg(pvtgeodectic->Latitude);
-        ptr->longitude = rad2deg(pvtgeodectic->Longitude);
-        ptr->altitude = pvtgeodectic->Height;
-        data_buf.nav_sat_fix.set_ptr(std::move(ptr));
-
-        // field.ptr->status =
-        // field.ptr->header.stamp = // TODO: Convert sbf stamp to ros stamp.
-    }
+    const auto iter = parse_table.find(id);
+    if (iter != parse_table.end())
+        iter->second(ret);
 
     return true;
 }

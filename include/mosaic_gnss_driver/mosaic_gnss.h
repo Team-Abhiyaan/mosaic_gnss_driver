@@ -1,21 +1,10 @@
 #ifndef MOSAIC_GNSS_H_
 #define MOSAIC_GNSS_H_
 
-#include <map>
 #include <string>
-#include <vector>
-#include <cmath>
-#include <ros/ros.h>
-#include <boost/asio.hpp>
-#include <boost/array.hpp>
 
-#include <mosaic_utils/serial.h>
-#include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
-#include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
+#include <mosaic_gnss_driver/data_buffers.h>
 #include <mosaic_gnss_driver/connections/connection.h>
-#include <mosaic_gnss_driver/connections/serial.h>
-#include <mosaic_gnss_driver/connections/pcap.h>
-#include "data_buffers.h"
 
 namespace mosaic_gnss_driver
 {
@@ -28,18 +17,23 @@ namespace mosaic_gnss_driver
     template<typename Connection, typename Parser>
     class GNSS
     {
+        /// Internal Buffer for storing raw received data
         using buffer_t = typename Connection::buffer_t;
-        /// Internal Buffer for storing raw data before parsing
         buffer_t buffer;
-        /// Buffer for passing messages to ROS
+
+        /// Structure for storing parsed messages.
         mosaic_gnss_driver::DataBuffers &data_buf;
-        /// Message parser
-        Parser p;
-        /// Represents the connection to the module
-        Connection conn;
+
+        Parser p; /// Message parser
+
+        Connection conn; /// Connection to Module
 
     public:
-        /// Constructor
+        /**
+         * Only constructor
+         *
+         * @param buffers stores the parsed data for further use
+         */
         explicit GNSS(mosaic_gnss_driver::DataBuffers &buffers) : data_buf{buffers}, conn{buffer}, p{data_buf}
         {
             static_assert(std::is_base_of<connections::Connection, Connection>::value,
@@ -48,30 +42,27 @@ namespace mosaic_gnss_driver
         };
 
         /**
-         * Attempts to connect to module and configure using given options
+         * Attempts to connect to module and configures it
          * 
-         * @param device: For serial connections, it is a filehandle. eg: /dev/TTYUSB0 \n
+         * @param device: For serial connections, it is the device path. eg: /dev/TTYUSB0 \n
          *                For IP connections, a host:port specification eg: 192.168.3.1:3001 \n
          *                For PCAP connection, filename
          * @param opts: Configuration options
          * 
-         * @return True on success, false otherwise
+         * @return success
          */
         bool connect(const std::string &device, const connections::Connection::Options &opts = {})
         {
             return conn.connect(device, opts);
         }
 
-        /**
-         * Disconnect from module
-         */
         void disconnect()
         { conn.disconnect(); }
 
         /**
-         * Receives data from the GNSS and parses it.
+         * Receive data from the GNSS and parse it.
          * 
-         * @return True on success, false otherwise
+         * @return device usable, i.e. if False, need to reset the driver
          */
         bool tick()
         {
@@ -83,11 +74,6 @@ namespace mosaic_gnss_driver
             return true;
         }
 
-        /**
-         * Check if a connection to module exists
-         * 
-         * @return True if connection exists, false otherwise
-         */
         bool is_connected() const
         { return conn.is_connected(); }
     };

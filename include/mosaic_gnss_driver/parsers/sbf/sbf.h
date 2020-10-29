@@ -1,9 +1,10 @@
 #ifndef MOSAIC_GNSS_DRIVER_SBF_H
 #define MOSAIC_GNSS_DRIVER_SBF_H
 
-#include <unordered_map>
 #include <mosaic_gnss_driver/data_buffers.h>
-#include "block_parsers.h"
+#include <mosaic_gnss_driver/parsers/sbf/block_parsers.h>
+
+#include <unordered_map>
 
 namespace sbf
 {
@@ -11,14 +12,18 @@ namespace sbf
      * Using this class:
      *     - Construct and object of the class. This also initializes the various parsers.
      *     - Whenever you receive data, call `parse` with the buffer storing the data.
+     *     - Use the parsed data in the DataBuffer
      *
      * Adding more SBF Blocks:
      *     - `seek`, `read`, and `unread` are essentially black boxes and the implementation should not matter.
-     *     - Add a parser in ____
+     *     - To add a parser: define it in block_parsers.h, create it in the struct parsers, and add it to parse_table.
      */
 
     class SBF
     {
+
+        // Reading Data:
+
         /// The string demarcating start of block.
         static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
@@ -39,7 +44,8 @@ namespace sbf
 
         mosaic_gnss_driver::DataBuffers &data_buf;
 
-        // Block Parsers
+        // Parsing Blocks:
+
         struct
         {
             mosaic_gnss_driver::DataBuffers &data_buf;
@@ -54,6 +60,7 @@ namespace sbf
                 {5908, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
                        { g.VelCovGeodetic(block_ptr, len); }}
         };
+
 
         /**
          * Parses the block starting at `block_start`
@@ -104,6 +111,8 @@ namespace sbf
 
         /**
          * Performs CRC check according to the SBF specification
+         *
+         * TODO: Implement
          *
          * @param bytes : Start of bytes to be CRC checked
          * @param length  : Number of bytes to be CRC checked

@@ -21,12 +21,19 @@ namespace mosaic_gnss_driver
     template<typename msg_type>
     struct Buffer
     {
-    // public:
+    public:
         using ptr_t = std::unique_ptr<msg_type>;
-    // private:
+    private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
         ptr_t ptr;
-    // public:
+    public:
+
+        /**
+         * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
+         * Not guaranteed to be zero initialized, i.e. implementation may reuse previous unsent message.
+         *
+         * @return message pointer
+         */
         ptr_t get_new_ptr()
         {
             // TODO: Reuse old ptr if not sent yet ?
@@ -36,6 +43,17 @@ namespace mosaic_gnss_driver
         void set_ptr(ptr_t new_ptr)
         {
             ptr = std::move(new_ptr);
+        }
+
+        /**
+         * Get the stored message.
+         * After this the buffer will be empty.
+         *
+         * @return message, may be nullptr
+         */
+        ptr_t get()
+        {
+            return std::move(ptr);
         }
 
 // We do this to compile core library without ros.
@@ -48,7 +66,6 @@ namespace mosaic_gnss_driver
             pub = nh.advertise<msg_type>(topic, queue, latch);
         }
 
-        using shared_ptr_t = typename msg_type::Ptr;
 
         void publish()
         {
@@ -58,8 +75,9 @@ namespace mosaic_gnss_driver
                 ROS_WARN("Not enough msg");
             } else
             {
-                shared_ptr_t shr = std::move(ptr);
-                pub.publish(shr);
+                // TODO: Check if publisher ready
+                typename msg_type::Ptr shared_ptr = std::move(ptr);
+                pub.publish(shared_ptr);
             }
         }
 

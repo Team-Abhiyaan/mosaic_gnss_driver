@@ -59,8 +59,9 @@ int main()
         try
         {
             parser.parse(reinterpret_cast<const uint8_t *>(line.data()), line.length());
-            if (db.nav_sat_fix.ptr->longitude * db.nav_sat_fix.ptr->latitude)
-                std::cout << db.nav_sat_fix.ptr->longitude << " " << db.nav_sat_fix.ptr->latitude << std::endl;
+            auto ptr = db.nav_sat_fix.get();
+            if (ptr->longitude * ptr->latitude != 0)
+                std::cout << ptr->longitude << " " << ptr->latitude << std::endl;
         }
         catch (NMEAParseError &e)
         {

@@ -1,38 +1,50 @@
 #ifndef MOSAIC_GNSS_DRIVER_HELPERS_H
 #define MOSAIC_GNSS_DRIVER_HELPERS_H
 
-#include <cinttypes>
+#include <cinttypes> // For ints of specific width.
+#include <memory> // For unique_ptr / make_unique
+#include <endian.h> // For little endian check
 
 /**
- * Contains functions for:
- *  - converting SBF types to c++ types
- *  - Parsing common sbf fields
+ * Contains:
+ *  - SBF <=> c++ types
+ *  - Structs for common sbf fields
  */
 
 namespace sbf
 {
     /*
-     * Here: we cant directly cast b/c that depends on the system we are running in.
-     * C++ does not guarantee little endian / big endian, twos complement /ones complement.
-     * 
-     * Using these functions makes it easy to change code to work on big endian systems if necessary 
+     * Here: we should not directly cast because that depends on the system we are running in.
+     * C++ does not guarantee little endian / big endian, twos complement / ones complement.
+     *
+     * We have assumed a little endian and twos complement system for simplicity.
      */
 
-    // static_assert(LITTLE_ENDIAN, "Wrong endianness");
-    // static_assert(TWOS_COMPLEMENT, "Wrong signed integer format");
+#if __BYTE_ORDER != __LITTLE_ENDIAN
+    static_assert(false, "Wrong endianess, requires little endian system");
+#endif
+
+    // TWOS_COMPLEMENT
+    static_assert((uint32_t) (-1) == (uint32_t) 0xFFFFFFFFuL, "Wrong signed integer format. Require two's complement");
+
 
     static_assert(sizeof(float) == 4, "Bad float size, no 4 byte floating point type");
     static_assert(sizeof(double) == 8, "Bad double size, no 8 byte floating point type");
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedTypeAliasInspection" // Ignore unused sbf types
     using float32_t = float;
     using float64_t = double;
 
+    // SBF Data types
     using c1 = char;
     using u1 = uint8_t;
     using u2 = uint16_t;
     using u4 = uint32_t;
     using f4 = float32_t;
     using f8 = float64_t;
+#pragma clang diagnostic pop
+
 
 #pragma pack(push, 1) // Packs the struct tightly, no gaps b/w objs
     struct Header
@@ -42,39 +54,15 @@ namespace sbf
         u2 ID;
         u2 length;
     };
-    struct PVTGeodetic
-    { /// SBF BlockNum 4007
-        u4 TOW;
-        u2 WNc;
-        u1 Mode, Error;
-        f8 Latitude, Longitude, Height;
-        f4 undulation, vn, ve, vu, cog;
-        f8 rxclkbias;
-        f4 rxclkdrifk;
-        u1 time_system, datum, num_satellites, wa_corr_info;
-        u2 referenceID, mean_corr_age;
-        u4 signal_info;
-        u1 alert_flag, num_bases;
-        u2 ppp_info, latency, haccuracy;
-        u1 misc;
-    };
-
-    struct PosCovGeodetic
-    { /// SBF BlockNum 4007
-        u4 TOW;
-        u2 WNc;
-        u1 Mode, Error;
-        // lat - Latitude, lon - Longitude, hgt - Height, bias - Clock Bias
-        f4 lat_lat, lon_lon, hgt_hgt, bias_bias, lat_lon, lat_hgt, lat_bias, lon_hgt, lon_bias, hgt_bias;
-    };
-
 #pragma pack(pop)
 
     /// Gets the ID and Revision Number from the SBF ID field
-    std::pair<uint16_t, uint8_t> parse_id(const uint16_t raw_id)
+    // TODO: Find the double definition and remove the `inline`
+    inline std::pair<uint16_t, uint8_t> parse_id(const uint16_t raw_id)
     {
         return {raw_id & 0b0001111111111111u, (raw_id & 0b1110000000000000u) >> 13u};
     }
-} // namespace sbf
 
+} // namespace sbf
 #endif //MOSAIC_GNSS_DRIVER_HELPERS_H
+

@@ -2,6 +2,9 @@
 #define MOSAIC_GNSS_DRIVER_SBF_H
 
 #include <mosaic_gnss_driver/data_buffers.h>
+#include <mosaic_gnss_driver/parsers/sbf/block_parsers.h>
+
+#include <unordered_map>
 
 namespace sbf
 {
@@ -9,14 +12,18 @@ namespace sbf
      * Using this class:
      *     - Construct and object of the class. This also initializes the various parsers.
      *     - Whenever you receive data, call `parse` with the buffer storing the data.
+     *     - Use the parsed data in the DataBuffer
      *
      * Adding more SBF Blocks:
      *     - `seek`, `read`, and `unread` are essentially black boxes and the implementation should not matter.
-     *     - Add a parser in ____
+     *     - To add a parser: define it in block_parsers.h, create it in the struct parsers, and add it to parse_table.
      */
 
     class SBF
     {
+
+        // Reading Data:
+
         /// The string demarcating start of block.
         static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
@@ -36,6 +43,24 @@ namespace sbf
         const uint8_t *block_start{nullptr};
 
         mosaic_gnss_driver::DataBuffers &data_buf;
+
+        // Parsing Blocks:
+
+        struct
+        {
+            mosaic_gnss_driver::DataBuffers &data_buf;
+            sbf::block_parsers::Geodetic geodetic{data_buf};
+        } parsers{data_buf};
+
+        std::unordered_map<sbf::u4, std::function<void(const uint8_t *, const sbf::u2, const sbf::u1)>> parse_table{
+                {4007, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.PVTGeodetic(block_ptr, len); }},
+                {5906, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.PosCovGeodetic(block_ptr, len); }},
+                {5908, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
+                       { g.VelCovGeodetic(block_ptr, len); }}
+        };
+
 
         /**
          * Parses the block starting at `block_start`
@@ -86,6 +111,8 @@ namespace sbf
 
         /**
          * Performs CRC check according to the SBF specification
+         *
+         * TODO: Implement
          *
          * @param bytes : Start of bytes to be CRC checked
          * @param length  : Number of bytes to be CRC checked

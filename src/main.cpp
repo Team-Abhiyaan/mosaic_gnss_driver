@@ -21,6 +21,7 @@ void start(const std::string &device)
 
     buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
     buf.velocity.init(nh, "velocity", 5, false);
+    buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
@@ -44,6 +45,7 @@ void start(const std::string &device)
             // Publish fields
             buf.nav_sat_fix.publish();
             buf.velocity.publish();
+            buf.nmea_sentence.publish();
         }
 
         ros::spinOnce();
@@ -58,7 +60,7 @@ void start(std::string &device, const std::string &type)
         ROS_FATAL("No connection type set.");
     } else if (type == "pcap")
     {
-        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/sbf/capture_001.pcap";
+        if (device.empty()) device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/nmea/capture_004.pcap";
         start<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
     } else if (type == "serial")
     {

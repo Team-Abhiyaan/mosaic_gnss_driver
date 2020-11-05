@@ -257,7 +257,7 @@ void NMEAParser::onError(NMEASentence &nmea, string txt)
 // calls the corresponding handler in eventTable, based on the 5 letter sentence code
 void NMEAParser::readSentence(std::string cmd)
 {
-
+    
     NMEASentence nmea;
 
     onInfo(nmea, "Processing NEW string...");
@@ -295,7 +295,6 @@ void NMEAParser::readSentence(std::string cmd)
 
 
     onInfo(nmea, string("NMEA string: (\"") + cmd + "\")");
-
 
     // Seperates the data now that everything is formatted
     try
@@ -368,6 +367,10 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         nmea.isvalid = false;
         return;
     }
+//new line###
+
+    this->nmea_buffer = txt;
+
 
     nmea.isvalid = false;    // assume it's invalid first
     nmea.text = txt;        // save the received text of the sentence
@@ -421,7 +424,7 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
             return;
         }
     }
-
+    
     //"$," case - no name
     if (comma == 0)
     {
@@ -432,6 +435,13 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
     //name should not include first comma
 
     nmea.name = txt.substr(0, comma);
+
+    //if((nmea.name == "GPGGA") || (nmea.name == "GPGSA") || (nmea.name == "GPGSV") || (nmea.name == "GPRMC") || (nmea.name == "GPVTG")){
+    //    auto nmea_ptr = data_buf.nmea_sentence.get_new_ptr();
+     //   nmea_ptr->sentence = txt;
+    //    data_buf.nmea_sentence.set_ptr(std::move(nmea_ptr));
+    //}
+
     if (nmea.name == "PSSN")
     {
         //add PSSN sentence
@@ -536,8 +546,8 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         }
     }
 
-
     nmea.isvalid = true;
+
 
     return;
 
@@ -550,7 +560,12 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
 
     readBuffer(data, size);
 
+    /*auto nmea_ptr = data_buf.nmea_sentence.get_new_ptr();
+    nmea_ptr->sentence = this->nmea_buffer;
+    */data_buf.nmea_sentence.set_ptr(std::move(nmea_ptr));
+    
     auto ptr = data_buf.nav_sat_fix.get_new_ptr();
+    
     ptr->altitude = gps.fix.altitude;
     ptr->longitude = gps.fix.longitude;
     ptr->latitude = gps.fix.latitude;
@@ -562,5 +577,4 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     ptr->position_covariance_type = 1;
     data_buf.nav_sat_fix.set_ptr(std::move(ptr));
 }
-
 

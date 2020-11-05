@@ -6,6 +6,7 @@
 // Required Message Types
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <nmea_msgs/Sentence.h>
 
 #ifdef __JETBRAINS_IDE__ // remove flag to get ide hints on entire class
 #undef MOSAIC_GNSS_CORE_ONLY
@@ -102,6 +103,7 @@ namespace mosaic_gnss_driver
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
         Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
+        Buffer<nmea_msgs::Sentence> nmea_sentence;
     };
 }
 

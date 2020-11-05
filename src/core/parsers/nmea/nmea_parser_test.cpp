@@ -62,6 +62,10 @@ int main()
             auto ptr = db.nav_sat_fix.get();
             if (ptr->longitude * ptr->latitude != 0)
                 std::cout << ptr->longitude << " " << ptr->latitude << std::endl;
+            auto ptr1 = db.nmea_sentence.get();
+            std::cout<< ptr1->sentence  <<std::endl;
+
+                
         }
         catch (NMEAParseError &e)
         {

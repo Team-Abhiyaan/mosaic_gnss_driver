@@ -111,7 +111,8 @@ namespace nmea {
 
         mosaic_gnss_driver::DataBuffers &data_buf;
     public:
-
+        std::string nmea_buffer;  //nmea sentence for publishing in ros
+                
         explicit NMEAParser(mosaic_gnss_driver::DataBuffers &buffers);
 
         void parse(const uint8_t *data, size_t size);
@@ -135,8 +136,7 @@ namespace nmea {
         void readLine(std::string line);
 
         // This function expects the data to be a single line with an actual sentence in it, else it throws an error.
-        void readSentence(
-                std::string cmd);                // called when parser receives a sentence from the byte stream. Can also be called by user to inject sentences.
+        void readSentence(std::string cmd);                // called when parser receives a sentence from the byte stream. Can also be called by user to inject sentences.
 
         static uint8_t calculateChecksum(std::string);        // returns checksum of string -- XOR
 

@@ -367,13 +367,13 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         nmea.isvalid = false;
         return;
     }
-//new line###
-
-    this->nmea_buffer = txt;
-
 
     nmea.isvalid = false;    // assume it's invalid first
     nmea.text = txt;        // save the received text of the sentence
+
+    //new line###
+
+    this->nmea_buffer = txt;
 
     // Looking for index of last '$'
     size_t startbyte = 0;
@@ -559,22 +559,25 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     log = false;
 
     readBuffer(data, size);
+    
+    nav_sat_fix = data_buf.nav_sat_fix.get_new_ptr();
 
-    /*auto nmea_ptr = data_buf.nmea_sentence.get_new_ptr();
-    nmea_ptr->sentence = this->nmea_buffer;
-    */data_buf.nmea_sentence.set_ptr(std::move(nmea_ptr));
-    
-    auto ptr = data_buf.nav_sat_fix.get_new_ptr();
-    
-    ptr->altitude = gps.fix.altitude;
-    ptr->longitude = gps.fix.longitude;
-    ptr->latitude = gps.fix.latitude;
-    ptr->header.stamp = ros::Time::now();
+    nav_sat_fix->altitude = gps.fix.altitude;
+    nav_sat_fix->longitude = gps.fix.longitude;
+    nav_sat_fix->latitude = gps.fix.latitude;
+    nav_sat_fix->header.stamp = ros::Time::now();
     double hdop = gps.fix.horizontalDilution;
-    ptr->position_covariance[0] = hdop * hdop;
-    ptr->position_covariance[4] = hdop * hdop;
-    ptr->position_covariance[8] = (2 * hdop) * (2 * hdop);   //FIXME
-    ptr->position_covariance_type = 1;
-    data_buf.nav_sat_fix.set_ptr(std::move(ptr));
+    nav_sat_fix->position_covariance[0] = hdop * hdop;
+    nav_sat_fix->position_covariance[4] = hdop * hdop;
+    nav_sat_fix->position_covariance[8] = (2 * hdop) * (2 * hdop);   //FIXME
+    nav_sat_fix->position_covariance_type = 1;
+    data_buf.nav_sat_fix.set_ptr(std::move(nav_sat_fix));
+    
+    nmea_sentence = data_buf.nmea_sentence.get_new_ptr();
+    
+    nmea_sentence->sentence = this->nmea_buffer;
+    data_buf.nmea_sentence.set_ptr(std::move(nmea_sentence));
+    std::cout << this->nmea_buffer << std::endl;
+    std::cout << "abc" << std::endl;
 }
 

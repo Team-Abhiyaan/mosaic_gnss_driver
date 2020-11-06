@@ -21,7 +21,7 @@ void start(const std::string &device)
 
     buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
     buf.velocity.init(nh, "velocity", 5, false);
-    buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
+    buf.nmea_sentence.init(nh, "nmea_sentence", 15, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;

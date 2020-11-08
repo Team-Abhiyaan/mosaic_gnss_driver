@@ -5,6 +5,7 @@
 
 // Required Message Types
 #include <sensor_msgs/NavSatFix.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 
 #ifdef __JETBRAINS_IDE__ // remove flag to get ide hints on entire class
@@ -30,7 +31,7 @@ namespace mosaic_gnss_driver
         using ptr_t = std::unique_ptr<msg_type>;
     private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
-        ptr_t ptr;
+        ptr_t ptr{nullptr};
     public:
 
         /**
@@ -51,7 +52,10 @@ namespace mosaic_gnss_driver
          */
         void set_ptr(ptr_t new_ptr)
         {
+            std::cout << *new_ptr << std::endl;
             ptr = std::move(new_ptr);
+            // ptr.swap(new_ptr);
+            std::cout << "moved" << std::endl;
         }
 
         /**
@@ -84,7 +88,8 @@ namespace mosaic_gnss_driver
             // std::lock_guard<std::mutex> lock(mutex);
             if (!ptr)
             {
-                ROS_WARN("Not enough msg");
+#include <boost/core/demangle.hpp>
+                ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
             } else
             {
                 // TODO: Check if publisher ready
@@ -101,6 +106,7 @@ namespace mosaic_gnss_driver
     struct DataBuffers
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
+        Buffer<geometry_msgs::PoseWithCovarianceStamped> pose;
         Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
     };
 }

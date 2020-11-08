@@ -13,15 +13,18 @@ using namespace nmea;
 // --------- NMEA PARSE ERROR--------------`
 
 NMEAParseError::NMEAParseError(std::string msg)
-        : message(msg)
-{}
+    : message(msg)
+{
+}
 
 NMEAParseError::NMEAParseError(std::string msg, NMEASentence n)
-        : message(msg), nmea(n)
-{}
+    : message(msg), nmea(n)
+{
+}
 
 NMEAParseError::~NMEAParseError()
-{}
+{
+}
 
 std::string NMEAParseError::what()
 {
@@ -31,11 +34,13 @@ std::string NMEAParseError::what()
 // --------- NMEA SENTENCE --------------
 
 NMEASentence::NMEASentence()
-        : isvalid(false), checksumIsCalculated(false), calculatedChecksum(0), parsedChecksum(0)
-{}
+    : isvalid(false), checksumIsCalculated(false), calculatedChecksum(0), parsedChecksum(0)
+{
+}
 
 NMEASentence::~NMEASentence()
-{}
+{
+}
 
 bool NMEASentence::valid() const
 {
@@ -44,8 +49,7 @@ bool NMEASentence::valid() const
 
 bool NMEASentence::checksumOK() const
 {
-    return (checksumIsCalculated)
-           &&
+    return (checksumIsCalculated) &&
            (parsedChecksum == calculatedChecksum);
 }
 
@@ -131,13 +135,9 @@ int64_t nmea::parseInt(std::string s, int radix)
 // --------- NMEA PARSER --------------
 
 NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
-        : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers)
-{
-};
+    : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers){};
 
-NMEAParser::~NMEAParser()
-{
-};
+NMEAParser::~NMEAParser(){};
 
 void NMEAParser::setSentenceHandler(std::string cmdKey, std::function<void(const NMEASentence &)> handler)
 {
@@ -193,21 +193,24 @@ void NMEAParser::readByte(uint8_t b)
                 fillingbuffer = false;
                 throw;
             }
-        } else
+        }
+        else
         {
             if (buffer.size() < maxbuffersize)
             {
                 buffer.push_back(b);
-            } else
+            }
+            else
             {
-                buffer.clear();            //clear the host buffer so it won't overflow.
+                buffer.clear(); //clear the host buffer so it won't overflow.
                 fillingbuffer = false;
             }
         }
-    } else
+    }
+    else
     {
         if (b == startbyte)
-        {            // only start filling when we see the start byte.
+        { // only start filling when we see the start byte.
             fillingbuffer = true;
             buffer.push_back(b);
         }
@@ -257,7 +260,7 @@ void NMEAParser::onError(NMEASentence &nmea, string txt)
 // calls the corresponding handler in eventTable, based on the 5 letter sentence code
 void NMEAParser::readSentence(std::string cmd)
 {
-    
+
     NMEASentence nmea;
 
     onInfo(nmea, "Processing NEW string...");
@@ -272,9 +275,10 @@ void NMEAParser::readSentence(std::string cmd)
     if (*(cmd.end() - 1) == '\n')
     {
         if (*(cmd.end() - 2) == '\r')
-        {    // if there is a \r before the newline, remove it.
+        { // if there is a \r before the newline, remove it.
             cmd = cmd.substr(0, cmd.size() - 2);
-        } else
+        }
+        else
         {
             onWarning(nmea, "Malformed newline, missing carriage return (\\r) ");
             cmd = cmd.substr(0, cmd.size() - 1);
@@ -293,7 +297,6 @@ void NMEAParser::readSentence(std::string cmd)
         onWarning(nmea, ss.str());
     }
 
-
     onInfo(nmea, string("NMEA string: (\"") + cmd + "\")");
 
     // Seperates the data now that everything is formatted
@@ -310,13 +313,11 @@ void NMEAParser::readSentence(std::string cmd)
         string s = " >> NMEA Parser Internal Error: Indexing error?... ";
         throw std::runtime_error(s + e.what());
     }
-    cout.flags(oldflags);  //reset
-
+    cout.flags(oldflags); //reset
 
     // Call the "any sentence" event handler, even if invalid checksum, for possible logging elsewhere.
     onInfo(nmea, "Calling generic onSentence().");
     onSentence(nmea);
-
 
     // Call event handlers based on map entries
     function<void(const NMEASentence &)> handler = eventTable[nmea.name];
@@ -324,18 +325,18 @@ void NMEAParser::readSentence(std::string cmd)
     {
         onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.name + "\"");
         handler(nmea);
-    } else
+    }
+    else
     {
         onWarning(nmea, string("Null event handler for type (name: \"") + nmea.name + "\")");
     }
 
-/*
+    /*
 	for(int i=0; i < nmea.parameters.size(); i++){
    		std::cout << nmea.parameters.at(i) << ' ';
 	}
 */
-    cout.flags(oldflags);  //reset
-
+    cout.flags(oldflags); //reset
 }
 
 // takes the string *between* the '$' and '*' in nmea sentence,
@@ -358,7 +359,6 @@ uint8_t NMEAParser::calculateChecksum(string s)
     return checksum;
 }
 
-
 void NMEAParser::parseText(NMEASentence &nmea, string txt)
 {
 
@@ -368,8 +368,8 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         return;
     }
 
-    nmea.isvalid = false;    // assume it's invalid first
-    nmea.text = txt;        // save the received text of the sentence
+    nmea.isvalid = false; // assume it's invalid first
+    nmea.text = txt;      // save the received text of the sentence
 
     //new line###
 
@@ -382,14 +382,14 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
     {
         // No dollar sign... INVALID!
         return;
-    } else
+    }
+    else
     {
         startbyte = dollar;
     }
 
     // Get rid of data up to last'$'
     txt = txt.substr(startbyte + 1);
-
 
     // Look for checksum
     size_t checkstri = txt.find_last_of('*');
@@ -398,7 +398,8 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
     {
         // A checksum was passed in the message, so calculate what we expect to see
         nmea.calculatedChecksum = calculateChecksum(txt.substr(0, checkstri));
-    } else
+    }
+    else
     {
         // No checksum is only a warning because some devices allow sending data with no checksum.
         onWarning(nmea, "No checksum information provided. Could not find '*'.");
@@ -407,9 +408,9 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
     // Handle comma edge cases
     size_t comma = txt.find(',');
     if (comma == string::npos)
-    {        //comma not found, but there is a name...
+    { //comma not found, but there is a name...
         if (!txt.empty())
-        {    // the received data must just be the name
+        { // the received data must just be the name
             if (hasNonAlphaNum(txt))
             {
                 nmea.isvalid = false;
@@ -418,13 +419,14 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
             nmea.name = txt;
             nmea.isvalid = true;
             return;
-        } else
-        {    //it is a '$' with no information
+        }
+        else
+        { //it is a '$' with no information
             nmea.isvalid = false;
             return;
         }
     }
-    
+
     //"$," case - no name
     if (comma == 0)
     {
@@ -438,7 +440,7 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
 
     //if((nmea.name == "GPGGA") || (nmea.name == "GPGSA") || (nmea.name == "GPGSV") || (nmea.name == "GPRMC") || (nmea.name == "GPVTG")){
     //    auto nmea_ptr = data_buf.nmea_sentence.get_new_ptr();
-     //   nmea_ptr->sentence = txt;
+    //   nmea_ptr->sentence = txt;
     //    data_buf.nmea_sentence.set_ptr(std::move(nmea_ptr));
     //}
 
@@ -453,7 +455,6 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         return;
     }
 
-
     //comma is the last character/only comma
     if (comma + 1 == txt.size())
     {
@@ -461,7 +462,6 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         nmea.isvalid = true;
         return;
     }
-
 
     //move to data after first comma
     txt = txt.substr(comma + 1, txt.size() - (comma + 1));
@@ -492,8 +492,8 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
         stringstream sz;
         sz << "Found " << nmea.parameters.size() << " parameters.";
         onInfo(nmea, sz.str());
-
-    } else
+    }
+    else
     {
         stringstream sz;
         sz << "Found " << nmea.parameters.size() << " parameters.";
@@ -509,26 +509,25 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
             if (checki == last.size() - 1)
             {
                 onError(nmea, "Checksum '*' character at end, but no data.");
-            } else
+            }
+            else
             {
-                nmea.checksum = last.substr(checki + 1, last.size() - checki);        //extract checksum without '*'
+                nmea.checksum = last.substr(checki + 1, last.size() - checki); //extract checksum without '*'
 
                 onInfo(nmea, string("Found checksum. (\"*") + nmea.checksum + "\")");
 
                 try
                 {
-                    nmea.parsedChecksum = (uint8_t) parseInt(nmea.checksum, 16);
+                    nmea.parsedChecksum = (uint8_t)parseInt(nmea.checksum, 16);
                     nmea.checksumIsCalculated = true;
                 }
                 catch (NumberConversionError &)
                 {
                     onError(nmea, string("parseInt() error. Parsed checksum string was not readable as hex. (\"") +
-                                  nmea.checksum + "\")");
+                                      nmea.checksum + "\")");
                 }
 
                 onInfo(nmea, string("Checksum ok? ") + (nmea.checksumOK() ? "YES" : "NO") + "!");
-
-
             }
         }
     }
@@ -536,7 +535,7 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
     for (size_t i = 0; i < nmea.parameters.size(); i++)
     {
         if ((!validParamChars(nmea.parameters[i])) && (nmea.name != "PSSN"))
-        {                          ////PSSN sentences not included
+        { ////PSSN sentences not included
             nmea.isvalid = false;
             stringstream ss;
             ss << "Invalid character (non-alpha-num) in parameter " << i << " (from 0): \"" << nmea.parameters[i]
@@ -548,9 +547,7 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
 
     nmea.isvalid = true;
 
-
     return;
-
 }
 
 void NMEAParser::parse(const uint8_t *data, size_t size)
@@ -559,25 +556,30 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     log = false;
 
     readBuffer(data, size);
-    
-    nav_sat_fix = data_buf.nav_sat_fix.get_new_ptr();
 
-    nav_sat_fix->altitude = gps.fix.altitude;
-    nav_sat_fix->longitude = gps.fix.longitude;
-    nav_sat_fix->latitude = gps.fix.latitude;
-    nav_sat_fix->header.stamp = ros::Time::now();
+    
+    auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
+    
+    ptr1->altitude = gps.fix.altitude;
+    ptr1->longitude = gps.fix.longitude;
+    ptr1->latitude = gps.fix.latitude;
+    ptr1->header.stamp = ros::Time::now();
     double hdop = gps.fix.horizontalDilution;
-    nav_sat_fix->position_covariance[0] = hdop * hdop;
-    nav_sat_fix->position_covariance[4] = hdop * hdop;
-    nav_sat_fix->position_covariance[8] = (2 * hdop) * (2 * hdop);   //FIXME
-    nav_sat_fix->position_covariance_type = 1;
-    data_buf.nav_sat_fix.set_ptr(std::move(nav_sat_fix));
-    
-    nmea_sentence = data_buf.nmea_sentence.get_new_ptr();
-    
-    nmea_sentence->sentence = this->nmea_buffer;
-    data_buf.nmea_sentence.set_ptr(std::move(nmea_sentence));
-    std::cout << this->nmea_buffer << std::endl;
-    std::cout << "abc" << std::endl;
-}
+    ptr1->position_covariance[0] = hdop * hdop;
+    ptr1->position_covariance[4] = hdop * hdop;
+    ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); //FIXME
+    ptr1->position_covariance_type = 1;
+    data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
 
+    if (!(this->nmea_buffer).empty())
+    {
+        
+        
+        auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
+        
+        ptr2->sentence = this->nmea_buffer;
+        ptr2->header.stamp = ros::Time::now();
+        data_buf.nmea_sentence.set_ptr(std::move(ptr2));
+
+    }
+}

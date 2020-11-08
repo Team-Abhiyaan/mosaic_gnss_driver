@@ -13,6 +13,7 @@
 #include <exception>
 #include <cstdint>
 #include <sstream>
+#include <cinttypes>
 #include <mosaic_gnss_driver/data_buffers.h>
 
 
@@ -110,11 +111,6 @@ namespace nmea {
         void onError(NMEASentence &n, std::string s);
 
         mosaic_gnss_driver::DataBuffers &data_buf;
-
-        decltype(data_buf.nav_sat_fix)::ptr_t nav_sat_fix;
-        decltype(data_buf.velocity)::ptr_t velocity;
-
-        decltype(data_buf.nmea_sentence)::ptr_t nmea_sentence;
 
     public:
         std::string nmea_buffer;  //for storing nmea sentence for publishing in ros

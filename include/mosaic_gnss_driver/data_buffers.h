@@ -7,6 +7,8 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <nmea_msgs/Sentence.h>
+#include <nmea_msgs/Gpgga.h>
+
 
 #ifdef __JETBRAINS_IDE__ // remove flag to get ide hints on entire class
 #undef MOSAIC_GNSS_CORE_ONLY
@@ -93,6 +95,19 @@ namespace mosaic_gnss_driver
                 pub.publish(shared_ptr);
             }
         }
+        void publish1(ptr_t new_ptr)
+        {
+            // std::lock_guard<std::mutex> lock(mutex);
+            if (!new_ptr)
+            {
+                ROS_WARN("Not enough msg");
+            } else
+            {
+                // TODO: Check if publisher ready
+                typename msg_type::Ptr shared_ptr = std::move(new_ptr);
+                pub.publish(shared_ptr);
+            }
+        }
 
 #endif // MOSAIC_GNSS_CORE_ONLY
     };
@@ -104,6 +119,8 @@ namespace mosaic_gnss_driver
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
         Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
         Buffer<nmea_msgs::Sentence> nmea_sentence;
+        Buffer<nmea_msgs::Gpgga> gpgga;
+
     };
 }
 

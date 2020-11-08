@@ -18,6 +18,7 @@ set(DEPS
         roslib
         std_msgs
         sensor_msgs
+	nmea_msgs
         )
 
 
@@ -148,10 +149,8 @@ add_library(${PROJECT_NAME}
         src/core/connections/udp.cpp
         src/core/connections/pcap.cpp
         src/core/connections/serial.cpp
-
         src/core/parsers/sbf/sbf.cpp
         src/core/parsers/sbf/block_parsers/geodetic.cpp
-
         src/core/parsers/nmea/NMEAParser.cpp
         src/core/parsers/nmea/GPSService.cpp
         src/core/parsers/nmea/GPSFix.cpp
@@ -164,7 +163,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 target_compile_definitions(${PROJECT_NAME}_node PRIVATE MOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
 
-add_executable(nmea_parser_test src/core/parsers/nmea/nmea_parser_test.cpp src/core/parsers/nmea/NMEAParser.cpp src/core/parsers/nmea/GPSService.cpp src/core/parsers/nmea/GPSFix.cpp)
+#add_executable(nmea_parser_test src/core/parsers/nmea/nmea_parser_test.cpp src/core/parsers/nmea/NMEAParser.cpp src/core/parsers/nmea/GPSService.cpp src/core/parsers/nmea/GPSFix.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -179,12 +178,12 @@ target_link_libraries(${PROJECT_NAME}_node
         ${Boost_LIBRARIES}
         )
 
-target_link_libraries(nmea_parser_test
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
-        )
+#target_link_libraries(nmea_parser_test
+#        ${PROJECT_NAME}
+#        ${catkin_LIBRARIES}
+#        ${libpcap_LIBRARIES}
+#        ${Boost_LIBRARIES}
+#        )
 
 #############
 ## Install ##

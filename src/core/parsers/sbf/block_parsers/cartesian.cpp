@@ -123,7 +123,7 @@ namespace sbf::block_parsers
 
         // Fill Vel
         velocity->header.stamp = ros::Time::now(); // TODO: use GNSS time
-        velocity->header.frame_id = "geodetic";
+        velocity->header.frame_id = "gnss_cart";
 
         velocity->twist.twist.linear.x = block->vx;
         velocity->twist.twist.linear.y = block->vy;

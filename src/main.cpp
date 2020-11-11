@@ -16,7 +16,6 @@
 template<typename conn_type, typename parser_type>
 void start(const std::string &device)
 {
-    std::cin.get();
     ros::NodeHandle nh;
     mosaic_gnss_driver::DataBuffers buf;
 

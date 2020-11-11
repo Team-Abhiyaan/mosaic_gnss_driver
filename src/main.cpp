@@ -20,6 +20,7 @@ void start(const std::string &device)
     mosaic_gnss_driver::DataBuffers buf;
 
     buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+    buf.pose.init(nh, "pose", 5, false);
     buf.velocity.init(nh, "velocity", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
@@ -43,6 +44,7 @@ void start(const std::string &device)
 
             // Publish fields
             buf.nav_sat_fix.publish();
+            buf.pose.publish();
             buf.velocity.publish();
         }
 

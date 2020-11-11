@@ -133,6 +133,7 @@ int64_t nmea::parseInt(std::string s, int radix)
 NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
         : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers)
 {
+    data_buf.nav_sat_fix.enabled = true;
 };
 
 NMEAParser::~NMEAParser()

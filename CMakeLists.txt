@@ -151,6 +151,7 @@ add_library(${PROJECT_NAME}
 
         src/core/parsers/sbf/sbf.cpp
         src/core/parsers/sbf/block_parsers/geodetic.cpp
+        src/core/parsers/sbf/block_parsers/cartesian.cpp
 
         src/core/parsers/nmea/NMEAParser.cpp
         src/core/parsers/nmea/GPSService.cpp

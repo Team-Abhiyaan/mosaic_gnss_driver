@@ -33,6 +33,7 @@ namespace mosaic_gnss_driver
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
         ptr_t ptr{nullptr};
     public:
+        bool enabled;
 
         /**
          * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
@@ -52,7 +53,7 @@ namespace mosaic_gnss_driver
          */
         void set_ptr(ptr_t new_ptr)
         {
-            ptr = std::move(new_ptr);
+            if (enabled) ptr = std::move(new_ptr);
         }
 
         /**
@@ -83,9 +84,11 @@ namespace mosaic_gnss_driver
         void publish()
         {
             // std::lock_guard<std::mutex> lock(mutex);
+            if (!enabled) return;
             if (!ptr)
             {
 #include <boost/core/demangle.hpp>
+
                 ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
             } else
             {

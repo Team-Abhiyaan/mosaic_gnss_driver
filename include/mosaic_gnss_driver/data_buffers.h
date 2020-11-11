@@ -67,10 +67,11 @@ namespace mosaic_gnss_driver
             return std::move(ptr);
         }
 
-// We do this to compile core library without ros.
-// The core library never creates an object of this type, it only calls the above functions.`
     private:
         ros::Publisher pub;
+// We do this to compile core library without ros.
+// The core library never creates an object of this type, it only calls the above functions.`
+      
 #ifndef MOSAIC_GNSS_CORE_ONLY
     public:
         // init must be called before calling publish

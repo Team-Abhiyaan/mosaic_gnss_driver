@@ -181,9 +181,7 @@ namespace sbf::block_parsers
         // Publish if pvt also filled
         if (pos_pvt_last_time != do_not_use_time)
         {
-            std::cout << "going to set" << std::endl;
             db.pose.set_ptr(std::move(pose));
-            std::cout << "set" << std::endl;
 
         }
     }

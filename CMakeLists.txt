@@ -128,7 +128,7 @@ catkin_package(
         INCLUDE_DIRS include
         LIBRARIES ${PROJECT_NAME}
         CATKIN_DEPENDS ${DEPS}
-        DEPENDS Boost libpcap
+        DEPENDS Boost
 )
 
 ###########
@@ -140,6 +140,7 @@ catkin_package(
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
 )
 
 ## Core Library

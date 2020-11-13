@@ -19,7 +19,7 @@ void start(const std::string &device)
     ros::NodeHandle nh;
     mosaic_gnss_driver::DataBuffers buf;
 
-    buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+    buf.nav_sat_fix.init(nh, "nav_sat_fix", 20, false);
     buf.velocity.init(nh, "velocity", 5, false);
     buf.nmea_sentence.init(nh, "nmea_sentence", 20, false);
 

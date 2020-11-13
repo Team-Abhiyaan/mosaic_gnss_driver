@@ -17,12 +17,12 @@
 // MOSAIC_GNSS_CORE_ONLY should be defined if we are compiling the core library.
 // this ignores the ros parts of the data buffers, i.e. only exposes the ptr_t, get_new_ptr, and set_ptr.
 // Never instantiate a member of these classes in the core library.
-#ifndef MOSAIC_GNSS_CORE_ONLY
+//#ifndef MOSAIC_GNSS_CORE_ONLY
 
 #include <ros/ros.h>
 #include <ros/publisher.h>
 
-#endif
+//#endif
 
 namespace mosaic_gnss_driver
 {
@@ -33,9 +33,9 @@ namespace mosaic_gnss_driver
         using ptr_t = std::unique_ptr<msg_type>;
     private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
-        ptr_t ptr;
+        ptr_t ptr{nullptr};
     public:
-
+        bool enabled;
         /**
          * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
          * Not guaranteed to be zero initialized, i.e. implementation may reuse previous unsent message.
@@ -54,7 +54,7 @@ namespace mosaic_gnss_driver
          */
         void set_ptr(ptr_t new_ptr)
         {
-            ptr = std::move(new_ptr);
+            if (enabled) ptr = std::move(new_ptr);
         }
 
         /**
@@ -68,11 +68,12 @@ namespace mosaic_gnss_driver
             return std::move(ptr);
         }
 
+    private:
+        ros::Publisher pub;
+
 // We do this to compile core library without ros.
 // The core library never creates an object of this type, it only calls the above functions.`
 #ifndef MOSAIC_GNSS_CORE_ONLY
-    private:
-        ros::Publisher pub;
     public:
         // init must be called before calling publish
 
@@ -85,9 +86,11 @@ namespace mosaic_gnss_driver
         void publish()
         {
             // std::lock_guard<std::mutex> lock(mutex);
+            if (!enabled) return;
             if (!ptr)
             {
-                ROS_WARN("Not enough msg");
+#include <boost/core/demangle.hpp>
+                ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
             } else
             {
                 // TODO: Check if publisher ready

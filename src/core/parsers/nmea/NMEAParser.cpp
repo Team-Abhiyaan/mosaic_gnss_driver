@@ -139,7 +139,12 @@ NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
     : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers){
 
 data_buf.nav_sat_fix.enabled = true;
-data_buf.nmea_sentence.enabled = true;
+data_buf.velocity.enabled = true;
+
+bool pub_nmea_msg;
+ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
+if(pub_nmea_msg) data_buf.nmea_sentence.enabled = true;
+else{data_buf.nmea_sentence.enabled = false;}
 
 };
 
@@ -557,34 +562,45 @@ void NMEAParser::parseText(NMEASentence &nmea, string txt)
 }
 
 void NMEAParser::parse(const uint8_t *data, size_t size)
-        {
-            nmea::GPSService gps(*this);
-            log = false;
+{
+    nmea::GPSService gps(*this);
+    log = false;
 
-            readBuffer(data, size);
+    readBuffer(data, size);
+    std::string frame_id;
+    ros::param::get("/mosaic_gnss/gps_link",frame_id);
+    auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
+    //time t = ros::Time::now();
+    ptr1->altitude = gps.fix.altitude;
+    ptr1->longitude = gps.fix.longitude;
+    ptr1->latitude = gps.fix.latitude;
+    ptr1->header.stamp = ros::Time::now();
+    ptr1->header.frame_id = frame_id;
+    double hdop = gps.fix.horizontalDilution;
+    ptr1->position_covariance[0] = hdop * hdop;
+    ptr1->position_covariance[4] = hdop * hdop;
+    ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); //FIXME
+    ptr1->position_covariance_type = 1;
+    data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
 
-            
-            auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
-            //time t = ros::Time::now();
-            ptr1->altitude = gps.fix.altitude;
-            ptr1->longitude = gps.fix.longitude;
-            ptr1->latitude = gps.fix.latitude;
-            ptr1->header.stamp = ros::Time::now();
-            double hdop = gps.fix.horizontalDilution;
-            ptr1->position_covariance[0] = hdop * hdop;
-            ptr1->position_covariance[4] = hdop * hdop;
-            ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); //FIXME
-            ptr1->position_covariance_type = 1;
-            data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
+    if (!(this->nmea_buffer).empty())
+    {  
+        auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
+        ptr2->sentence = this->nmea_buffer;
+        ptr2->header.frame_id = frame_id;
+        ptr2->header.stamp = ros::Time::now();
+        data_buf.nmea_sentence.set_ptr(std::move(ptr2));
+    }
+    auto ptr3 = data_buf.velocity.get_new_ptr();
+    const double pi = 3.1415926;
+    ptr3->header.stamp = ros::Time::now();
+    ptr3->header.frame_id = frame_id;
+    ptr3->twist.twist.linear.x = gps.fix.speed*sin(gps.fix.travelAngle*(pi/360));
+    ptr3->twist.twist.linear.y = gps.fix.speed*cos(gps.fix.travelAngle*(pi/360));
+    ptr3->twist.twist.linear.z = 0;
+    data_buf.velocity.set_ptr(std::move(ptr3));
 
-            if (!(this->nmea_buffer).empty())
-            {
-                
-                
-                auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
-                ptr2->sentence = this->nmea_buffer;
-                ptr2->header.stamp = ros::Time::now();
-                data_buf.nmea_sentence.set_ptr(std::move(ptr2));
 
-            }
-        }
+
+
+}

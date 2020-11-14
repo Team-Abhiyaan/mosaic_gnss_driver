@@ -98,19 +98,6 @@ namespace mosaic_gnss_driver
                 pub.publish(shared_ptr);
             }
         }
-        void publish1(ptr_t new_ptr)
-        {
-            // std::lock_guard<std::mutex> lock(mutex);
-            if (!new_ptr)
-            {
-                ROS_WARN("Not enough msg");
-            } else
-            {
-                // TODO: Check if publisher ready
-                typename msg_type::Ptr shared_ptr = std::move(new_ptr);
-                pub.publish(shared_ptr);
-            }
-        }
 
 #endif // MOSAIC_GNSS_CORE_ONLY
     };

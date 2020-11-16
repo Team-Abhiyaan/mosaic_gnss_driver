@@ -15,17 +15,14 @@ using namespace nmea;
 
 NMEAParseError::NMEAParseError(std::string msg)
     : message(msg)
-{
-}
+{}
 
 NMEAParseError::NMEAParseError(std::string msg, NMEASentence n)
     : message(msg), nmea(n)
-{
-}
+{}
 
 NMEAParseError::~NMEAParseError()
-{
-}
+{}
 
 std::string NMEAParseError::what()
 {
@@ -36,13 +33,10 @@ std::string NMEAParseError::what()
 
 NMEASentence::NMEASentence()
     : isvalid(false), checksumIsCalculated(false), calculatedChecksum(0), parsedChecksum(0)
-{
-}
+{}
 
 NMEASentence::~NMEASentence()
-{
-}
-
+{}
 bool NMEASentence::valid() const
 {
     return isvalid;
@@ -134,7 +128,7 @@ int64_t nmea::parseInt(std::string s, int radix)
 }
 
 // --------- NMEA PARSER --------------
-
+std::string frame_id;           // for gps_link in nav_sat_fix msg 
 NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
     : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers){
 
@@ -146,6 +140,7 @@ ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
 if(pub_nmea_msg) data_buf.nmea_sentence.enabled = true;
 else{data_buf.nmea_sentence.enabled = false;}
 
+ros::param::get("/mosaic_gnss/gps_link",frame_id);
 };
 
 NMEAParser::~NMEAParser() = default;
@@ -341,12 +336,6 @@ void NMEAParser::readSentence(std::string cmd)
     {
         onWarning(nmea, string("Null event handler for type (name: \"") + nmea.name + "\")");
     }
-
-    /*
-	for(int i=0; i < nmea.parameters.size(); i++){
-   		std::cout << nmea.parameters.at(i) << ' ';
-	}
-*/
     cout.flags(oldflags); //reset
 }
 
@@ -567,10 +556,9 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     log = false;
 
     readBuffer(data, size);
-    std::string frame_id;
-    ros::param::get("/mosaic_gnss/gps_link",frame_id);
+    //nav_sta_fix message
     auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
-    //time t = ros::Time::now();
+    //time stt = ros::Time::now();
     ptr1->altitude = gps.fix.altitude;
     ptr1->longitude = gps.fix.longitude;
     ptr1->latitude = gps.fix.latitude;
@@ -580,17 +568,17 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     ptr1->position_covariance[0] = hdop * hdop;
     ptr1->position_covariance[4] = hdop * hdop;
     ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); //FIXME
-    ptr1->position_covariance_type = 1;
+    ptr1->position_covariance_type = 2;
     data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
 
-    if (!(this->nmea_buffer).empty())
-    {  
-        auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
-        ptr2->sentence = this->nmea_buffer;
-        ptr2->header.frame_id = frame_id;
-        ptr2->header.stamp = ros::Time::now();
-        data_buf.nmea_sentence.set_ptr(std::move(ptr2));
-    }
+    //nmea_sentence msg
+    auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
+    ptr2->sentence = this->nmea_buffer;
+    ptr2->header.frame_id = frame_id;
+    ptr2->header.stamp = ros::Time::now();
+    data_buf.nmea_sentence.set_ptr(std::move(ptr2));
+    
+    //TwistwithCovarianceStamped message
     auto ptr3 = data_buf.velocity.get_new_ptr();
     const double pi = 3.1415926;
     ptr3->header.stamp = ros::Time::now();
@@ -599,8 +587,4 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     ptr3->twist.twist.linear.y = gps.fix.speed*cos(gps.fix.travelAngle*(pi/360));
     ptr3->twist.twist.linear.z = 0;
     data_buf.velocity.set_ptr(std::move(ptr3));
-
-
-
-
 }

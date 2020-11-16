@@ -21,7 +21,6 @@
 //read class definition for info
 #define NMEA_PARSER_MAX_BUFFER_SIZE 2000
 
-
 namespace nmea {
 
     double parseDouble(std::string s);

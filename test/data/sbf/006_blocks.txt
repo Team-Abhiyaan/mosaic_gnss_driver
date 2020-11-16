@@ -1,0 +1,33 @@
+658802	4047	BDSRaw	BeiDou navigation page
+365518	4023	GALRawINAV	Galileo I/NAV navigation page
+194526	4026	GLORawCA	GLONASS CA navigation string
+123152	4017	GPSRawCA	GPS CA navigation subframe
+93576	5922	EndOfMeas	Measurement epoch marker
+93513	5938	AttEuler	GNSS attitude expressed as Euler angles
+93513	5921	EndOfPVT	PVT epoch marker
+93513	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)
+93513	4028	BaseVectorGeod	ENU relative position and velocity with respect to base(s)
+93513	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates
+93513	4001	DOP	Dilution of precision
+93450	4238	P2PPStatus	P 2 PP client/server status
+93450	4201	LBandTrackerStatus	Status of the L-band signal tracking
+93450	4105	DynDNSStatus	DynDNS status
+93450	4092	RFStatus	Radio-frequency interference mitigation status
+93450	4091	OutputLink	Statistics on output streams
+93450	4090	InputLink	Statistics on input streams
+93450	4082	QualityInd	Quality indicators
+93450	4059	DiskStatus	Internal logging status
+93450	4053	NTRIPClientStatus	NTRIP client connection status
+93450	4014	ReceiverStatus	Overall status information of the receiver
+93387	4079	PVTSupportA	Internal parameters for maintenance and support
+93387	4076	PVTSupport	Internal parameters for maintenance and support
+35645	4018	GPSRawL2C	GPS L 2 C navigation frame
+34900	4120	BDSIon	BeiDou Ionospheric delay model parameters
+31782	4066	QZSRawL1CA	QZSS L 1 CA navigation frame
+31480	4022	GALRawFNAV	Galileo F/NAV navigation page
+14688	4093	NAVICRaw	NavIC/IRNSS subframe
+7129	4067	QZSRawL2C	QZSS L 2 C navigation frame
+6146	4031	GALUtc	GST-UTC data
+5391	4030	GALIon	NeQuick Ionosphere model parameters
+4866	4003	GALAlm	Almanac data for a Galileo satellite
+4644	4032	GALGstGps	GST-GPS data

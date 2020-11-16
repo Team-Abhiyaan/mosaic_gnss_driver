@@ -5,6 +5,7 @@
 
 // Required Message Types
 #include <sensor_msgs/NavSatFix.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <nmea_msgs/Sentence.h>
 #include <nmea_msgs/Gpgga.h>
@@ -17,12 +18,12 @@
 // MOSAIC_GNSS_CORE_ONLY should be defined if we are compiling the core library.
 // this ignores the ros parts of the data buffers, i.e. only exposes the ptr_t, get_new_ptr, and set_ptr.
 // Never instantiate a member of these classes in the core library.
-//#ifndef MOSAIC_GNSS_CORE_ONLY
+// #ifndef MOSAIC_GNSS_CORE_ONLY
 
 #include <ros/ros.h>
 #include <ros/publisher.h>
 
-//#endif
+// #endif
 
 namespace mosaic_gnss_driver
 {
@@ -70,9 +71,9 @@ namespace mosaic_gnss_driver
 
     private:
         ros::Publisher pub;
-
 // We do this to compile core library without ros.
 // The core library never creates an object of this type, it only calls the above functions.`
+      
 #ifndef MOSAIC_GNSS_CORE_ONLY
     public:
         // init must be called before calling publish
@@ -107,6 +108,7 @@ namespace mosaic_gnss_driver
     struct DataBuffers
     {
         Buffer<sensor_msgs::NavSatFix> nav_sat_fix;
+        Buffer<geometry_msgs::PoseWithCovarianceStamped> pose;
         Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
         Buffer<nmea_msgs::Sentence> nmea_sentence;
         Buffer<nmea_msgs::Gpgga> gpgga;

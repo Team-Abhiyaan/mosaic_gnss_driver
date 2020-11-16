@@ -23,13 +23,42 @@ namespace sbf::block_parsers
 
     public:
         Geodetic(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
-        {}
+        {
+            db.nav_sat_fix.enabled = true;
+            db.velocity.enabled = true;
+        }
 
         void PVTGeodetic(const uint8_t *block_ptr, sbf::u2 length);
 
         void PosCovGeodetic(const uint8_t *block_ptr, sbf::u2 length);
 
         void VelCovGeodetic(const uint8_t *block_ptr, sbf::u2 length);
+    };
+
+    class Cartesian
+    {
+        mosaic_gnss_driver::DataBuffers &db;
+
+        decltype(db.pose)::ptr_t pose;
+        decltype(db.velocity)::ptr_t velocity;
+
+        // const static sbf::u4 max_dt = 100;
+        const static sbf::u4 do_not_use_time = 4294967295; // TODO static member of the block structure
+        sbf::u4 pos_pvt_last_time{do_not_use_time}, pos_cov_last_time{do_not_use_time};
+        sbf::u4 vel_pvt_last_time{do_not_use_time}, vel_cov_last_time{do_not_use_time};
+
+    public:
+        Cartesian(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
+        {
+            db.pose.enabled = true;
+            db.velocity.enabled = true;
+        }
+
+        void PVTCartesian(const uint8_t *block_ptr, sbf::u2 length);
+
+        void PosCovCartesian(const uint8_t *block_ptr, sbf::u2 length);
+
+        void VelCovCartesian(const uint8_t *block_ptr, sbf::u2 length);
     };
 }
 #endif //MOSAIC_GNSS_DRIVER_BLOCK_PARSERS_H

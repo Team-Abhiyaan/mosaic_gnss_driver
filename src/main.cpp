@@ -20,6 +20,7 @@ void start(const std::string &device,const bool &pub_nmea_msg)
     mosaic_gnss_driver::DataBuffers buf;
 
     buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+    buf.pose.init(nh, "pose", 5, false);
     buf.velocity.init(nh, "velocity", 5, false);
     if(pub_nmea_msg){
     buf.nmea_sentence.init(nh, "nmea_sentence", 15, false);
@@ -46,6 +47,7 @@ void start(const std::string &device,const bool &pub_nmea_msg)
 
             // Publish fields
             buf.nav_sat_fix.publish();
+            buf.pose.publish();
             buf.velocity.publish();
             buf.nmea_sentence.publish();
         }

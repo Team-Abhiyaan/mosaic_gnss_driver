@@ -138,7 +138,6 @@ void GPSService::read_GPGGA(const NMEASentence &nmea)
             throw NMEAParseError("GPS data is missing parameters.");
         }
 
-
         // TIMESTAMP
         this->fix.timestamp.setTime(parseDouble(nmea.parameters[0]));
 
@@ -160,7 +159,6 @@ void GPSService::read_GPGGA(const NMEASentence &nmea)
             this->fix.longitude = convertLatLongToDeg(sll, dir);
         }
 
-
         // FIX QUALITY
         bool lockupdate = false;
         this->fix.quality = (uint8_t) parseInt(nmea.parameters[5]);
@@ -172,7 +170,6 @@ void GPSService::read_GPGGA(const NMEASentence &nmea)
             lockupdate = this->fix.setlock(true);
         } else
         {}
-
 
         // TRACKING SATELLITES
         this->fix.trackingSatellites = (int32_t) parseInt(nmea.parameters[6]);

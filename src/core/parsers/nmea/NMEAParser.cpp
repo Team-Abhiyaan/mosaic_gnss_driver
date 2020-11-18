@@ -5,7 +5,6 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
-#include <time.h>
 #include <mosaic_gnss_driver/parsers/nmeaparse/GPSService.h>
 
 using namespace std;
@@ -558,30 +557,31 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     readBuffer(data, size);
     //nav_sta_fix message
     auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
-    //time stt = ros::Time::now();
+    cout<<gps.fix.timestamp.sec << endl;
+    auto time_stamp = ros::Time::now();
     ptr1->altitude = gps.fix.altitude;
     ptr1->longitude = gps.fix.longitude;
     ptr1->latitude = gps.fix.latitude;
-    ptr1->header.stamp = ros::Time::now();
+    ptr1->header.stamp = time_stamp;
     ptr1->header.frame_id = frame_id;
     double hdop = gps.fix.horizontalDilution;
     ptr1->position_covariance[0] = hdop * hdop;
     ptr1->position_covariance[4] = hdop * hdop;
     ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); //FIXME
-    ptr1->position_covariance_type = 2;
+    ptr1->position_covariance_type = 1;
     data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
 
     //nmea_sentence msg
     auto ptr2 = data_buf.nmea_sentence.get_new_ptr();
     ptr2->sentence = this->nmea_buffer;
     ptr2->header.frame_id = frame_id;
-    ptr2->header.stamp = ros::Time::now();
+    ptr2->header.stamp = time_stamp;
     data_buf.nmea_sentence.set_ptr(std::move(ptr2));
     
     //TwistwithCovarianceStamped message
     auto ptr3 = data_buf.velocity.get_new_ptr();
     const double pi = 3.1415926;
-    ptr3->header.stamp = ros::Time::now();
+    ptr3->header.stamp = time_stamp;
     ptr3->header.frame_id = frame_id;
     ptr3->twist.twist.linear.x = gps.fix.speed*sin(gps.fix.travelAngle*(pi/360));
     ptr3->twist.twist.linear.y = gps.fix.speed*cos(gps.fix.travelAngle*(pi/360));

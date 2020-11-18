@@ -117,7 +117,12 @@ sudo apt install libpcap-dev
            -`serial` for serial connection type. 
            -`tcp` for tcp connection protocol.
            -`udp` for udp connection protocol.
-           -`pcap` to read packets from a pcap file
+           -`pcap` to read packets from a pcap file.
+    - `device`: Used to set the Address for TCP/UDP connection 
+         - Default: `192.168.1.101`
+          For pcap ,this is used to give the path of the pcap file.
+          For serial connection, this is used to set the port.
+         - Default:`/dev/ACM0`
     - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
          - Default: `false`	    
 2. **Published ROS Topics**

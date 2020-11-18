@@ -107,7 +107,7 @@ namespace nmea
         // Values collected directly from the GPS
         double rawTime;
         int32_t rawDate;
-
+        //give the unix time(seconds passed since 1.1.1970)
         time_t getTime();
 
         // Set directly from the NMEA time stamp

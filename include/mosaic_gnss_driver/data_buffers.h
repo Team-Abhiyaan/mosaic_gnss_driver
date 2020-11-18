@@ -5,6 +5,7 @@
 
 // Required Message Types
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/TimeReference.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <nmea_msgs/Sentence.h>
@@ -111,7 +112,7 @@ namespace mosaic_gnss_driver
         Buffer<geometry_msgs::PoseWithCovarianceStamped> pose;
         Buffer<geometry_msgs::TwistWithCovarianceStamped> velocity;
         Buffer<nmea_msgs::Sentence> nmea_sentence;
-        Buffer<nmea_msgs::Gpgga> gpgga;
+        Buffer<sensor_msgs::TimeReference> time_reference;
 
     };
 }

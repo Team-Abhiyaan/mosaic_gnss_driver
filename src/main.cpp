@@ -23,8 +23,9 @@ void start(const std::string &device,const bool &pub_nmea_msg)
     buf.pose.init(nh, "pose", 5, false);
     buf.velocity.init(nh, "velocity", 5, false);
     if(pub_nmea_msg){
-    buf.nmea_sentence.init(nh, "nmea_sentence", 15, false);
+    buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
     }
+    buf.time_reference.init(nh,"time_reference", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
@@ -50,6 +51,7 @@ void start(const std::string &device,const bool &pub_nmea_msg)
             buf.pose.publish();
             buf.velocity.publish();
             buf.nmea_sentence.publish();
+            buf.time_reference.publish();
         }
 
         ros::spinOnce();

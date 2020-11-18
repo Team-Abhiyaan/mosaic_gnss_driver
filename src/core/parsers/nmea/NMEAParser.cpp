@@ -133,6 +133,7 @@ NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
 
 data_buf.nav_sat_fix.enabled = true;
 data_buf.velocity.enabled = true;
+data_buf.time_reference.enabled = true;
 
 bool pub_nmea_msg;
 ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
@@ -557,7 +558,6 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     readBuffer(data, size);
     //nav_sta_fix message
     auto ptr1 = data_buf.nav_sat_fix.get_new_ptr();
-    cout<<gps.fix.timestamp.sec << endl;
     auto time_stamp = ros::Time::now();
     ptr1->altitude = gps.fix.altitude;
     ptr1->longitude = gps.fix.longitude;
@@ -587,4 +587,14 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     ptr3->twist.twist.linear.y = gps.fix.speed*cos(gps.fix.travelAngle*(pi/360));
     ptr3->twist.twist.linear.z = 0;
     data_buf.velocity.set_ptr(std::move(ptr3));
+
+    auto ptr4 = data_buf.time_reference.get_new_ptr();
+    ptr4->header.stamp = time_stamp;
+    time_t timestamp = gps.fix.timestamp.getTime();
+    ros::Time time;
+    time.sec = timestamp;
+    time.nsec = (static_cast<time_t>(gps.fix.timestamp.rawTime*10000));
+    ptr4->time_ref = time;
+    data_buf.time_reference.set_ptr(std::move(ptr4));
+
 }

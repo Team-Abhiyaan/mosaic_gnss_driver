@@ -110,19 +110,19 @@ sudo apt install libpcap-dev
 1. **ROS Parameters**
     - `frame_id`: ROS TF frame to place in the header of published messages.
         - Default: gps_link
-    - `parser`: `sbf` to set the parser to use the sbf blocks sent by the module.
-            	`nmea` to set the parser to use the NMEA Sentence sent by the module.  	
-    - `conn`: ` type ` to set the type of connection used to connect with the module.
-	 Set type as:
-           -`serial` for serial connection type. 
-           -`tcp` for tcp connection protocol.
-           -`udp` for udp connection protocol.
-           -`pcap` to read packets from a pcap file.
+    - `parser`: -`sbf` to set the parser to use the sbf blocks sent by the module.   <br />
+     -`nmea` to set the parser to use the NMEA Sentence sent by the module.  	
+    - `conn`: ` "type" ` to set the type of connection used to connect with the module.   <br />
+     -Set type as: <br />
+         -`serial` for serial connection type. <br />
+         -`tcp` for tcp connection protocol.   <br />
+         -`udp` for udp connection protocol.   <br />
+         -`pcap` to read packets from a pcap file  
     - `device`: Used to set the Address for TCP/UDP connection 
-         - Default: `192.168.1.101`
-          For pcap ,this is used to give the path of the pcap file.
-          For serial connection, this is used to set the port.
-         - Default:`/dev/ACM0`
+        - Default: `192.168.1.101`   <br />
+      -For pcap ,this is used to give the path of the pcap file.   <br />
+       -For serial connection, this is used to set the port.   <br />
+        - Default:`/dev/ACM0`
     - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
          - Default: `false`	    
 2. **Published ROS Topics**

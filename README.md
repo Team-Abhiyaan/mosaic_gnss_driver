@@ -118,10 +118,8 @@ sudo apt install libpcap-dev
            -`tcp` for tcp connection protocol.
            -`udp` for udp connection protocol.
            -`pcap` to read packets from a pcap file
-    - `device`: `true` to publish NMEA Sentences sent by the mosaic module
-          - Default: `false`
     - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
-          - Default: `false`	    
+         - Default: `false`	    
 2. **Published ROS Topics**
     - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*
           - **Note**:  GPSFix messages will always be published regardless of what parser type is used.        

@@ -16,21 +16,56 @@
 template<typename conn_type, typename parser_type>
 void start(const std::string &device)
 {
-    ros::NodeHandle nh;
+    ros::NodeHandle nh, pnh("~");
     mosaic_gnss_driver::DataBuffers buf;
-
-    buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
-    buf.pose.init(nh, "pose", 5, false);
-    buf.velocity.init(nh, "velocity", 5, false);
-    bool pub_nmea_msg;
-    ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
-    if(pub_nmea_msg){
-    buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
-    }
-    buf.time_reference.init(nh,"time_reference", 5, false);
 
     mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
     if (!gnss.connect(device)) return;
+
+    if constexpr (std::is_same<parser_type, sbf::SBF>::value)
+    {
+        bool geodetic;
+        const auto type = pnh.param("sbf_pvt_type", std::string{"geodetic"});
+
+        if (type == "cartesian")
+        {
+            geodetic = false;
+        } else
+        {
+            geodetic = true;
+            if (type != "geodetic")
+                ROS_WARN("Invalid pvt type, assuming geodetic.");
+        }
+
+        buf.velocity.init(nh, "velocity", 5, false);
+
+        if (geodetic)
+        {
+            buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+            gnss.p.parsers.enable_geodetic();
+
+        } else
+        {
+            buf.pose.init(nh, "pose", 5, false);
+            gnss.p.parsers.enable_cartesian();
+
+        }
+
+
+    } else if constexpr (std::is_same<parser_type, nmea::NMEAParser>::value)
+    {
+        buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
+        buf.pose.init(nh, "pose", 5, false);
+        buf.velocity.init(nh, "velocity", 5, false);
+        buf.time_reference.init(nh, "time_reference", 5, false);
+
+        bool pub_nmea_msg;
+        ros::param::get("/mosaic_gnss/pub_nmea_msg", pub_nmea_msg);
+        if (pub_nmea_msg)
+        {
+            buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
+        }
+    }
 
     auto start_time = ros::Time::now();
 
@@ -49,11 +84,7 @@ void start(const std::string &device)
             start_time = cur;
 
             // Publish fields
-            buf.nav_sat_fix.publish();
-            buf.pose.publish();
-            buf.velocity.publish();
-            buf.nmea_sentence.publish();
-            buf.time_reference.publish();
+            buf.publish_all();
         }
 
         ros::spinOnce();
@@ -105,7 +136,7 @@ int main(int argc, char **argv)
         type = "";
 
     if (!pnh.getParam("pub_nmea_msg", pub_nmea_msg))
-        pnh.setParam("pub_nmea_msg",0);
+        pnh.setParam("pub_nmea_msg", 0);
     if (!pnh.hasParam("frame_id"))
         pnh.setParam("frame_id", "gps_link");
 

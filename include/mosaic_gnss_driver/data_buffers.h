@@ -38,6 +38,7 @@ namespace mosaic_gnss_driver
         ptr_t ptr{nullptr};
     public:
         bool enabled;
+
         /**
          * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
          * Not guaranteed to be zero initialized, i.e. implementation may reuse previous unsent message.
@@ -74,7 +75,7 @@ namespace mosaic_gnss_driver
         ros::Publisher pub;
 // We do this to compile core library without ros.
 // The core library never creates an object of this type, it only calls the above functions.`
-      
+
 #ifndef MOSAIC_GNSS_CORE_ONLY
     public:
         // init must be called before calling publish
@@ -114,6 +115,18 @@ namespace mosaic_gnss_driver
         Buffer<nmea_msgs::Sentence> nmea_sentence;
         Buffer<sensor_msgs::TimeReference> time_reference;
 
+#ifndef MOSAIC_GNSS_CORE_ONLY
+
+        void publish_all()
+        {
+            nav_sat_fix.publish();
+            pose.publish();
+            velocity.publish();
+            nmea_sentence.publish();
+            time_reference.publish();
+        }
+
+#endif
     };
 }
 

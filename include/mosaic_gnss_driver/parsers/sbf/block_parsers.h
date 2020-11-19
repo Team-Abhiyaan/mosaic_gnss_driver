@@ -23,10 +23,7 @@ namespace sbf::block_parsers
 
     public:
         Geodetic(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
-        {
-            db.nav_sat_fix.enabled = true;
-            db.velocity.enabled = true;
-        }
+        {}
 
         void PVTGeodetic(const uint8_t *block_ptr, sbf::u2 length);
 
@@ -49,10 +46,7 @@ namespace sbf::block_parsers
 
     public:
         Cartesian(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
-        {
-            db.pose.enabled = true;
-            db.velocity.enabled = true;
-        }
+        {}
 
         void PVTCartesian(const uint8_t *block_ptr, sbf::u2 length);
 

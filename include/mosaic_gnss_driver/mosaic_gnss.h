@@ -24,11 +24,11 @@ namespace mosaic_gnss_driver
         /// Structure for storing parsed messages.
         mosaic_gnss_driver::DataBuffers &data_buf;
 
+    public:
         Parser p; /// Message parser
 
         Connection conn; /// Connection to Module
 
-    public:
         /**
          * Only constructor
          *

@@ -45,29 +45,9 @@ namespace sbf
         mosaic_gnss_driver::DataBuffers &data_buf;
 
         // Parsing Blocks:
-
-        struct
-        {
-            mosaic_gnss_driver::DataBuffers &data_buf;
-            // sbf::block_parsers::Geodetic geodetic{data_buf};
-            sbf::block_parsers::Cartesian cartesian{data_buf};
-        } parsers{data_buf};
-
-        std::unordered_map<sbf::u4, std::function<void(const uint8_t *, const sbf::u2, const sbf::u1)>> parse_table{
-                /*{4007, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
-                       { g.PVTGeodetic(block_ptr, len); }},
-                {5906, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
-                       { g.PosCovGeodetic(block_ptr, len); }},
-                {5908, [&g = parsers.geodetic](auto block_ptr, auto len, auto rev_num)
-                       { g.VelCovGeodetic(block_ptr, len); }},*/
-
-                {4006, [&g = parsers.cartesian](auto block_ptr, auto len, auto rev_num)
-                       { g.PVTCartesian(block_ptr, len); }},
-                {5905, [&g = parsers.cartesian](auto block_ptr, auto len, auto rev_num)
-                       { g.PosCovCartesian(block_ptr, len); }},
-                {5907, [&g = parsers.cartesian](auto block_ptr, auto len, auto rev_num)
-                       { g.VelCovCartesian(block_ptr, len); }}
-        };
+        using parse_table_t = std::unordered_map<sbf::u4, std::function<void(const uint8_t *, const sbf::u2,
+                                                                             const sbf::u1)>>;
+        parse_table_t parse_table{};
 
 
         /**
@@ -139,6 +119,42 @@ namespace sbf
          * @param size Size of the new set of data
          */
         void parse(const uint8_t *data, size_t size);
+
+        struct
+        {
+            mosaic_gnss_driver::DataBuffers &data_buf;
+            parse_table_t &pt;
+
+            sbf::block_parsers::Geodetic geodetic{data_buf};
+            sbf::block_parsers::Cartesian cartesian{data_buf};
+
+            void enable_geodetic()
+            {
+                data_buf.nav_sat_fix.enabled = true;
+                data_buf.velocity.enabled = true;
+
+                pt[4007] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
+                { g.PVTGeodetic(block_ptr, len); };
+                pt[5906] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
+                { g.PosCovGeodetic(block_ptr, len); };
+                pt[5908] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
+                { g.VelCovGeodetic(block_ptr, len); };
+            }
+
+            void enable_cartesian()
+            {
+                data_buf.pose.enabled = true;
+                data_buf.velocity.enabled = true;
+
+                pt[4006] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
+                { g.PVTCartesian(block_ptr, len); };
+                pt[5905] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
+                { g.PosCovCartesian(block_ptr, len); };
+                pt[5907] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
+                { g.VelCovCartesian(block_ptr, len); };
+            }
+
+        } parsers{data_buf, parse_table};
     };
 } // namespace sbf
 

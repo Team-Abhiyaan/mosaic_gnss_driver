@@ -112,7 +112,6 @@ TO RUN THE DRIVER ,RUN
 rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=[comm_type] _pub_nmea_msg:=["true" if you want to publish NMEA sentence]
 ```
 
-
 1. **ROS Parameters**
     - `frame_id`: ROS TF frame to place in the header of published messages.
         - Default: gps_link

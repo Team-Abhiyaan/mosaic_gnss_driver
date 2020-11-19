@@ -129,7 +129,9 @@ rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=
        -For serial connection, this is used to set the port.   <br />
         - Default:`/dev/ACM0`
     - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
-         - Default: `false`	    
+         - Default: `false`
+    - `sbf_pvt_type`: `type` set pvt type used by module `geodetic` or `cartesian`.
+         - Default: `geodetic`	    
 2. **Published ROS Topics**
     - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*
           - **Note**:  GPSFix messages will always be published regardless of what parser type is used.        

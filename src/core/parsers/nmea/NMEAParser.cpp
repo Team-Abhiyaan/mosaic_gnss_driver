@@ -140,7 +140,7 @@ ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
 if(pub_nmea_msg) data_buf.nmea_sentence.enabled = true;
 else{data_buf.nmea_sentence.enabled = false;}
 
-ros::param::get("/mosaic_gnss/gps_link",frame_id);
+ros::param::get("/mosaic_gnss/frame_id",frame_id);
 };
 
 NMEAParser::~NMEAParser() = default;

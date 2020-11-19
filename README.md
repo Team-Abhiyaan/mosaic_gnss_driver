@@ -105,6 +105,34 @@ Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
 ```bash
 sudo apt install libpcap-dev
 ```
+### ROS Wrapper
+
+1. **ROS Parameters**
+    - `frame_id`: ROS TF frame to place in the header of published messages.
+        - Default: gps_link
+    - `parser`: -`sbf` to set the parser to use the sbf blocks sent by the module.   <br />
+     -`nmea` to set the parser to use the NMEA Sentence sent by the module.  	
+    - `conn`: ` "type" ` to set the type of connection used to connect with the module.   <br />
+     -Set type as: <br />
+         -`serial` for serial connection type. <br />
+         -`tcp` for tcp connection protocol.   <br />
+         -`udp` for udp connection protocol.   <br />
+         -`pcap` to read packets from a pcap file  
+    - `device`: Used to set the Address for TCP/UDP connection 
+        - Default: `192.168.1.101`   <br />
+      -For pcap ,this is used to give the path of the pcap file.   <br />
+       -For serial connection, this is used to set the port.   <br />
+        - Default:`/dev/ACM0`
+    - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
+         - Default: `false`	    
+2. **Published ROS Topics**
+    - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*
+          - **Note**:  GPSFix messages will always be published regardless of what parser type is used.        
+    - `/pose` *(geometry_msgs/PoseWithCovarianceStamped)*: From SBF Blocks
+    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*: Published by both SBF and NMEA Parser.
+	 - **Note**:  NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.       
+    - `/nmea_sentence` *(nmea_msgs/Sentence)*: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.
+    - `/time_reference` *(sensor_msgs/TimeReference)*: Publishes Unix Epoch Time given by NMEA data. 
 
 ---
 

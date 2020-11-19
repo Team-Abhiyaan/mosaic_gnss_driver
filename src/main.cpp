@@ -105,8 +105,8 @@ int main(int argc, char **argv)
         type = "";
     if (!pnh.getParam("pub_nmea_msg", pub_nmea_msg)){
         pnh.setParam("pub_nmea_msg",0);}
-    if (!pnh.getParam("gps_link", gps_link)){
-        pnh.setParam("gps_link","gps_link");}
+    if (!pnh.getParam("frame_id", gps_link)){
+        pnh.setParam("frame_id","gps_link");}
     if (parser.empty())
     {
         ROS_FATAL("No parser type set.");

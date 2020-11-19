@@ -106,8 +106,8 @@ int main(int argc, char **argv)
 
     if (!pnh.getParam("pub_nmea_msg", pub_nmea_msg))
         pnh.setParam("pub_nmea_msg",0);
-    if (!pnh.getParam("frame_id", gps_link))
-        pnh.setParam("frame_id","gps_link");
+    if (!pnh.hasParam("frame_id"))
+        pnh.setParam("frame_id", "gps_link");
 
     if (parser.empty())
     {

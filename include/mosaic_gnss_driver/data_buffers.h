@@ -35,7 +35,7 @@ namespace mosaic_gnss_driver
         using ptr_t = std::unique_ptr<msg_type>;
     private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
-        ptr_t ptr{nullptr};
+        ptr_t ptr{nullptr}, old{nullptr};
     public:
         bool enabled;
 
@@ -48,7 +48,7 @@ namespace mosaic_gnss_driver
         ptr_t get_new_ptr()
         {
             // TODO: Reuse old ptr if not sent yet ?
-            return std::make_unique<msg_type>();
+            if (old) return std::move(old); else return std::make_unique<msg_type>();
         }
 
         /**
@@ -57,7 +57,9 @@ namespace mosaic_gnss_driver
          */
         void set_ptr(ptr_t new_ptr)
         {
-            if (enabled) ptr = std::move(new_ptr);
+            if (!enabled) return;
+            old = std::move(new_ptr);
+            ptr.swap(old);
         }
 
         /**
@@ -93,6 +95,7 @@ namespace mosaic_gnss_driver
             if (!ptr)
             {
 #include <boost/core/demangle.hpp>
+
                 ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
             } else
             {

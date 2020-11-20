@@ -134,11 +134,11 @@ namespace sbf
                 data_buf.velocity.enabled = true;
 
                 pt[4007] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
-                { g.PVTGeodetic(block_ptr, len); };
+                { g.PVTGeodetic(block_ptr, len, rev_num); };
                 pt[5906] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
-                { g.PosCovGeodetic(block_ptr, len); };
+                { g.PosCovGeodetic(block_ptr, len, rev_num); };
                 pt[5908] = [&g = geodetic](auto block_ptr, auto len, auto rev_num)
-                { g.VelCovGeodetic(block_ptr, len); };
+                { g.VelCovGeodetic(block_ptr, len, rev_num); };
             }
 
             void enable_cartesian()
@@ -147,11 +147,11 @@ namespace sbf
                 data_buf.velocity.enabled = true;
 
                 pt[4006] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
-                { g.PVTCartesian(block_ptr, len); };
+                { g.PVTCartesian(block_ptr, len, rev_num); };
                 pt[5905] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
-                { g.PosCovCartesian(block_ptr, len); };
+                { g.PosCovCartesian(block_ptr, len, rev_num); };
                 pt[5907] = [&g = cartesian](auto block_ptr, auto len, auto rev_num)
-                { g.VelCovCartesian(block_ptr, len); };
+                { g.VelCovCartesian(block_ptr, len, rev_num); };
             }
 
         } parsers{data_buf, parse_table};

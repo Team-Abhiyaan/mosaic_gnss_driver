@@ -25,11 +25,11 @@ namespace sbf::block_parsers
         Geodetic(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
         {}
 
-        void PVTGeodetic(const uint8_t *block_ptr, sbf::u2 length);
+        void PVTGeodetic(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
 
-        void PosCovGeodetic(const uint8_t *block_ptr, sbf::u2 length);
+        void PosCovGeodetic(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
 
-        void VelCovGeodetic(const uint8_t *block_ptr, sbf::u2 length);
+        void VelCovGeodetic(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
     };
 
     class Cartesian
@@ -48,11 +48,11 @@ namespace sbf::block_parsers
         Cartesian(mosaic_gnss_driver::DataBuffers &data_buf) : db(data_buf)
         {}
 
-        void PVTCartesian(const uint8_t *block_ptr, sbf::u2 length);
+        void PVTCartesian(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
 
-        void PosCovCartesian(const uint8_t *block_ptr, sbf::u2 length);
+        void PosCovCartesian(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
 
-        void VelCovCartesian(const uint8_t *block_ptr, sbf::u2 length);
+        void VelCovCartesian(const uint8_t *block_ptr, sbf::u2 length, sbf::u1 rev_num);
     };
 }
 #endif //MOSAIC_GNSS_DRIVER_BLOCK_PARSERS_H

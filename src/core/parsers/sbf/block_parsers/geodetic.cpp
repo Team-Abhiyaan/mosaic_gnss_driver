@@ -45,7 +45,7 @@ namespace sbf::block_parsers
 #pragma clang diagnostic pop
 #pragma pack(pop)
 
-    void Geodetic::PVTGeodetic(const uint8_t *block_ptr, const sbf::u2 length)
+    void Geodetic::PVTGeodetic(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PVTGeodetic))
         {
@@ -128,7 +128,7 @@ namespace sbf::block_parsers
 
     }
 
-    void Geodetic::PosCovGeodetic(const uint8_t *block_ptr, const sbf::u2 length)
+    void Geodetic::PosCovGeodetic(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PosCovGeodetic))
         {
@@ -170,7 +170,7 @@ namespace sbf::block_parsers
             db.nav_sat_fix.set_ptr(std::move(nav_sat_fix));
     }
 
-    void Geodetic::VelCovGeodetic(const uint8_t *block_ptr, const sbf::u2 length)
+    void Geodetic::VelCovGeodetic(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::VelCovGeodetic))
         {

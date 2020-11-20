@@ -46,7 +46,7 @@ namespace sbf::block_parsers
 #pragma clang diagnostic pop
 #pragma pack(pop)
 
-    void Cartesian::PVTCartesian(const uint8_t *block_ptr, const sbf::u2 length)
+    void Cartesian::PVTCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PVTCartesian))
         {
@@ -135,7 +135,7 @@ namespace sbf::block_parsers
 
     }
 
-    void Cartesian::PosCovCartesian(const uint8_t *block_ptr, const sbf::u2 length)
+    void Cartesian::PosCovCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PosCovCartesian))
         {
@@ -186,7 +186,7 @@ namespace sbf::block_parsers
         }
     }
 
-    void Cartesian::VelCovCartesian(const uint8_t *block_ptr, const sbf::u2 length)
+    void Cartesian::VelCovCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::VelCovCartesian))
         {

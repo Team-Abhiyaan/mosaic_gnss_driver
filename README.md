@@ -6,9 +6,7 @@ ROS Driver Package for the [Septentrio Mosaic development kit](https://shop.sept
 
 ## Current status (master branch)
 
-- Core library in progress
-- Communication with the module is functional for all modes of connection, viz SERIAL, TCP, UDP and PCAP
-- Parsers for SBF and NMEA in progress
+Publishes `sensor_msgs/NavSatFix` and `geometry_msgs/Velocity` from SBF or NMEA data streams via PCAP, TCP, UDP, or Serial input.
 
 ## Navigation
 
@@ -105,12 +103,13 @@ Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
 ```bash
 sudo apt install libpcap-dev
 ```
-### ROS Wrapper
+## ROS Wrapper
 
 TO RUN THE DRIVER ,RUN
 ```bash
-rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=[comm_type] _pub_nmea_msg:=["true" if you want to publish NMEA sentence]
+rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=[comm_type] _device:=[addr]
 ```
+Other parameters can also be set this way. Parameters can also be set via the parameter server or in the roslaunch files.
 
 1. **ROS Parameters**
     - `frame_id`: ROS TF frame to place in the header of published messages.
@@ -131,23 +130,41 @@ rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=
     - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
          - Default: `false`
     - `sbf_pvt_type`: `"type"` set pvt type used by module `geodetic` or `cartesian`.
-         - Default: `"geodetic"`	    
+         - Default: `"geodetic"`
+	 
+
 2. **Published ROS Topics**
     - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*
-          - **Note**:  GPSFix messages will always be published regardless of what parser type is used.        
-    - `/pose` *(geometry_msgs/PoseWithCovarianceStamped)*: From SBF Blocks
-    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*: Published by both SBF and NMEA Parser.
+          - **Note**:  Published by NMEA and SBF Geodetic streams.    
+    - `/pose` *(geometry_msgs/PoseWithCovarianceStamped)*: Only from SBF Cartesian streams.
+    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*:
 	 - **Note**:  NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.       
-    - `/nmea_sentence` *(nmea_msgs/Sentence)*: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.
     - `/time_reference` *(sensor_msgs/TimeReference)*: Publishes Unix Epoch Time given by NMEA data. 
+    - `/nmea_sentence` *(nmea_msgs/Sentence)*: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.
 
 ---
 
 **Please add any info that you think might be useful**
 
 ---
+## TODO
 
-## Links
+1. *General*
+    - [ ] Support for module configeration
+    - [ ] Support for ROS diagnostics
+    - [ ] Adding more parameters to fine tune usage
+    - [ ] Interface to allow the core library to report errors and warnings
+    
+2. *SBF Parser*
+    - [ ] Check for DO NOT USE values everywhere
+    - [ ] CRC Checking
+    - [ ] Block Parsers for more SBF blocks
+    - [ ] Convert the GNSS time stamps to ROS time stamps.
+
+3. *NMEA Parser*
+    - [ ] .
+
+## Useful Resources for Developement
 
 [**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
 
@@ -169,7 +186,7 @@ rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=
 
 [Novatel GPS Driver - GitHub : C++](https://github.com/swri-robotics/novatel_gps_driver)
 
-## General workflow of writing hardware drivers
+### General workflow of writing hardware drivers
 
 **As from the ROSCon video**
 

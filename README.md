@@ -134,11 +134,11 @@ Other parameters can also be set this way. Parameters can also be set via the pa
 	 
 
 2. **Published ROS Topics**
-    - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*
-          - **Note**:  Published by NMEA and SBF Geodetic streams.    
+    - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*<br/>
+        - **Note**:  Published by NMEA and SBF Geodetic streams.    
     - `/pose` *(geometry_msgs/PoseWithCovarianceStamped)*: Only from SBF Cartesian streams.
-    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*:
-	 - **Note**:  NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.       
+    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*:<br/>
+        - **Note**:  NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.       
     - `/time_reference` *(sensor_msgs/TimeReference)*: Publishes Unix Epoch Time given by NMEA data. 
     - `/nmea_sentence` *(nmea_msgs/Sentence)*: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.
 

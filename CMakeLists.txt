@@ -9,7 +9,26 @@ option(TEST_CONN_TCP     "Run tests for TCP connection"     OFF)
 option(TEST_CONN_UDP     "Run tests for UCP connection"     OFF)
 option(TEST_CONN_SERIAL  "Run tests for SERIAL connection"  OFF)
 
-include(cmake/TestConnections.cmake)
+## Define macros at compile time for relevant connection tests
+if(TEST_CONN_PCAP)
+    add_compile_options(-D RUN_PCAP_TEST)
+    message(STATUS "[ MOSAIC-GNSS ] Including tests for PCAP connection")
+endif()
+
+if(TEST_CONN_TCP)
+    add_compile_options(-D RUN_TCP_TEST)
+    message(STATUS "[ MOSAIC-GNSS ] Including tests for TCP connection")
+endif()
+
+if(TEST_CONN_UDP)
+    add_compile_options(-D RUN_UDP_TEST)
+    message(STATUS "[ MOSAIC-GNSS ] Including tests for UDP connection")
+endif()
+
+if(TEST_CONN_SERIAL)
+    add_compile_options(-D RUN_SERIAL_TEST)
+    message(STATUS "[ MOSAIC-GNSS ] Including tests for SERIAL connection")
+endif()
 
 # TODO: roscpp and roslib are not dependencies for the core_lib
 # Maybe one CMakeLists.txt per target?

@@ -13,18 +13,30 @@
 #include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 
-template <typename conn_type, typename parser_type>
-void start(const std::string &device)
+template <typename c_Tp, typename p_Tp>
+struct driverImpl
 {
-    ros::NodeHandle nh, pnh("~");
-    mosaic_gnss_driver::DataBuffers buf;
+    static void run(const std::string &device) {}
+};
 
-    mosaic_gnss_driver::GNSS<conn_type, parser_type> gnss{buf};
-    if (!gnss.connect(device))
-        return;
+template <typename conn_type, typename parser_type>
+void driver(const std::string &device)
+{
+    driverImpl<conn_type, parser_type>::run(device);
+}
 
-    if (std::is_same<parser_type, sbf::SBF>::value)
+template <typename conn_type>
+struct driverImpl<conn_type, sbf::SBF>
+{
+    static void run(const std::string &device)
     {
+        ros::NodeHandle nh, pnh("~");
+        mosaic_gnss_driver::DataBuffers buf;
+
+        mosaic_gnss_driver::GNSS<conn_type, sbf::SBF> gnss{buf};
+        if (!gnss.connect(device))
+            return;
+
         bool geodetic;
         const auto type = pnh.param("sbf_pvt_type", std::string{"geodetic"});
 
@@ -51,9 +63,44 @@ void start(const std::string &device)
             buf.pose.init(nh, "pose", 5, false);
             gnss.p.parsers.enable_cartesian();
         }
+
+        auto start_time = ros::Time::now();
+
+        const auto publish_duration = ros::Duration(0.2);
+
+        while (ros::ok() && gnss.tick())
+        {
+
+#ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
+            ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
+#endif
+
+            const auto cur = ros::Time::now();
+            if (cur - start_time > publish_duration)
+            { // We should publish
+                start_time = cur;
+
+                // Publish fields
+                buf.publish_all();
+            }
+
+            ros::spinOnce();
+        }
     }
-    else if (std::is_same<parser_type, nmea::NMEAParser>::value)
+};
+
+template <typename conn_type>
+struct driverImpl<conn_type, nmea::NMEAParser>
+{
+    static void run(const std::string &device)
     {
+        ros::NodeHandle nh, pnh("~");
+        mosaic_gnss_driver::DataBuffers buf;
+
+        mosaic_gnss_driver::GNSS<conn_type, nmea::NMEAParser> gnss{buf};
+        if (!gnss.connect(device))
+            return;
+
         buf.nav_sat_fix.init(nh, "nav_sat_fix", 5, false);
         buf.pose.init(nh, "pose", 5, false);
         buf.velocity.init(nh, "velocity", 5, false);
@@ -65,31 +112,31 @@ void start(const std::string &device)
         {
             buf.nmea_sentence.init(nh, "nmea_sentence", 5, false);
         }
-    }
 
-    auto start_time = ros::Time::now();
+        auto start_time = ros::Time::now();
 
-    const auto publish_duration = ros::Duration(0.2);
+        const auto publish_duration = ros::Duration(0.2);
 
-    while (ros::ok() && gnss.tick())
-    {
+        while (ros::ok() && gnss.tick())
+        {
 
 #ifdef MOSAIC_GNSS_FAKE_SLEEP_TIME
-        ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
+            ros::Duration(MOSAIC_GNSS_FAKE_SLEEP_TIME).sleep();
 #endif
 
-        const auto cur = ros::Time::now();
-        if (cur - start_time > publish_duration)
-        { // We should publish
-            start_time = cur;
+            const auto cur = ros::Time::now();
+            if (cur - start_time > publish_duration)
+            { // We should publish
+                start_time = cur;
 
-            // Publish fields
-            buf.publish_all();
+                // Publish fields
+                buf.publish_all();
+            }
+
+            ros::spinOnce();
         }
-
-        ros::spinOnce();
     }
-}
+};
 
 template <typename parser_type>
 void start(std::string &device, const std::string &type)
@@ -102,25 +149,25 @@ void start(std::string &device, const std::string &type)
     {
         if (device.empty())
             device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/nmea/capture_004.pcap";
-        start<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
+        driver<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
     }
     else if (type == "serial")
     {
         if (device.empty())
             device = "/dev/ACM0";
-        start<mosaic_gnss_driver::connections::Serial, parser_type>(device);
+        driver<mosaic_gnss_driver::connections::Serial, parser_type>(device);
     }
     else if (type == "tcp")
     {
         if (device.empty())
             device = "192.168.1.101";
-        start<mosaic_gnss_driver::connections::TCP, parser_type>(device);
+        driver<mosaic_gnss_driver::connections::TCP, parser_type>(device);
     }
     else if (type == "udp")
     {
         if (device.empty())
             device = "192.168.1.101";
-        start<mosaic_gnss_driver::connections::UDP, parser_type>(device);
+        driver<mosaic_gnss_driver::connections::UDP, parser_type>(device);
     }
     else
     {
@@ -140,9 +187,9 @@ int main(int argc, char **argv)
     if (!pnh.getParam("device", device))
         device = "";
     if (!pnh.getParam("parser", parser))
-        parser = "";
+        parser = "nmea";
     if (!pnh.getParam("conn", type))
-        type = "";
+        type = "pcap";
 
     if (!pnh.getParam("pub_nmea_msg", pub_nmea_msg))
         pnh.setParam("pub_nmea_msg", 0);

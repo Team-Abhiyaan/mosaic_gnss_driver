@@ -13,6 +13,10 @@
 #include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem;
+
 template <typename c_Tp, typename p_Tp>
 struct driverImpl
 {
@@ -141,37 +145,27 @@ struct driverImpl<conn_type, nmea::NMEAParser>
 template <typename parser_type>
 void start(std::string &device, const std::string &type)
 {
-    if (type.empty())
+    if (type == "pcap")
     {
-        ROS_FATAL("No connection type set.");
-    }
-    else if (type == "pcap")
-    {
-        if (device.empty())
-            device = ros::package::getPath("mosaic_gnss_driver") + "/test/data/nmea/capture_004.pcap";
+        // safely join paths
+        fs::path dir(ros::package::getPath("mosaic_gnss_driver"));
+        fs::path file(device);
+        fs::path full_path = dir / file;
+        device = full_path.string();
+
         driver<mosaic_gnss_driver::connections::PCAP, parser_type>(device);
     }
     else if (type == "serial")
     {
-        if (device.empty())
-            device = "/dev/ACM0";
         driver<mosaic_gnss_driver::connections::Serial, parser_type>(device);
     }
     else if (type == "tcp")
     {
-        if (device.empty())
-            device = "192.168.1.101";
         driver<mosaic_gnss_driver::connections::TCP, parser_type>(device);
     }
     else if (type == "udp")
     {
-        if (device.empty())
-            device = "192.168.1.101";
         driver<mosaic_gnss_driver::connections::UDP, parser_type>(device);
-    }
-    else
-    {
-        ROS_FATAL("Invalid connection type set.");
     }
 }
 
@@ -185,22 +179,28 @@ int main(int argc, char **argv)
     bool pub_nmea_msg;
 
     if (!pnh.getParam("device", device))
-        device = "";
-    if (!pnh.getParam("parser", parser))
-        parser = "nmea";
-    if (!pnh.getParam("conn", type))
-        type = "pcap";
+    {
+        ROS_FATAL("No device specified");
+        return EXIT_FAILURE;
+    }
+    if (!pnh.getParam("stream", parser))
+    {
+        ROS_FATAL("Stream type not specified");
+        return EXIT_FAILURE;
+    }
+    if (!pnh.getParam("connection", type))
+    {
+        ROS_FATAL("Connection type not specified");
+        return EXIT_FAILURE;
+    }
 
     if (!pnh.getParam("pub_nmea_msg", pub_nmea_msg))
         pnh.setParam("pub_nmea_msg", 0);
+
     if (!pnh.hasParam("frame_id"))
         pnh.setParam("frame_id", "gps_link");
 
-    if (parser.empty())
-    {
-        ROS_FATAL("No parser type set.");
-    }
-    else if (parser == "sbf")
+    if (parser == "sbf")
     {
         start<sbf::SBF>(device, type);
     }

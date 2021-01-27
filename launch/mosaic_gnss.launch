@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find mosaic_gnss_driver)/rosconsole.conf" />
+
+    <arg name="output" default="screen" />
+    <arg name="respawn" default="false" />
+    <arg name="clear_params" default="true" />
+
+    <node pkg="mosaic_gnss_driver" type="mosaic_gnss_driver_node" name="mosaic_gnss" output="$(arg output)" clear_params="$(arg clear_params)" respawn="$(arg respawn)">
+        <rosparam command="load" file="$(find mosaic_gnss_driver)/config/driver.yml" />
+    </node>
+</launch>

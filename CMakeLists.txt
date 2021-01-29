@@ -31,12 +31,12 @@ endif()
 # TODO: roscpp and roslib are not dependencies for the core_lib
 # Maybe one CMakeLists.txt per target?
 set(DEPS
-        roscpp
-        roslib
-        std_msgs
-        sensor_msgs
-	nmea_msgs
-        )
+    roscpp
+    roslib
+    std_msgs
+    sensor_msgs
+    nmea_msgs
+)
 
 
 ## Find catkin macros and libraries
@@ -44,12 +44,12 @@ set(DEPS
 ## is used, also find other catkin packages
 
 find_package(Boost REQUIRED COMPONENTS
-        system
-        )
+    system
+)
 
 find_package(catkin REQUIRED COMPONENTS
-        ${DEPS}
-        )
+    ${DEPS}
+)
 
 find_library(libpcap_LIBRARIES pcap)
 if ("${libpcap_LIBRARIES}" STREQUAL "pcap-NOTFOUND")
@@ -142,10 +142,10 @@ endif ()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-        INCLUDE_DIRS include
-        LIBRARIES ${PROJECT_NAME}
-        CATKIN_DEPENDS ${DEPS}
-        DEPENDS Boost
+    INCLUDE_DIRS include
+    LIBRARIES ${PROJECT_NAME}
+    CATKIN_DEPENDS ${DEPS}
+    DEPENDS Boost
 )
 
 ###########
@@ -155,25 +155,25 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-        include
-        ${catkin_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 ## Core Library
 add_library(${PROJECT_NAME} STATIC
-        src/core/util/serial.cpp
-        src/core/connections/tcp.cpp
-        src/core/connections/udp.cpp
-        src/core/connections/pcap.cpp
-        src/core/connections/serial.cpp
-        src/core/parsers/sbf/sbf.cpp
-        src/core/parsers/sbf/block_parsers/geodetic.cpp
-        src/core/parsers/sbf/block_parsers/cartesian.cpp
-        src/core/parsers/nmea/NMEAParser.cpp
-        src/core/parsers/nmea/GPSService.cpp
-        src/core/parsers/nmea/GPSFix.cpp
-        )
+    src/core/util/serial.cpp
+    src/core/connections/tcp.cpp
+    src/core/connections/udp.cpp
+    src/core/connections/pcap.cpp
+    src/core/connections/serial.cpp
+    src/core/parsers/sbf/sbf.cpp
+    src/core/parsers/sbf/block_parsers/geodetic.cpp
+    src/core/parsers/sbf/block_parsers/cartesian.cpp
+    src/core/parsers/nmea/NMEAParser.cpp
+    src/core/parsers/nmea/GPSService.cpp
+    src/core/parsers/nmea/GPSFix.cpp
+)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 #target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_SBF_PRINT_ID)
@@ -191,11 +191,11 @@ target_compile_definitions(${PROJECT_NAME}_node PRIVATE MOSAIC_GNSS_FAKE_SLEEP_T
 ## Specify libraries to link a library or executable target against
 
 target_link_libraries(${PROJECT_NAME}_node
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
-        )
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${libpcap_LIBRARIES}
+    ${Boost_LIBRARIES}
+)
 
 #target_link_libraries(nmea_parser_test
 #        ${PROJECT_NAME}
@@ -257,12 +257,17 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
 
-    catkin_add_gtest(conn_test test/connections_test.cpp)
-    target_link_libraries(conn_test
+    macro(package_add_test TARGETNAME)
+        catkin_add_gtest(${TARGETNAME} ${ARGN})
+        target_link_libraries(${TARGETNAME}
             ${PROJECT_NAME}
             ${catkin_LIBRARIES}
             ${libpcap_LIBRARIES}
             ${Boost_LIBRARIES}
-            )
+        )
+    endmacro(package_add_test)
+
+    package_add_test(conn_test test/test_conn.cpp)
+    package_add_test(subs_test test/test_subs.cpp)
 
 endif ()

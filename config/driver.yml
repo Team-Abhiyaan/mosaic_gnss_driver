@@ -20,53 +20,14 @@ serial:
 
 frame_id: gnss
 
-datum: ETRS89
-
-marker_to_arp:
-  delta_e: 0.0
-  delta_n: 0.0
-  delta_u: 0.0
-  
-ant_type: Unknown
-ant_serial_nr: Unknown
-
-leap_seconds: 18
-
-polling_period:
-  pvt: 500
-  rest: 500
-
-reconnect_delay_s: 2
-
 use_gnss_time: false
 
-ntrip_settings:
-  mode: off
-  caster: 0
-  caster_port: 0
-  username: 0
-  password: 0
-  mountpoint: 0
-  ntrip_version: v2
-  send_gga: auto
-  rx_has_internet: false
-  rtcm_version: RTCMv2
-  rx_input_corrections_tcp: 6666
-  rx_input_corrections_serial: USB2
+sbf_pvt_type: geodetic # geodetic, cartesian
 
 publish:
-  gpgga: false
-  gprmc: false
-  gpgsa: false
-  gpgsv: false
-  pvtcartesian: false
-  pvtgeodetic: true
-  poscovcartesian: false
-  poscovgeodetic: true
-  atteuler: true
-  attcoveuler: true
-  gpst : false
   navsatfix: true
-  gpsfix: false
   pose: false
+  velocity: true
+  nmea_sentence: false
+  time_reference: true
   diagnostics: false

@@ -14,14 +14,17 @@ using namespace nmea;
 
 NMEAParseError::NMEAParseError(std::string msg)
     : message(msg)
-{}
+{
+}
 
 NMEAParseError::NMEAParseError(std::string msg, NMEASentence n)
     : message(msg), nmea(n)
-{}
+{
+}
 
 NMEAParseError::~NMEAParseError()
-{}
+{
+}
 
 std::string NMEAParseError::what()
 {
@@ -32,10 +35,13 @@ std::string NMEAParseError::what()
 
 NMEASentence::NMEASentence()
     : isvalid(false), checksumIsCalculated(false), calculatedChecksum(0), parsedChecksum(0)
-{}
+{
+}
 
 NMEASentence::~NMEASentence()
-{}
+{
+}
+
 bool NMEASentence::valid() const
 {
     return isvalid;
@@ -127,20 +133,27 @@ int64_t nmea::parseInt(std::string s, int radix)
 }
 
 // --------- NMEA PARSER --------------
-std::string frame_id;           // for gps_link in nav_sat_fix msg 
+static std::string frame_id; // for gps_link in nav_sat_fix msg
+
 NMEAParser::NMEAParser(mosaic_gnss_driver::DataBuffers &buffers)
-    : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers){
+    : log(false), maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE), fillingbuffer(false), data_buf(buffers)
+{
+    ros::NodeHandle pnh("~");
 
-data_buf.nav_sat_fix.enabled = true;
-data_buf.velocity.enabled = true;
-data_buf.time_reference.enabled = true;
+    data_buf.nav_sat_fix.enabled = true;
+    data_buf.velocity.enabled = true;
+    data_buf.time_reference.enabled = true;
 
-bool pub_nmea_msg;
-ros::param::get("/mosaic_gnss/pub_nmea_msg",pub_nmea_msg);
-if(pub_nmea_msg) data_buf.nmea_sentence.enabled = true;
-else{data_buf.nmea_sentence.enabled = false;}
+    bool pub_nmea_msg;
+    pnh.getParam("publish/nmea_sentence", pub_nmea_msg);
+    if (pub_nmea_msg)
+        data_buf.nmea_sentence.enabled = true;
+    else
+    {
+        data_buf.nmea_sentence.enabled = false;
+    }
 
-ros::param::get("/mosaic_gnss/frame_id",frame_id);
+    pnh.getParam("frame_id", frame_id);
 };
 
 NMEAParser::~NMEAParser() = default;
@@ -577,14 +590,14 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     ptr2->header.frame_id = frame_id;
     ptr2->header.stamp = time_stamp;
     data_buf.nmea_sentence.set_ptr(std::move(ptr2));
-    
+
     //TwistwithCovarianceStamped message
     auto ptr3 = data_buf.velocity.get_new_ptr();
     const double pi = 3.1415926;
     ptr3->header.stamp = time_stamp;
     ptr3->header.frame_id = frame_id;
-    ptr3->twist.twist.linear.x = gps.fix.speed*sin(gps.fix.travelAngle*(pi/360));
-    ptr3->twist.twist.linear.y = gps.fix.speed*cos(gps.fix.travelAngle*(pi/360));
+    ptr3->twist.twist.linear.x = gps.fix.speed * sin(gps.fix.travelAngle * (pi / 360));
+    ptr3->twist.twist.linear.y = gps.fix.speed * cos(gps.fix.travelAngle * (pi / 360));
     ptr3->twist.twist.linear.z = 0;
     data_buf.velocity.set_ptr(std::move(ptr3));
 
@@ -593,8 +606,7 @@ void NMEAParser::parse(const uint8_t *data, size_t size)
     time_t timestamp = gps.fix.timestamp.getTime();
     ros::Time time;
     time.sec = timestamp;
-    time.nsec = (static_cast<time_t>(gps.fix.timestamp.rawTime*10000));
+    time.nsec = (static_cast<time_t>(gps.fix.timestamp.rawTime * 10000));
     ptr4->time_ref = time;
     data_buf.time_reference.set_ptr(std::move(ptr4));
-
 }

@@ -142,6 +142,11 @@ namespace nmea {
 
         static uint8_t calculateChecksum(std::string);        // returns checksum of string -- XOR
 
+        // dummy struct
+        struct {
+            void enable_cartesian() {}
+            void enable_geodetic() {}
+        } parsers;
     };
 
 }

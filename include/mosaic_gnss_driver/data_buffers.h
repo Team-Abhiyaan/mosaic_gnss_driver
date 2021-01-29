@@ -11,7 +11,6 @@
 #include <nmea_msgs/Sentence.h>
 #include <nmea_msgs/Gpgga.h>
 
-
 #ifdef __JETBRAINS_IDE__ // remove flag to get ide hints on entire class
 #undef MOSAIC_GNSS_CORE_ONLY
 #endif
@@ -28,16 +27,20 @@
 
 namespace mosaic_gnss_driver
 {
-    template<typename msg_type>
+    template <typename msg_type>
     struct Buffer
     {
     public:
         using ptr_t = std::unique_ptr<msg_type>;
+
+        Buffer() : initPub(false) {}
+
     private:
         // std::mutex mutex; // NOTE: We need a mutex if the publishers run on another thread
         ptr_t ptr{nullptr}, old{nullptr};
+
     public:
-        bool enabled;
+        bool enabled, initPub;
 
         /**
          * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
@@ -48,7 +51,10 @@ namespace mosaic_gnss_driver
         ptr_t get_new_ptr()
         {
             // TODO: Reuse old ptr if not sent yet ?
-            if (old) return std::move(old); else return std::make_unique<msg_type>();
+            if (old)
+                return std::move(old);
+            else
+                return std::make_unique<msg_type>();
         }
 
         /**
@@ -57,7 +63,8 @@ namespace mosaic_gnss_driver
          */
         void set_ptr(ptr_t new_ptr)
         {
-            if (!enabled) return;
+            if (!enabled)
+                return;
             old = std::move(new_ptr);
             ptr.swap(old);
         }
@@ -75,8 +82,8 @@ namespace mosaic_gnss_driver
 
     private:
         ros::Publisher pub;
-// We do this to compile core library without ros.
-// The core library never creates an object of this type, it only calls the above functions.`
+        // We do this to compile core library without ros.
+        // The core library never creates an object of this type, it only calls the above functions.`
 
 #ifndef MOSAIC_GNSS_CORE_ONLY
     public:
@@ -85,19 +92,21 @@ namespace mosaic_gnss_driver
         void init(ros::NodeHandle &nh, const char *topic, size_t queue, bool latch = false)
         {
             pub = nh.advertise<msg_type>(topic, queue, latch);
+            initPub = true;
         }
-
 
         void publish()
         {
             // std::lock_guard<std::mutex> lock(mutex);
-            if (!enabled) return;
+            if (!enabled || !initPub)
+                return;
             if (!ptr)
             {
 #include <boost/core/demangle.hpp>
 
                 ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
-            } else
+            }
+            else
             {
                 // TODO: Check if publisher ready
                 typename msg_type::Ptr shared_ptr = std::move(ptr);
@@ -131,6 +140,6 @@ namespace mosaic_gnss_driver
 
 #endif
     };
-}
+} // namespace mosaic_gnss_driver
 
 #endif //MOSAIC_GNSS_DRIVER_DATA_BUFFERS_H

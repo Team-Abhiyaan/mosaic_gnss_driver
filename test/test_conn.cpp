@@ -10,7 +10,6 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
-#include <iostream>
 
 // Macros will be defined at compile time based on the options specified in the CMakeLists.txt
 #ifdef RUN_SERIAL_TEST
@@ -82,7 +81,7 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 
     ASSERT_FALSE(gnss.is_connected());
 
-    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sbf/capture_001.pcap"));
+    ASSERT_TRUE(gnss.connect(thisPackagePath + "/test/data/sbf/001.pcap"));
 
     while (gnss.is_connected() && gnss.tick())
         ;

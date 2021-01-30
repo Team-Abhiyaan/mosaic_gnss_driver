@@ -15,8 +15,6 @@ stream: sbf
 
 serial:
   baudrate: 115200
-  rx_serial_port: USB1
-  hw_flow_control: off
 
 frame_id: gnss
 

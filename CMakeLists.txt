@@ -268,6 +268,5 @@ if (CATKIN_ENABLE_TESTING)
     endmacro(package_add_test)
 
     package_add_test(conn_test test/test_conn.cpp)
-    package_add_test(subs_test test/test_subs.cpp)
 
 endif ()

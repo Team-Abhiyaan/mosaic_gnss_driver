@@ -2,202 +2,42 @@
 
 ## Description
 
-ROS Driver Package for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
-
-## Current status (master branch)
-
-Publishes `sensor_msgs/NavSatFix` and `geometry_msgs/Velocity` from SBF or NMEA data streams via PCAP, TCP, UDP, or Serial input.
-
-## Navigation
-
-- [Build workspace](#build-workspace)
-
-- [Other subcommands](#other-commands)
-  <br>
-
-- [Wireshark Installation](#wireshark-installation-for-capturing-traffic-from-module)
-
-- [C++ libraries for data playback](#install-c-libraries-for-traffic-playback)
-
----
+Lightweight ROS Driver Package for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
 
 ## Install dependencies
 
-- C++ library for handling pcap files
-
 ```bash
-sudo apt install libpcap-dev
+sudo apt install libpcap-dev libboost-all-dev
 ```
 
-## Build workspace
+## Usage
 
-- Clone this repository
-
-- Build
-
-```bash
-make build
-```
-
-### Other commands
-
-- Cleanup
+- Setup a stream from the mosaic webinterface
+- Edit parameters in the `config/driver.yml` configuration file
+- Launch driver
 
 ```bash
-make clean
+roslaunch mosaic_gnss_driver mosaic_gnss.launch
 ```
-
-- Generate documentation
-
-```bash
-make gendoc
-```
-
-- Run unit tests
-
-```bash
-make test
-```
-
-## Notes
-
-### Wireshark installation for capturing traffic from module
-
-- Install wireshark
-
-```bash
-sudo add-apt-repository ppa:wireshark-dev/stable
-sudo apt update
-sudo apt -y install wireshark
-```
-
-> When asked whether to allow non-superusers to capture packets, select **<Yes\>** and finish installation.
-
-- Configure wireshark
-
-```bash
-sudo usermod -aG wireshark $USER
-```
-
-**NOTE : Relogin may be required for the changes to take effect**
-
-- Change `dumpcap` binary file permissions
-
-```bash
-sudo chgrp wireshark /usr/bin/dumpcap
-sudo chmod 750 /usr/bin/dumpcap
-sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/dumpcap
-```
-
-- Verify configuration
-
-```bash
-sudo getcap /usr/bin/dumpcap
-```
-
-Expected output : `/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip`
-<br>
-
-### Install C++ libraries for traffic playback
-
-```bash
-sudo apt install libpcap-dev
-```
-## ROS Wrapper
-
-TO RUN THE DRIVER ,RUN
-```bash
-rosrun mosaic_gnss_driver mosaic_gnss_driver_node _parser:=[parser_type] _conn:=[comm_type] _device:=[addr]
-```
-Other parameters can also be set this way. Parameters can also be set via the parameter server or in the roslaunch files.
 
 1. **ROS Parameters**
-    - `frame_id`: ROS TF frame to place in the header of published messages.
-        - Default: gps_link
-    - `parser`: -`sbf` to set the parser to use the sbf blocks sent by the module.   <br />
-     -`nmea` to set the parser to use the NMEA Sentence sent by the module.  	
-    - `conn`: ` "type" ` to set the type of connection used to connect with the module.   <br />
-     -Set type as: <br />
-         -`serial` for serial connection type. <br />
-         -`tcp` for tcp connection protocol.   <br />
-         -`udp` for udp connection protocol.   <br />
-         -`pcap` to read packets from a pcap file  
-    - `device`: Used to set the Address for TCP/UDP connection 
-        - Default: `192.168.1.101`   <br />
-      -For pcap ,this is used to give the path of the pcap file.   <br />
-       -For serial connection, this is used to set the port.   <br />
-        - Default:`/dev/ACM0`
-    - `pub_nmea_msg`: `true` to publish NMEA Sentences sent by the mosaic module.
-         - Default: `false`
-    - `sbf_pvt_type`: `"type"` set pvt type used by module `geodetic` or `cartesian`.
-         - Default: `"geodetic"`
-	 
+
+   - `connection`: Type of connection. Supported ones are tcp, udp, serial and pcap.
+   - `device`:
+     - for IP (TCP/UDP): A host:port specification. eg: 192.168.3.1:9999
+     - for Serial: A filehandle. eg: /dev/TTYUSB0
+     - for PCAP: Path to pcap file relative to package.
+   - `serial/baudrate`: The Baud rate in case of serial connection.
+   - `stream`: Type of stream. Supported ones are sbf, nmea.
+   - `frame_id`: ROS TF frame to place in the header of published messages.
+   - `use_gnss_time`: if set to true, header's time field will be constructed from incoming data.
+   - `sbf_pvt_type`: `"type"` set pvt type used by module `geodetic` or `cartesian`.
 
 2. **Published ROS Topics**
-    - `/nav_sat_fix` *(sensor_msgs/NavSatFix)*<br/>
-        - **Note**:  Published by NMEA and SBF Geodetic streams.    
-    - `/pose` *(geometry_msgs/PoseWithCovarianceStamped)*: Only from SBF Cartesian streams.
-    - `/velocity` *(geometry_msgs/TwistWithCovarianceStamped)*:<br/>
-        - **Note**:  NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.       
-    - `/time_reference` *(sensor_msgs/TimeReference)*: Publishes Unix Epoch Time given by NMEA data. 
-    - `/nmea_sentence` *(nmea_msgs/Sentence)*: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.
-
----
-
-**Please add any info that you think might be useful**
-
----
-## TODO
-
-1. *General*
-    - [ ] Support for module configeration
-    - [ ] Support for ROS diagnostics
-    - [ ] Adding more parameters to fine tune usage
-    - [ ] Interface to allow the core library to report errors and warnings
-    
-2. *SBF Parser*
-    - [ ] Check for DO NOT USE values everywhere
-    - [ ] CRC Checking
-    - [ ] Block Parsers for more SBF blocks
-    - [ ] Convert the GNSS time stamps to ROS time stamps.
-
-3. *NMEA Parser*
-    - [ ] .
-
-## Useful Resources for Developement
-
-[**Module details**](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
-
-[**Google drive link**](https://drive.google.com/drive/folders/14KQpB4tbFVY6TrVSzioFhG_bZOaW4NAf?usp=sharing)
-
-[Septentrio request for info](https://customersupport.septentrio.com/s/case/500f300001R3MOlAAN/configuration-setup-for-the-mosaic-dev-kit)
-
-[ROSCon 2012 - Writing Hardware Drivers](https://www.youtube.com/watch?v=pagC2WXT1x0)
-
-[Slides for the above](https://docs.google.com/presentation/d/13yyOB5CXOzpvMa0_wYxDvNzjb_9dfMjDuVo-CvBcoRw/edit#slide=id.p)
-
----
-
-[4 part tutorial in writing ROS driver packages](https://roboticsbackend.com/create-a-ros-driver-package-introduction-what-is-a-ros-wrapper-1-4/)
-
-### Other open source drivers for reference
-
-[NMEA Navsat driver - GitHub : Python](https://github.com/ros-drivers/nmea_navsat_driver)
-
-[Novatel GPS Driver - GitHub : C++](https://github.com/swri-robotics/novatel_gps_driver)
-
-### General workflow of writing hardware drivers
-
-**As from the ROSCon video**
-
-- Starting driver
-
-  - [Existing ROS drivers for pose estimation components - ROS Wiki](https://wiki.ros.org/Sensors#Pose_Estimation_.28GPS.2FIMU.29)
-
-- Writing a standalone library
-
-- ROS wrapper
-
-- Dynamic reconfigure
-
-- Diagnostics
+   - `/navsatfix` _(sensor_msgs/NavSatFix)_<br/>
+     - **Note**: Published by NMEA and SBF Geodetic streams.
+   - `/pose` _(geometry_msgs/PoseWithCovarianceStamped)_: Only from SBF Cartesian streams.
+   - `/velocity` _(geometry_msgs/TwistWithCovarianceStamped)_:<br/>
+     - **Note**: NMEA Parser can only publish linear velocity in x,y directions due to less information from NMEA Sentence.
+   - `/time_reference` _(sensor_msgs/TimeReference)_: Publishes Unix Epoch Time given by NMEA data.
+   - `/nmea_sentence` _(nmea_msgs/Sentence)_: Publishes NMEA Sentence sent by the module if "pub_nmea_msg" parameter is set to true.

@@ -77,11 +77,13 @@ namespace sbf::block_parsers
             std::cout << "[WARN] Timestamp mismatch" << std::endl;
             pos_cov_last_time = do_not_use_time;
         }
-
+        ros::NodeHandle pnh("~");
+        std::string frame_id;
+        pnh.getParam("frame_id", frame_id);
 
         // Fill PVT
         nav_sat_fix->header.stamp = ros::Time::now(); // TODO: use GNSS time
-        nav_sat_fix->header.frame_id = "geodetic";
+        nav_sat_fix->header.frame_id = frame_id;
         static auto rad2deg = [](auto val)
         { return val * 180 / 3.141592653; };
         nav_sat_fix->latitude = rad2deg(block->Latitude);

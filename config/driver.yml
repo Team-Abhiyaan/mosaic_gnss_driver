@@ -1,17 +1,17 @@
 
-# Type of connection: pcap, tcp, udp, serial
+#  Type of connection: pcap, tcp, udp, serial
 connection: pcap
 
 # Device description
 # 
 # for TCP: A host:port specification. eg: 192.168.3.1:9999
-# for UDP: // TODO: fill this
+# for UDP: A host:port specification. eg: 192.168.3.1:9999
 # for Serial: A filehandle. eg: /dev/TTYUSB0
 # for PCAP: Path to file relative to package. eg: test/data/nmea/capture_004.pcap
 device: test/data/nmea/capture_004.pcap
 
 # Stream type: nmea or sbf
-stream: nmea
+stream: sbf
 
 serial:
   baudrate: 115200
@@ -28,6 +28,5 @@ publish:
   navsatfix: true
   pose: false
   velocity: true
-  nmea_sentence: false
+  nmea_sentence: true
   time_reference: true
-  diagnostics: false

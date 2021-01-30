@@ -102,9 +102,9 @@ namespace mosaic_gnss_driver
                 return;
             if (!ptr)
             {
-#include <boost/core/demangle.hpp>
+// #include <boost/core/demangle.hpp>
 
-                ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
+                // ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
             }
             else
             {

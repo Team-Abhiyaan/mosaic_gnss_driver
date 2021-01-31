@@ -124,6 +124,7 @@ ReadResult TCP::read()
     catch (const std::exception &e)
     {
         ROS_WARN("TCP Connection error: %s", e.what());
+        return READ_ERROR;
     }
 }
 

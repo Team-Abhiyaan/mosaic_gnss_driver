@@ -3,3 +3,6 @@ docs/html
 docs/latex
 
 .vscode
+
+stderr.txt
+stdout.txt

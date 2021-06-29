@@ -50,7 +50,7 @@ namespace mosaic_gnss_driver
          */
         ptr_t get_new_ptr()
         {
-            // TODO: Reuse old ptr if not sent yet ?
+            // Reuse old ptr if it wasn't sent yet
             if (old)
                 return std::move(old);
             else

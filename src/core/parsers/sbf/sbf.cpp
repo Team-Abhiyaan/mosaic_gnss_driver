@@ -18,7 +18,7 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size)
     data_end = data_start + size;
 
     // Read from buffer if it has data
-    read_ptr = buffer_use ? buffer : data_start;
+    read_ptr = buffer_length_used ? buffer : data_start;
 
     // Parse Blocks until no more data
     while (seek_block() && parse_block());
@@ -78,7 +78,7 @@ bool sbf::SBF::seek_block()
 
     if (read_ptr == data_end)
     {
-        buffer_use = 0;
+        buffer_length_used = 0;
         return false;
     }
 
@@ -96,14 +96,14 @@ bool sbf::SBF::seek_block()
         if (*read_ptr == sync_chars[0])
         { // Sync broken bw iterations
             buffer[0] = sync_chars[0];
-            buffer_use = 1;
+            buffer_length_used = 1;
             return false;
         }
-        buffer_use = 0;
+        buffer_length_used = 0;
         return false;
     } else if (in_buffer(read_ptr))
     {
-        while (read_ptr < buffer + buffer_use - 1)
+        while (read_ptr < buffer + buffer_length_used - 1)
         { // All but last buffer byte
             if (*read_ptr == sync_chars[0] && *(read_ptr + 1) == sync_chars[1])
             {
@@ -138,12 +138,12 @@ const uint8_t *sbf::SBF::read(size_t size)
             auto block_size = data_end - block_start;
             if (block_size > buffer_size)
             {                   // Buffer overflow: Can't move block to buffer
-                buffer_use = 0; // TODO: Warn?
+                buffer_length_used = 0; // TODO: Warn?
             } else
             {
                 // Store the current block in buffer, parse on next call
                 std::memcpy(buffer, block_start, block_size);
-                buffer_use = block_size;
+                buffer_length_used = block_size;
             }
         }
         return nullptr;
@@ -170,7 +170,7 @@ const uint8_t *sbf::SBF::read(size_t size)
 
         if (in_buffer(read_ptr))
         { // There is more data in the buffer
-            auto data_in_buffer = buffer + buffer_use - read_ptr;
+            auto data_in_buffer = buffer + buffer_length_used - read_ptr;
             if (size < data_in_buffer)
             { // Need only buffer data
                 read_ptr += size;
@@ -184,7 +184,7 @@ const uint8_t *sbf::SBF::read(size_t size)
 
         if (in_data(read_ptr))
         { // reading from data
-            if (buffer_use + size > buffer_size)
+            if (buffer_length_used + size > buffer_size)
             { // Buffer Overflow
                 // TODO: Do we move read pointer ahead?
                 read_ptr = std::min(data_start + size, data_end);
@@ -194,15 +194,15 @@ const uint8_t *sbf::SBF::read(size_t size)
             if (read_ptr + size > data_end)
             { // Not enough data
                 auto avail_data = data_end - read_ptr;
-                std::memcpy(buffer + buffer_use, read_ptr, avail_data);
-                buffer_use += avail_data;
+                std::memcpy(buffer + buffer_length_used, read_ptr, avail_data);
+                buffer_length_used += avail_data;
                 read_ptr += avail_data;
 
                 // END OF DATA
                 return read(size - avail_data);
             }
-            std::memcpy(buffer + buffer_use, read_ptr, size);
-            buffer_use += size;
+            std::memcpy(buffer + buffer_length_used, read_ptr, size);
+            buffer_length_used += size;
             read_ptr += size;
             return ret;
         }
@@ -216,8 +216,8 @@ void sbf::SBF::unread(size_t rewind_len)
     if (in_buffer(block_start) && in_data(read_ptr) &&
         rewind_len > (read_ptr - data_start))
     {
-        buffer_use -= read_ptr - data_start; // Forget the copied data
-        read_ptr = buffer + buffer_use - (rewind_len - (read_ptr - data_start));
+        buffer_length_used -= read_ptr - data_start; // Forget the copied data
+        read_ptr = buffer + buffer_length_used - (rewind_len - (read_ptr - data_start));
         // read_ptr = data_start;
     } else
         read_ptr -= rewind_len;

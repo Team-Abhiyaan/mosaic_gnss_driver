@@ -12,11 +12,14 @@ namespace sbf
      * Using this class:
      *     - Construct and object of the class. This also initializes the various parsers.
      *     - Whenever you receive data, call `parse` with the buffer storing the data.
-     *     - Use the parsed data in the DataBuffer
+     *     - Use the parsed data in the `DataBuffer`
      *
      * Adding more SBF Blocks:
-     *     - `seek`, `read`, and `unread` are essentially black boxes and the implementation should not matter.
-     *     - To add a parser: define it in block_parsers.h, create it in the struct parsers, and add it to parse_table.
+     *     - `seek`, `read`, and `unread` are essentially black boxes and its implementation should not matter to you.
+     *     - To add more sbf blocks, create a parser:
+     *          - define it in `block_parsers.h`
+     *          - add it to the struct `SBF.parsers`
+     *          - add its block ids to `SBF.parse_table`.
      */
 
     class SBF
@@ -28,10 +31,10 @@ namespace sbf
         static constexpr const uint8_t sync_chars[2] = {'$', '@'};
 
         /// Internal Buffer
-        static const size_t buffer_size = 256; // Approximately max message size
-        char _buffer[buffer_size] = {0};       // Any point in std::array ?
+        static const size_t buffer_size = 256; // Should be more than max block size
+        char _buffer[buffer_size] = {0};
         uint8_t *const buffer = reinterpret_cast<uint8_t *const>(_buffer);
-        size_t buffer_use{0};
+        size_t buffer_length_used{0};
 
         /// Received Data
         const uint8_t *data_start{nullptr};
@@ -39,7 +42,7 @@ namespace sbf
 
         /// Next data to read
         const uint8_t *read_ptr{nullptr};    // Current position in buffer + data
-        /// Start of block being parsed
+        /// Start of block currently being parsed
         const uint8_t *block_start{nullptr};
 
         mosaic_gnss_driver::DataBuffers &data_buf;

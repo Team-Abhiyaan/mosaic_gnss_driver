@@ -37,8 +37,8 @@ namespace mosaic_gnss_driver
         explicit GNSS(mosaic_gnss_driver::DataBuffers &buffers) : data_buf{buffers}, conn{buffer}, p{data_buf}
         {
             static_assert(std::is_base_of<connections::Connection, Connection>::value,
-                          "Connection should be subclasss of connections::Connection");
-            // static_assert("PARse method is not ther)
+                          "Connection should be subclass of connections::Connection");
+            // static_assert("TODO: Check that parser has the `parse(const uint8_t *data, size_t size)` method")
         };
 
         /**

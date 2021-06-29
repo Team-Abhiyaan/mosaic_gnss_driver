@@ -73,20 +73,32 @@ private:
 
     void _initPublishers()
     {
-        bool isGeodetic = false;
 
-        if (m_sbf_pvt_type == "cartesian")
+        if constexpr (std::is_same<p_Tp, sbf::SBF>::value)
         {
-            isGeodetic = false;
-            m_gnss.p.parsers.enable_cartesian();
-        }
-        else
-        {
-            isGeodetic = true;
-            if (m_sbf_pvt_type != "geodetic")
-                ROS_WARN("Invalid pvt type, assuming geodetic.");
+            if (m_sbf_pvt_type == "cartesian")
+            {
+                m_gnss.p.parsers.enable_cartesian();
+                if (!(m_publish_pose || m_publish_velocity))
+                {
+                    // If no output is enabled, enable all the outputs
+                    m_publish_pose = true;
+                    m_publish_velocity = true;
+                }
+            }
+            else
+            {
+                if (!m_sbf_pvt_type.empty() && m_sbf_pvt_type != "geodetic")
+                    ROS_WARN("Invalid pvt type, assuming geodetic.");
 
-            m_gnss.p.parsers.enable_geodetic();
+                m_gnss.p.parsers.enable_geodetic();
+                if (!(m_publish_navsatfix || m_publish_velocity))
+                {
+                    // If no output is enabled, enable all the outputs
+                    m_publish_navsatfix = true;
+                    m_publish_velocity = true;
+                }
+            }
         }
 
         if (m_publish_navsatfix)

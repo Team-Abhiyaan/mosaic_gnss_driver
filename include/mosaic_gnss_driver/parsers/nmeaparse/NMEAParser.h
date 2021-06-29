@@ -113,10 +113,10 @@ namespace nmea {
 
     public:
         std::string nmea_buffer;  //for storing nmea sentence for publishing in ros
-                
+
         explicit NMEAParser(mosaic_gnss_driver::DataBuffers &buffers);
 
-        
+
         void parse(const uint8_t *data, size_t size);
 
         virtual ~NMEAParser();
@@ -141,12 +141,6 @@ namespace nmea {
         void readSentence(std::string cmd);                // called when parser receives a sentence from the byte stream. Can also be called by user to inject sentences.
 
         static uint8_t calculateChecksum(std::string);        // returns checksum of string -- XOR
-
-        // dummy struct
-        struct {
-            void enable_cartesian() {}
-            void enable_geodetic() {}
-        } parsers;
     };
 
 }

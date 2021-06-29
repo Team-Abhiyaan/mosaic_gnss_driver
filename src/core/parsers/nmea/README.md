@@ -27,7 +27,7 @@ This is all you need to use the GPS NMEA sentence data.
     } catch (NMEAParseError&) {
         // Syntax error, skip
 
-##Features
+## Features
 
 * **NMEA Parsing** of standard and custom sentences.
 

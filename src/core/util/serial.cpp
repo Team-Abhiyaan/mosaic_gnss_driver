@@ -1,53 +1,33 @@
+#include <boost/lexical_cast.hpp>
 #include <mosaic_utils/serial.h>
 
-#include <boost/lexical_cast.hpp>
-
 // Linux headers
+#include <errno.h>        // Error integer and strerror() function
+#include <fcntl.h>        // Contains file controls like O_RDWR, O_RDONLY
 #include <linux/serial.h> // For latency control and low-latency mode
+#include <poll.h>         // For event handling on file descriptors and polling ports
 #include <sys/ioctl.h>    // I/O Interface for device control
 #include <termios.h>      // Contains POSIX terminal control definitions
 #include <unistd.h>       // write(), read(), close()
-#include <fcntl.h>        // Contains file controls like O_RDWR, O_RDONLY
-#include <errno.h>        // Error integer and strerror() function
-#include <poll.h>         // For event handling on file descriptors and polling ports
 
-namespace serial_util
-{
-    Config::Config() : m_BaudRate(115200),
-                       m_DataBits(8),
-                       m_StopBits(1),
-                       m_Parity(NO_PARITY),
-                       m_FlowControl(false),
-                       m_LowLatencyMode(false),
-                       m_Writable(false)
+namespace serial_util {
+    Config::Config() :
+        m_BaudRate(115200), m_DataBits(8), m_StopBits(1), m_Parity(NO_PARITY), m_FlowControl(false),
+        m_LowLatencyMode(false), m_Writable(false)
     {
     }
 
-    Config::Config(int32_t baudRate,
-                   int32_t dataBits,
-                   int32_t stopBits,
-                   Parity parity,
-                   bool flowControl,
-                   bool lowLatencyMode,
-                   bool writable) : m_BaudRate(baudRate),
-                                    m_DataBits(dataBits),
-                                    m_StopBits(stopBits),
-                                    m_Parity(parity),
-                                    m_FlowControl(flowControl),
-                                    m_LowLatencyMode(lowLatencyMode),
-                                    m_Writable(writable)
+    Config::Config(int32_t baudRate, int32_t dataBits, int32_t stopBits, Parity parity,
+                   bool flowControl, bool lowLatencyMode, bool writable) :
+        m_BaudRate(baudRate),
+        m_DataBits(dataBits), m_StopBits(stopBits), m_Parity(parity), m_FlowControl(flowControl),
+        m_LowLatencyMode(lowLatencyMode), m_Writable(writable)
     {
     }
 
-    SerialPort::SerialPort() : m_Fd(-1),
-                               m_ErrorMessage("")
-    {
-    }
+    SerialPort::SerialPort() : m_Fd(-1), m_ErrorMessage("") {}
 
-    SerialPort::~SerialPort()
-    {
-        serialClose();
-    }
+    SerialPort::~SerialPort() { serialClose(); }
 
     void SerialPort::serialClose()
     {
@@ -58,7 +38,7 @@ namespace serial_util
         m_Fd = -1;
     }
 
-    bool SerialPort::serialOpen(const std::string &device, Config config)
+    bool SerialPort::serialOpen(const std::string& device, Config config)
     {
         serialClose();
 
@@ -66,7 +46,8 @@ namespace serial_util
         int32_t baud = _parseBaudRate(config.m_BaudRate);
         if (baud == -1)
         {
-            m_ErrorMessage = "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
+            m_ErrorMessage =
+                "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
 
             return false;
         }
@@ -74,7 +55,8 @@ namespace serial_util
         // Validate stop bits
         if (config.m_StopBits != 1 && config.m_StopBits != 2)
         {
-            m_ErrorMessage = "Invalid stop bits: " + boost::lexical_cast<std::string>(config.m_StopBits);
+            m_ErrorMessage =
+                "Invalid stop bits: " + boost::lexical_cast<std::string>(config.m_StopBits);
 
             return false;
         }
@@ -82,7 +64,8 @@ namespace serial_util
         // Validate data bits
         if (config.m_DataBits != 7 && config.m_DataBits != 8)
         {
-            m_ErrorMessage = "Invalid data bits: " + boost::lexical_cast<std::string>(config.m_DataBits);
+            m_ErrorMessage =
+                "Invalid data bits: " + boost::lexical_cast<std::string>(config.m_DataBits);
 
             return false;
         }
@@ -129,24 +112,24 @@ namespace serial_util
 
         switch (config.m_Parity)
         {
-            case Config::EVEN_PARITY:
-                term.c_cflag |= PARENB;
-                term.c_cflag &= ~PARODD;
-                break;
+        case Config::EVEN_PARITY:
+            term.c_cflag |= PARENB;
+            term.c_cflag &= ~PARODD;
+            break;
 
-            case Config::ODD_PARITY:
-                term.c_cflag |= PARENB;
-                term.c_cflag |= PARODD;
-                break;
+        case Config::ODD_PARITY:
+            term.c_cflag |= PARENB;
+            term.c_cflag |= PARODD;
+            break;
 
-            case Config::NO_PARITY:
-                term.c_cflag &= ~PARENB;
-                term.c_cflag &= ~PARODD;
-                break;
+        case Config::NO_PARITY:
+            term.c_cflag &= ~PARENB;
+            term.c_cflag &= ~PARODD;
+            break;
 
-            default:
-                // will never reach here, case taken care of during validation
-                break;
+        default:
+            // will never reach here, case taken care of during validation
+            break;
         }
 
         if (config.m_DataBits == 8)
@@ -161,7 +144,8 @@ namespace serial_util
 
         if (cfsetspeed(&term, config.m_BaudRate) < 0)
         {
-            m_ErrorMessage = "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
+            m_ErrorMessage =
+                "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
             serialClose();
 
             return false;
@@ -169,7 +153,8 @@ namespace serial_util
 
         if (tcsetattr(m_Fd, TCSAFLUSH, &term) < 0)
         {
-            m_ErrorMessage = "Unable to set serial port attributes <" + device + ">: " + strerror(errno);
+            m_ErrorMessage =
+                "Unable to set serial port attributes <" + device + ">: " + strerror(errno);
             serialClose();
 
             return false;
@@ -186,7 +171,8 @@ namespace serial_util
         return true;
     }
 
-    SerialPort::ReadResult SerialPort::readBytes(std::vector<uint8_t> &output, size_t maxBytes, int32_t timeout)
+    SerialPort::ReadResult SerialPort::readBytes(std::vector<uint8_t>& output, size_t maxBytes,
+                                                 int32_t timeout)
     {
         // Check if device is open
         if (m_Fd < 0)
@@ -201,9 +187,9 @@ namespace serial_util
 
         // Wait till file descriptor is ready for I/O
         //
-        // Upon successful completion, poll() shall return a non-negative value. A positive value indicates the
-        // total number of file descriptors that have been selected (that is, file descriptors for which the
-        // revents member is non-zero)
+        // Upon successful completion, poll() shall return a non-negative value. A positive value
+        // indicates the total number of file descriptors that have been selected (that is, file
+        // descriptors for which the revents member is non-zero)
         int pollReturn = poll(fds, 1, timeout);
 
         if (pollReturn == 0) // Timeout
@@ -215,11 +201,11 @@ namespace serial_util
             int errorNumber = errno;
             switch (errorNumber)
             {
-                case EINTR:
-                    return INTERRUPTED;
-                default:
-                    m_ErrorMessage = "Error polling serial port: " + std::string(strerror(errno));
-                    return ERROR;
+            case EINTR:
+                return INTERRUPTED;
+            default:
+                m_ErrorMessage = "Error polling serial port: " + std::string(strerror(errno));
+                return ERROR;
             }
         }
 
@@ -228,12 +214,13 @@ namespace serial_util
         {
             int bytes;
             // ioctl - control device
-            // FIONREAD specifies it to get the number of bytes that are immediately available for reading
+            // FIONREAD specifies it to get the number of bytes that are immediately available for
+            // reading
             ioctl(m_Fd, FIONREAD, &bytes);
             if (bytes < 0)
             {
-                m_ErrorMessage =
-                        "Error getting number of available bytes from serial port: " + std::string(strerror(errno));
+                m_ErrorMessage = "Error getting number of available bytes from serial port: " +
+                                 std::string(strerror(errno));
                 return ERROR;
             }
 
@@ -243,7 +230,8 @@ namespace serial_util
         size_t outputSize = output.size();
         output.resize(outputSize + toRead);
 
-        int result = read(m_Fd, output.data() + outputSize, toRead); // read data, returns number of bytes read
+        int result = read(m_Fd, output.data() + outputSize,
+                          toRead); // read data, returns number of bytes read
 
         if (result > 0)
         {
@@ -264,17 +252,17 @@ namespace serial_util
             int errorNumber = errno;
             switch (errorNumber)
             {
-                case EINTR:
-                    return INTERRUPTED;
+            case EINTR:
+                return INTERRUPTED;
 
-                default:
-                    m_ErrorMessage = "Error reading from serial port: " + std::string(strerror(errno));
-                    return ERROR;
+            default:
+                m_ErrorMessage = "Error reading from serial port: " + std::string(strerror(errno));
+                return ERROR;
             }
         }
     }
 
-    int32_t SerialPort::serialWrite(const std::vector<uint8_t> &input)
+    int32_t SerialPort::serialWrite(const std::vector<uint8_t>& input)
     {
         int32_t result = write(m_Fd, input.data(), input.size());
 
@@ -298,8 +286,8 @@ namespace serial_util
 
         if (ioctl(m_Fd, TIOCGSERIAL, &serialInfo) < 0)
         {
-            m_ErrorMessage =
-                    "Failed to set low latency mode.  Cannot get serial configuration: " + std::string(strerror(errno));
+            m_ErrorMessage = "Failed to set low latency mode.  Cannot get serial configuration: " +
+                             std::string(strerror(errno));
             return false;
         }
 
@@ -307,8 +295,8 @@ namespace serial_util
 
         if (ioctl(m_Fd, TIOCSSERIAL, &serialInfo) < 0)
         {
-            m_ErrorMessage =
-                    "Failed to set low latency mode.  Cannot set serial configuration: " + std::string(strerror(errno));
+            m_ErrorMessage = "Failed to set low latency mode.  Cannot set serial configuration: " +
+                             std::string(strerror(errno));
             return false;
         }
 

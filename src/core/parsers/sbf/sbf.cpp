@@ -1,15 +1,13 @@
-#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
-#include <mosaic_gnss_driver/parsers/sbf/helpers.h>
-
-#include <iostream>
 #include <cassert>
 #include <cstring>
+#include <iostream>
+#include <mosaic_gnss_driver/parsers/sbf/helpers.h>
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <tuple>
 
-sbf::SBF::SBF(mosaic_gnss_driver::DataBuffers &buffers) : data_buf{buffers}
-{}
+sbf::SBF::SBF(mosaic_gnss_driver::DataBuffers& buffers) : data_buf{buffers} {}
 
-void sbf::SBF::parse(const uint8_t *const data, size_t size)
+void sbf::SBF::parse(const uint8_t* const data, size_t size)
 {
     if (data == nullptr || size == 0)
         return;
@@ -21,18 +19,19 @@ void sbf::SBF::parse(const uint8_t *const data, size_t size)
     read_ptr = buffer_length_used ? buffer : data_start;
 
     // Parse Blocks until no more data
-    while (seek_block() && parse_block());
+    while (seek_block() && parse_block())
+        ;
 }
 
 bool sbf::SBF::parse_block()
 {
-    const uint8_t *ret;
+    const uint8_t* ret;
 
     // Read Header
     ret = read(8);
     if (!ret)
         return false;
-    auto header = reinterpret_cast<const sbf::Header *>(ret);
+    auto header = reinterpret_cast<const sbf::Header*>(ret);
 
     assert(header->sync_chars[0] == sync_chars[0] && header->sync_chars[1] == sync_chars[1]);
 
@@ -113,8 +112,7 @@ bool sbf::SBF::seek_block()
             read_ptr++;
         }
         // Sync broken bw buffer and data
-        if (*read_ptr == sync_chars[0] &&
-            *data_start == sync_chars[1])
+        if (*read_ptr == sync_chars[0] && *data_start == sync_chars[1])
         { // TODO: Is Data is guaranteed to have one byte
             block_start = read_ptr;
             return true;
@@ -126,7 +124,7 @@ bool sbf::SBF::seek_block()
     assert(false); // Unreachable
 }
 
-const uint8_t *sbf::SBF::read(size_t size)
+const uint8_t* sbf::SBF::read(size_t size)
 {
     assert(block_start); // Make sure we are in a block
 
@@ -137,7 +135,7 @@ const uint8_t *sbf::SBF::read(size_t size)
         { // Block in data, move to buffer
             auto block_size = data_end - block_start;
             if (block_size > buffer_size)
-            {                   // Buffer overflow: Can't move block to buffer
+            {                           // Buffer overflow: Can't move block to buffer
                 buffer_length_used = 0; // TODO: Warn?
             } else
             {
@@ -213,8 +211,7 @@ const uint8_t *sbf::SBF::read(size_t size)
 
 void sbf::SBF::unread(size_t rewind_len)
 {
-    if (in_buffer(block_start) && in_data(read_ptr) &&
-        rewind_len > (read_ptr - data_start))
+    if (in_buffer(block_start) && in_data(read_ptr) && rewind_len > (read_ptr - data_start))
     {
         buffer_length_used -= read_ptr - data_start; // Forget the copied data
         read_ptr = buffer + buffer_length_used - (rewind_len - (read_ptr - data_start));
@@ -226,7 +223,7 @@ void sbf::SBF::unread(size_t rewind_len)
 }
 
 // TODO: Implement
-/*static*/ bool sbf::SBF::check_crc(const uint8_t *bytes, size_t length, uint16_t crc)
+/*static*/ bool sbf::SBF::check_crc(const uint8_t* bytes, size_t length, uint16_t crc)
 {
     return true;
 }

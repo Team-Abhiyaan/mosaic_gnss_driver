@@ -4,29 +4,28 @@
 // #include <mutex>
 
 // Required Message Types
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/TimeReference.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
-#include <nmea_msgs/Sentence.h>
 #include <nmea_msgs/Gpgga.h>
+#include <nmea_msgs/Sentence.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/TimeReference.h>
 
 #ifdef __JETBRAINS_IDE__ // remove flag to get ide hints on entire class
 #undef MOSAIC_GNSS_CORE_ONLY
 #endif
 
 // MOSAIC_GNSS_CORE_ONLY should be defined if we are compiling the core library.
-// this ignores the ros parts of the data buffers, i.e. only exposes the ptr_t, get_new_ptr, and set_ptr.
-// Never instantiate a member of these classes in the core library.
-// #ifndef MOSAIC_GNSS_CORE_ONLY
+// this ignores the ros parts of the data buffers, i.e. only exposes the ptr_t, get_new_ptr, and
+// set_ptr. Never instantiate a member of these classes in the core library. #ifndef
+// MOSAIC_GNSS_CORE_ONLY
 
-#include <ros/ros.h>
 #include <ros/publisher.h>
+#include <ros/ros.h>
 
 // #endif
 
-namespace mosaic_gnss_driver
-{
+namespace mosaic_gnss_driver {
     template <typename msg_type>
     struct Buffer
     {
@@ -43,8 +42,9 @@ namespace mosaic_gnss_driver
         bool enabled, initPub;
 
         /**
-         * Returns a pointer to an instance of the message. This should be filled and passed to set_ptr
-         * Not guaranteed to be zero initialized, i.e. implementation may reuse previous unsent message.
+         * Returns a pointer to an instance of the message. This should be filled and passed to
+         * set_ptr Not guaranteed to be zero initialized, i.e. implementation may reuse previous
+         * unsent message.
          *
          * @return message pointer
          */
@@ -75,21 +75,19 @@ namespace mosaic_gnss_driver
          *
          * @return message, may be nullptr
          */
-        ptr_t get()
-        {
-            return std::move(ptr);
-        }
+        ptr_t get() { return std::move(ptr); }
 
     private:
         ros::Publisher pub;
         // We do this to compile core library without ros.
-        // The core library never creates an object of this type, it only calls the above functions.`
+        // The core library never creates an object of this type, it only calls the above
+        // functions.`
 
 #ifndef MOSAIC_GNSS_CORE_ONLY
     public:
         // init must be called before calling publish
 
-        void init(ros::NodeHandle &nh, const char *topic, size_t queue, bool latch = false)
+        void init(ros::NodeHandle& nh, const char* topic, size_t queue, bool latch = false)
         {
             pub = nh.advertise<msg_type>(topic, queue, latch);
             initPub = true;
@@ -102,11 +100,11 @@ namespace mosaic_gnss_driver
                 return;
             if (!ptr)
             {
-// #include <boost/core/demangle.hpp>
+                // #include <boost/core/demangle.hpp>
 
-                // ROS_WARN("Not enough msg %s", boost::core::demangle(typeid(msg_type).name()).data());
-            }
-            else
+                // ROS_WARN("Not enough msg %s",
+                // boost::core::demangle(typeid(msg_type).name()).data());
+            } else
             {
                 // TODO: Check if publisher ready
                 typename msg_type::Ptr shared_ptr = std::move(ptr);
@@ -142,4 +140,4 @@ namespace mosaic_gnss_driver
     };
 } // namespace mosaic_gnss_driver
 
-#endif //MOSAIC_GNSS_DRIVER_DATA_BUFFERS_H
+#endif // MOSAIC_GNSS_DRIVER_DATA_BUFFERS_H

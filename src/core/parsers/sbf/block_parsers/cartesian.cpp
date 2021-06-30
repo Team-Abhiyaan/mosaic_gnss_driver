@@ -1,17 +1,15 @@
-#include <mosaic_gnss_driver/parsers/sbf/block_parsers.h>
 #include <cinttypes>
 #include <cmath>
+#include <mosaic_gnss_driver/parsers/sbf/block_parsers.h>
 
-namespace sbf::block_parsers
-{
+namespace sbf::block_parsers {
 
 #pragma pack(push, 1) // Packs the struct tightly, no gaps b/w objs
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-    namespace structs
-    {
+    namespace structs {
         struct PVTCartesian
-        { /// SBF BlockNum 4006
+        {           /// SBF BlockNum 4006
             u4 TOW; // DO_NOT_USE: 4294967295
             u2 WNc;
             u1 Mode, Error;
@@ -41,25 +39,25 @@ namespace sbf::block_parsers
             // Covariances
             f4 vx_vx, vy_vy, vz_vz, dt_dt, vx_vy, vx_vz, vx_dt, vy_vz, vy_dt, vz_dt;
         };
-    }
+    } // namespace structs
 
 #pragma clang diagnostic pop
 #pragma pack(pop)
 
-    void Cartesian::PVTCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
+    void Cartesian::PVTCartesian(const uint8_t* block_ptr, const sbf::u2 length,
+                                 const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PVTCartesian))
         {
             std::cout << "[WARN] Block is too small." << std::endl;
             return;
         }
-        auto block = reinterpret_cast<const structs::PVTCartesian *>(block_ptr);
+        auto block = reinterpret_cast<const structs::PVTCartesian*>(block_ptr);
         if ((block->Mode & 0b1111u) == 0u) // PVT Error
         {
             std::cout << "[WARN] PVT Error" << std::endl;
             return;
         }
-
 
         ///////////////
         //   Pose    //
@@ -73,7 +71,8 @@ namespace sbf::block_parsers
 
         pos_pvt_last_time = block->TOW;
         // Check for mismatch times
-        if ((pos_cov_last_time != do_not_use_time) && pos_pvt_last_time != pos_cov_last_time) // TODO range?
+        if ((pos_cov_last_time != do_not_use_time) &&
+            pos_pvt_last_time != pos_cov_last_time) // TODO range?
         {
             std::cout << "[WARN] Timestamp mismatch" << std::endl;
             pos_cov_last_time = do_not_use_time;
@@ -82,9 +81,8 @@ namespace sbf::block_parsers
         // Fill PVT
         pose->header.stamp = ros::Time::now(); // TODO: use GNSS time
         pose->header.frame_id = "geodetic";
-        static auto rad2deg = [](auto val)
-        { return val * 180 / 3.141592653; };
-        auto &position = pose->pose.pose.position;
+        static auto rad2deg = [](auto val) { return val * 180 / 3.141592653; };
+        auto& position = pose->pose.pose.position;
         position.x = block->x;
         position.y = block->y;
         position.z = block->z;
@@ -114,12 +112,12 @@ namespace sbf::block_parsers
 
         vel_pvt_last_time = block->TOW;
         // Check for mismatch times
-        if ((vel_cov_last_time != do_not_use_time) && vel_pvt_last_time != vel_cov_last_time) // TODO range?
+        if ((vel_cov_last_time != do_not_use_time) &&
+            vel_pvt_last_time != vel_cov_last_time) // TODO range?
         {
             std::cout << "[WARN] Timestamp mismatch" << std::endl;
             vel_cov_last_time = do_not_use_time;
         }
-
 
         // Fill Vel
         velocity->header.stamp = ros::Time::now(); // TODO: use GNSS time
@@ -132,17 +130,17 @@ namespace sbf::block_parsers
         // Publish if cov also filled
         if (vel_cov_last_time != do_not_use_time)
             db.velocity.set_ptr(std::move(velocity));
-
     }
 
-    void Cartesian::PosCovCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
+    void Cartesian::PosCovCartesian(const uint8_t* block_ptr, const sbf::u2 length,
+                                    const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::PosCovCartesian))
         {
             std::cout << "[WARN] Block is too small." << std::endl;
             return;
         }
-        auto block = reinterpret_cast<const structs::PosCovCartesian *>(block_ptr);
+        auto block = reinterpret_cast<const structs::PosCovCartesian*>(block_ptr);
         if ((block->Mode & 0b1111u) == 0u) // PVT Error
         {
             std::cout << "[WARN] PVT Error" << std::endl;
@@ -158,14 +156,15 @@ namespace sbf::block_parsers
 
         pos_cov_last_time = block->TOW;
         // Check for mismatch times
-        if ((pos_pvt_last_time != do_not_use_time) && pos_pvt_last_time != pos_cov_last_time) // TODO range?
+        if ((pos_pvt_last_time != do_not_use_time) &&
+            pos_pvt_last_time != pos_cov_last_time) // TODO range?
         {
             std::cout << "[WARN] Timestamp mismatch" << std::endl;
             pos_pvt_last_time = do_not_use_time;
         }
 
         // Fill Cov
-        auto &c = pose->pose.covariance;
+        auto& c = pose->pose.covariance;
         c[0] = block->xx;
         c[1] = block->xy;
         c[2] = block->xz;
@@ -182,18 +181,18 @@ namespace sbf::block_parsers
         if (pos_pvt_last_time != do_not_use_time)
         {
             db.pose.set_ptr(std::move(pose));
-
         }
     }
 
-    void Cartesian::VelCovCartesian(const uint8_t *block_ptr, const sbf::u2 length, const sbf::u1 rev_num)
+    void Cartesian::VelCovCartesian(const uint8_t* block_ptr, const sbf::u2 length,
+                                    const sbf::u1 rev_num)
     {
         if (length < sizeof(structs::VelCovCartesian))
         {
             std::cout << "[WARN] Block is too small." << std::endl;
             return;
         }
-        auto block = reinterpret_cast<const structs::VelCovCartesian *>(block_ptr);
+        auto block = reinterpret_cast<const structs::VelCovCartesian*>(block_ptr);
         if ((block->Mode & 0b1111u) == 0u) // PVT Error
         {
             std::cout << "[WARN] PVT Error" << std::endl;
@@ -209,14 +208,15 @@ namespace sbf::block_parsers
 
         vel_cov_last_time = block->TOW;
         // Check for mismatch times
-        if ((vel_pvt_last_time != do_not_use_time) && vel_pvt_last_time != vel_cov_last_time) // TODO range?
+        if ((vel_pvt_last_time != do_not_use_time) &&
+            vel_pvt_last_time != vel_cov_last_time) // TODO range?
         {
             std::cout << "[WARN] Timestamp mismatch" << std::endl;
             vel_pvt_last_time = do_not_use_time;
         }
 
         // Fill Cov
-        auto &c = velocity->twist.covariance;
+        auto& c = velocity->twist.covariance;
         c[0] = block->vx_vx;
         c[1] = block->vx_vy;
         c[2] = block->vx_vz;
@@ -233,4 +233,4 @@ namespace sbf::block_parsers
         if (vel_pvt_last_time != do_not_use_time)
             db.velocity.set_ptr(std::move(velocity));
     }
-}
+} // namespace sbf::block_parsers

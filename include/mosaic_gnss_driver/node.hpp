@@ -1,40 +1,30 @@
 #ifndef __MOSAIC_GNSS_DRIVER_NODE_H__
 #define __MOSAIC_GNSS_DRIVER_NODE_H__
 
-#include <ros/ros.h>
-
-#include <mosaic_gnss_driver/mosaic_gnss.h>
-#include <mosaic_gnss_driver/data_buffers.h>
-
 #include <mosaic_gnss_driver/connections/pcap.h>
+#include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/connections/tcp.h>
 #include <mosaic_gnss_driver/connections/udp.h>
-#include <mosaic_gnss_driver/connections/serial.h>
-
+#include <mosaic_gnss_driver/data_buffers.h>
+#include <mosaic_gnss_driver/mosaic_gnss.h>
 #include <mosaic_gnss_driver/parsers/nmeaparse/NMEAParser.h>
 #include <mosaic_gnss_driver/parsers/sbf/sbf.h>
+#include <ros/ros.h>
 
 template <typename c_Tp, typename p_Tp>
 class MosaicGNSSDriverNode
 {
 public:
-    MosaicGNSSDriverNode(ros::NodeHandle &nh, ros::NodeHandle &pnh)
-        : m_nh(nh), m_pnh(pnh),
-          m_sbf_pvt_type("geodetic"),
-          m_publish_navsatfix(false),
-          m_publish_velocity(false),
-          m_publish_pose(false),
-          m_publish_nmea_sentence(false),
-          m_publish_time_reference(false)
+    MosaicGNSSDriverNode(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
+        m_nh(nh), m_pnh(pnh), m_sbf_pvt_type("geodetic"), m_publish_navsatfix(false),
+        m_publish_velocity(false), m_publish_pose(false), m_publish_nmea_sentence(false),
+        m_publish_time_reference(false)
     {
         _initParams();
         _initPublishers();
     }
 
-    bool registerDevice(const std::string &device)
-    {
-        return m_gnss.connect(device);
-    }
+    bool registerDevice(const std::string& device) { return m_gnss.connect(device); }
 
     void spin()
     {
@@ -85,8 +75,7 @@ private:
                     m_publish_pose = true;
                     m_publish_velocity = true;
                 }
-            }
-            else
+            } else
             {
                 if (!m_sbf_pvt_type.empty() && m_sbf_pvt_type != "geodetic")
                     ROS_WARN("Invalid pvt type, assuming geodetic.");

@@ -1,15 +1,13 @@
-#include <mosaic_gnss_driver/mosaic_gnss.h>
+#include <gtest/gtest.h>
 #include <mosaic_gnss_driver/connections/pcap.h>
+#include <mosaic_gnss_driver/connections/serial.h>
 #include <mosaic_gnss_driver/connections/tcp.h>
 #include <mosaic_gnss_driver/connections/udp.h>
-#include <mosaic_gnss_driver/connections/serial.h>
-#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <mosaic_gnss_driver/data_buffers.h>
-
-#include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <mosaic_gnss_driver/mosaic_gnss.h>
+#include <mosaic_gnss_driver/parsers/sbf/sbf.h>
 #include <ros/package.h>
-
+#include <ros/ros.h>
 
 // Macros will be defined at compile time based on the options specified in the CMakeLists.txt
 #ifdef RUN_SERIAL_TEST
@@ -55,7 +53,8 @@ TEST(TcpTestSuite, testCaseTcpConnection)
 #ifdef RUN_UDP_TEST
 TEST(UdpTestSuite, testCaseTcpConnection)
 {
-    std::string endpoint = ":6565"; // do not specify the ip for udp connections, just ask it to listen to a port
+    std::string endpoint =
+        ":6565"; // do not specify the ip for udp connections, just ask it to listen to a port
 
     mosaic_gnss_driver::GNSS<mosaic_gnss_driver::connections::UDP, sbf::SBF> gnss;
 
@@ -92,7 +91,7 @@ TEST(PcapTestSuite, testCasePcapFileConnection)
 }
 #endif
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     ros::init(argc, argv, "pcapTestSuite", ros::init_options::AnonymousName);
     ros::NodeHandle nh;

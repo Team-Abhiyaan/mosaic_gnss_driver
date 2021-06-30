@@ -1,9 +1,9 @@
-#include <mosaic_gnss_driver/node.hpp>
 #include <boost/filesystem.hpp>
+#include <mosaic_gnss_driver/node.hpp>
 #include <ros/package.h>
 
 template <typename c_Tp, typename p_Tp>
-void launchDriver(const std::string &device)
+void launchDriver(const std::string& device)
 {
     ros::NodeHandle nh, pnh("~");
 
@@ -18,7 +18,7 @@ void launchDriver(const std::string &device)
 }
 
 template <typename p_Tp>
-void initDriver(std::string &device, const std::string &conn)
+void initDriver(std::string& device, const std::string& conn)
 {
     if (conn == "pcap")
     {
@@ -30,22 +30,19 @@ void initDriver(std::string &device, const std::string &conn)
         device = full_path.string();
 
         launchDriver<mosaic_gnss_driver::connections::PCAP, p_Tp>(device);
-    }
-    else if (conn == "serial")
+    } else if (conn == "serial")
     {
         launchDriver<mosaic_gnss_driver::connections::Serial, p_Tp>(device);
-    }
-    else if (conn == "tcp")
+    } else if (conn == "tcp")
     {
         launchDriver<mosaic_gnss_driver::connections::TCP, p_Tp>(device);
-    }
-    else if (conn == "udp")
+    } else if (conn == "udp")
     {
         launchDriver<mosaic_gnss_driver::connections::UDP, p_Tp>(device);
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     ros::init(argc, argv, "mosaic_gnss");
     ros::NodeHandle pnh("~");
@@ -72,12 +69,10 @@ int main(int argc, char **argv)
     if (stream == "sbf")
     {
         initDriver<sbf::SBF>(device, connection);
-    }
-    else if (stream == "nmea")
+    } else if (stream == "nmea")
     {
         initDriver<nmea::NMEAParser>(device, connection);
-    }
-    else
+    } else
     {
         ROS_FATAL("Invalid parser type set.");
         return EXIT_FAILURE;

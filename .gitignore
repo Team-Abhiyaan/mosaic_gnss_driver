@@ -3,6 +3,9 @@ docs/html
 docs/latex
 
 .vscode
+.idea
 
 stderr.txt
 stdout.txt
+
+cmake-build-*

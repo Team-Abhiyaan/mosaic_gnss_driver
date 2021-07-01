@@ -3,16 +3,15 @@
 #ifndef GPSFIX_H_
 #define GPSFIX_H_
 
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <ctime>
-#include <string>
-#include <chrono>
-#include <vector>
-#include <cmath>
 #include <sstream>
+#include <string>
+#include <vector>
 
-namespace nmea
-{
+namespace nmea {
 
     class GPSSatellite;
 
@@ -22,54 +21,42 @@ namespace nmea
 
     class GPSService;
 
-
     // =========================== GPS SATELLITE =====================================
 
     class GPSSatellite
     {
     public:
-        GPSSatellite() :
-                snr(0),
-                prn(0),
-                elevation(0),
-                azimuth(0)
-        {};
+        GPSSatellite() : snr(0), prn(0), elevation(0), azimuth(0){};
 
-        //satellite data
-        double snr;            // 0-99 dB
-        uint32_t prn;        // id - 0-32
-        double elevation;    // 0-90 deg
-        double azimuth;        // 0-359 deg
+        // satellite data
+        double snr;       // 0-99 dB
+        uint32_t prn;     // id - 0-32
+        double elevation; // 0-90 deg
+        double azimuth;   // 0-359 deg
         std::string toString();
 
         operator std::string();
     };
 
-
-
     // =========================== GPS ALMANAC =====================================
-
 
     class GPSAlmanac
     {
         friend GPSService;
+
     private:
         uint32_t visibleSize;
         uint32_t lastPage;
         uint32_t totalPages;
         uint32_t processedPages;
 
-        void clear();            //will remove all information from the satellites
+        void clear(); // will remove all information from the satellites
         void updateSatellite(GPSSatellite sat);
 
     public:
-        GPSAlmanac() :
-                lastPage(0),
-                totalPages(0),
-                processedPages(0)
-        {};
+        GPSAlmanac() : lastPage(0), totalPages(0), processedPages(0){};
 
-        //mapped by prn
+        // mapped by prn
         std::vector<GPSSatellite> satellites;
 
         double averageSNR();
@@ -79,11 +66,7 @@ namespace nmea
         double maxSNR();
 
         double percentComplete();
-
     };
-
-
-
 
     // =========================== GPS TIMESTAMP =====================================
 
@@ -107,7 +90,7 @@ namespace nmea
         // Values collected directly from the GPS
         double rawTime;
         int32_t rawDate;
-        //give the unix time(seconds passed since 1.1.1970)
+        // give the unix time(seconds passed since 1.1.1970)
         time_t getTime();
 
         // Set directly from the NMEA time stamp
@@ -121,11 +104,6 @@ namespace nmea
         std::string toString();
     };
 
-
-
-
-
-
     // =========================== GPS FIX =====================================
 
     class GPSFix
@@ -133,25 +111,21 @@ namespace nmea
         friend GPSService;
 
     private:
-
         bool haslock;
 
-        bool setlock(bool b);        //returns true if lock status **changed***, false otherwise.
-
+        bool setlock(bool b); // returns true if lock status **changed***, false otherwise.
 
     public:
-
         GPSFix();
 
         virtual ~GPSFix();
 
-
         GPSAlmanac almanac;
         GPSTimestamp timestamp;
 
-        char status;        // Status: A=active, V=void (not locked)
-        uint8_t type;        // Type: 1=none, 2=2d, 3=3d
-        uint8_t quality;    // Quality:
+        char status;     // Status: A=active, V=void (not locked)
+        uint8_t type;    // Type: 1=none, 2=2d, 3=3d
+        uint8_t quality; // Quality:
         //    0 = invalid
         //    1 = GPS fix (SPS)
         //    2 = DGPS fix
@@ -160,15 +134,16 @@ namespace nmea
         //    5 = Float RTK
         //    6 = estimated (dead reckoning) (2.3 feature)
 
-        double dilution;                    // Combination of Vertical & Horizontal
-        double horizontalDilution;            // Horizontal dilution of precision, initialized to 100, best =1, worst = >20
-        double verticalDilution;            // Vertical is less accurate
+        double dilution;           // Combination of Vertical & Horizontal
+        double horizontalDilution; // Horizontal dilution of precision, initialized to 100, best =1,
+                                   // worst = >20
+        double verticalDilution;   // Vertical is less accurate
 
-        double altitude;        // meters
-        double latitude;        // degrees N
-        double longitude;        // degrees E
-        double speed;            // km/h
-        double travelAngle;        // degrees true north (0-360)
+        double altitude;    // meters
+        double latitude;    // degrees N
+        double longitude;   // degrees E
+        double speed;       // km/h
+        double travelAngle; // degrees true north (0-360)
         int32_t trackingSatellites;
         int32_t visibleSatellites;
 
@@ -180,7 +155,8 @@ namespace nmea
 
         bool hasEstimate();
 
-        std::chrono::seconds timeSinceLastUpdate();    // Returns seconds difference from last timestamp and right now.
+        std::chrono::seconds
+        timeSinceLastUpdate(); // Returns seconds difference from last timestamp and right now.
 
         std::string toString();
 
@@ -189,6 +165,6 @@ namespace nmea
         static std::string travelAngleToCompassDirection(double deg, bool abbrev = false);
     };
 
-}
+} // namespace nmea
 
 #endif /* GPSFIX_H_ */

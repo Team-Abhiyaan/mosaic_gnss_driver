@@ -3,12 +3,9 @@
 
 using namespace mosaic_gnss_driver::connections;
 
-TCP::TCP(buffer_t &buf) : Connection(buf),
-                          m_TcpSocket(m_IoService)
-{
-}
+TCP::TCP(buffer_t& buf) : Connection(buf), m_TcpSocket(m_IoService) {}
 
-bool TCP::connect(const std::string &endpoint, const Options &opts)
+bool TCP::connect(const std::string& endpoint, const Options& opts)
 {
 
     if (is_connected())
@@ -54,9 +51,9 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            boost::asio::ip::tcp::acceptor acceptor(m_IoService,
-                                                    boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
-                                                                                   portNumber));
+            boost::asio::ip::tcp::acceptor acceptor(
+                m_IoService,
+                boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), portNumber));
 
             ROS_INFO("Listening to TCP port %s", port.c_str());
 
@@ -65,8 +62,7 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
             ROS_INFO("Accepted TCP Connection from client: %s",
                      m_TcpSocket.remote_endpoint().address().to_string().c_str());
         }
-    }
-    catch (const std::exception &e)
+    } catch (const std::exception& e)
     {
         ROS_ERROR("Unable to connect: %s", e.what());
         return false;
@@ -81,24 +77,22 @@ bool TCP::connect(const std::string &endpoint, const Options &opts)
     {
         // We will not kill the connection here, because the device may already
         // be setup to communicate correctly, but we will print a warning
-        ROS_ERROR("Failed to configure GPS. This port may be read only, or the "
-                  "device may not be functioning as expected; however, the "
-                  "driver may still function correctly if the port has already "
-                  "been pre-configured.");
+        ROS_ERROR(
+            "Failed to configure GPS. This port may be read only, or the "
+            "device may not be functioning as expected; however, the "
+            "driver may still function correctly if the port has already "
+            "been pre-configured.");
     }
     return true;
 }
 
-bool TCP::_configure(const Options &opts)
+bool TCP::_configure(const Options& opts)
 {
     // TODO: Complete this
     return true;
 }
 
-void TCP::disconnect()
-{
-    m_TcpSocket.close();
-}
+void TCP::disconnect() { m_TcpSocket.close(); }
 
 ReadResult TCP::read()
 {
@@ -120,15 +114,14 @@ ReadResult TCP::read()
             return READ_ERROR;
         }
         return READ_SUCCESS;
-    }
-    catch (const std::exception &e)
+    } catch (const std::exception& e)
     {
         ROS_WARN("TCP Connection error: %s", e.what());
         return READ_ERROR;
     }
 }
 
-bool TCP::write(const std::string &command)
+bool TCP::write(const std::string& command)
 {
     std::vector<uint8_t> bytes(command.begin(), command.end());
 
@@ -147,9 +140,8 @@ bool TCP::write(const std::string &command)
         }
         ROS_DEBUG("Wrote %lu bytes", written);
 
-        return (written == (int32_t) command.length());
-    }
-    catch (std::exception &e)
+        return (written == (int32_t)command.length());
+    } catch (std::exception& e)
     {
         disconnect();
         ROS_ERROR("Exception writing IP data: %s", e.what());
@@ -157,7 +149,4 @@ bool TCP::write(const std::string &command)
     }
 }
 
-TCP::~TCP()
-{
-    disconnect();
-}
+TCP::~TCP() { disconnect(); }

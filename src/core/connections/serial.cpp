@@ -2,7 +2,7 @@
 
 using namespace mosaic_gnss_driver::connections;
 
-bool Serial::write(const std::string &command)
+bool Serial::write(const std::string& command)
 {
     std::vector<uint8_t> bytes(command.begin(), command.end());
     int32_t written = serial_port.serialWrite(bytes);
@@ -14,17 +14,11 @@ bool Serial::write(const std::string &command)
     return true;
 }
 
-void Serial::disconnect()
-{
-    serial_port.serialClose();
-}
+void Serial::disconnect() { serial_port.serialClose(); }
 
-Serial::~Serial()
-{
-    Serial::disconnect();
-}
+Serial::~Serial() { Serial::disconnect(); }
 
-bool Serial::connect(const std::string &device, const Options &opts)
+bool Serial::connect(const std::string& device, const Options& opts)
 {
     serial_util::Config config;
     config.m_BaudRate = baud;

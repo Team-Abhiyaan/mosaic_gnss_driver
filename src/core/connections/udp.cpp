@@ -1,14 +1,11 @@
 #include <mosaic_gnss_driver/connections/udp.h>
-
 #include <ros/ros.h>
 
 using namespace mosaic_gnss_driver::connections;
 
-UDP::UDP(buffer_t &buf) : Connection(buf)
-{
-}
+UDP::UDP(buffer_t& buf) : Connection(buf) {}
 
-bool UDP::connect(const std::string &endpoint, const Options &opts)
+bool UDP::connect(const std::string& endpoint, const Options& opts)
 {
     std::string ip;
     std::string port;
@@ -43,7 +40,8 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
 
             boost::asio::ip::udp::resolver resolver(m_IoService);
             boost::asio::ip::udp::resolver::query query(ip, port);
-            m_UdpEndpoint = boost::make_shared<boost::asio::ip::udp::endpoint>(*resolver.resolve(query));
+            m_UdpEndpoint =
+                boost::make_shared<boost::asio::ip::udp::endpoint>(*resolver.resolve(query));
 
             m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService));
             m_UdpSocket->open(boost::asio::ip::udp::v4());
@@ -53,8 +51,9 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService, boost::asio::ip::udp::endpoint(
-                    boost::asio::ip::udp::v4(), portNumber)));
+            m_UdpSocket.reset(new boost::asio::ip::udp::socket(
+                m_IoService,
+                boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), portNumber)));
 
             boost::array<char, 1> recvBuffer;
 
@@ -70,10 +69,10 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
                 throw boost::system::system_error(error);
             }
 
-            ROS_INFO("Accepted UDP Connection from client: %s", m_UdpEndpoint->address().to_string().c_str());
+            ROS_INFO("Accepted UDP Connection from client: %s",
+                     m_UdpEndpoint->address().to_string().c_str());
         }
-    }
-    catch (const std::exception &e)
+    } catch (const std::exception& e)
     {
         ROS_ERROR("Unable to connect: %s", e.what());
         return false;
@@ -88,15 +87,16 @@ bool UDP::connect(const std::string &endpoint, const Options &opts)
     {
         // We will not kill the connection here, because the device may already
         // be setup to communicate correctly, but we will print a warning
-        ROS_ERROR("Failed to configure GPS. This port may be read only, or the "
-                  "device may not be functioning as expected; however, the "
-                  "driver may still function correctly if the port has already "
-                  "been pre-configured.");
+        ROS_ERROR(
+            "Failed to configure GPS. This port may be read only, or the "
+            "device may not be functioning as expected; however, the "
+            "driver may still function correctly if the port has already "
+            "been pre-configured.");
     }
     return true;
 }
 
-bool UDP::_configure(const Options &opts)
+bool UDP::_configure(const Options& opts)
 {
     // TODO: complete this
     return true;
@@ -136,15 +136,14 @@ ReadResult UDP::read()
             return READ_ERROR;
         }
         return READ_SUCCESS;
-    }
-    catch (const std::exception &e)
+    } catch (const std::exception& e)
     {
         ROS_WARN("UDP Connection error: %s", e.what());
         return READ_ERROR;
     }
 }
 
-bool UDP::write(const std::string &command)
+bool UDP::write(const std::string& command)
 {
     std::vector<uint8_t> bytes(command.begin(), command.end());
 
@@ -163,9 +162,8 @@ bool UDP::write(const std::string &command)
         }
         ROS_DEBUG("Wrote %lu bytes", written);
 
-        return (written == (int32_t) command.length());
-    }
-    catch (std::exception &e)
+        return (written == (int32_t)command.length());
+    } catch (std::exception& e)
     {
         disconnect();
         ROS_ERROR("Exception writing IP data: %s", e.what());
@@ -173,7 +171,4 @@ bool UDP::write(const std::string &command)
     }
 }
 
-UDP::~UDP()
-{
-    disconnect();
-}
+UDP::~UDP() { disconnect(); }

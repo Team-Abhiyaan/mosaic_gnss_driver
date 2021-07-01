@@ -1,14 +1,14 @@
 #include "mosaic_gnss_driver/connections/pcap.h"
 
-#include <ros/ros.h>
+#include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
-#include <net/ethernet.h>
+#include <ros/ros.h>
 
 using namespace mosaic_gnss_driver::connections;
 
-bool PCAP::connect(const std::string &device, const Options &opts)
+bool PCAP::connect(const std::string& device, const Options& opts)
 {
     if (is_connected())
         return true;
@@ -25,17 +25,14 @@ bool PCAP::connect(const std::string &device, const Options &opts)
     return true;
 }
 
-PCAP::~PCAP()
-{
-    PCAP::disconnect();
-}
+PCAP::~PCAP() { PCAP::disconnect(); }
 
 ReadResult PCAP::read()
 {
     if (!is_connected())
         return READ_ERROR;
-    struct pcap_pkthdr *header;
-    const u_char *packetData;
+    struct pcap_pkthdr* header;
+    const u_char* packetData;
 
     int result;
 
@@ -44,85 +41,89 @@ ReadResult PCAP::read()
 
     if (result >= 0)
     {
-        auto ipHeader = reinterpret_cast<const iphdr *>(packetData + sizeof(struct ethhdr));
+        auto ipHeader = reinterpret_cast<const iphdr*>(packetData + sizeof(struct ethhdr));
         uint32_t ipHeaderLength = ipHeader->ihl * 4u;
 
-        // handle by protocol id, refer https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+        // handle by protocol id, refer
+        // https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
         switch (ipHeader->protocol)
         {
-            case 6: // TCP
+        case 6: // TCP
+        {
+
+            if (header->len == 54)
             {
-
-                if (header->len == 54)
-                {
-                    // Empty packet, skip it.
-                    return READ_SUCCESS;
-                }
-
-                bool storePacket = true;
-
-                if (!last_packet.empty())
-                {
-                    auto tcpHeader = reinterpret_cast<const tcphdr *>(packetData + ipHeaderLength +
-                                                                      sizeof(struct ethhdr));
-                    auto lastIpHeader = reinterpret_cast<const iphdr *>(&(last_packet[0]));
-                    uint32_t lastIpHeaderLength = lastIpHeader->ihl * 4u;
-                    auto lastTcpHeader = reinterpret_cast<const tcphdr *>(&(last_packet[0]) + lastIpHeaderLength);
-                    uint16_t lastLength = ntohs(static_cast<uint16_t>(lastIpHeader->tot_len));
-                    uint16_t newLength = ntohs(static_cast<uint16_t>(ipHeader->tot_len));
-                    uint32_t lastSeq = ntohl(lastTcpHeader->seq);
-                    uint32_t newSeq = ntohl(tcpHeader->seq);
-
-                    if (newSeq != lastSeq)
-                    {
-                        uint32_t dataOffset = lastTcpHeader->doff * 4;
-                        buffer.insert(buffer.end(), last_packet.begin() + lastIpHeaderLength + dataOffset,
-                                      last_packet.end());
-                    } else if (newLength <= lastLength)
-                    {
-                        storePacket = false;
-                    }
-                }
-
-                if (storePacket)
-                {
-                    last_packet.clear();
-                    last_packet.insert(last_packet.end(), packetData + sizeof(struct ethhdr), packetData + header->len);
-                }
-
-                break;
+                // Empty packet, skip it.
+                return READ_SUCCESS;
             }
-            case 17: // UDP
+
+            bool storePacket = true;
+
+            if (!last_packet.empty())
             {
-                uint16_t fragOff = ntohs(static_cast<uint16_t>(ipHeader->frag_off));
+                auto tcpHeader = reinterpret_cast<const tcphdr*>(packetData + ipHeaderLength +
+                                                                 sizeof(struct ethhdr));
+                auto lastIpHeader = reinterpret_cast<const iphdr*>(&(last_packet[0]));
+                uint32_t lastIpHeaderLength = lastIpHeader->ihl * 4u;
+                auto lastTcpHeader =
+                    reinterpret_cast<const tcphdr*>(&(last_packet[0]) + lastIpHeaderLength);
+                uint16_t lastLength = ntohs(static_cast<uint16_t>(lastIpHeader->tot_len));
+                uint16_t newLength = ntohs(static_cast<uint16_t>(ipHeader->tot_len));
+                uint32_t lastSeq = ntohl(lastTcpHeader->seq);
+                uint32_t newSeq = ntohl(tcpHeader->seq);
 
-                uint16_t fragmentOffset = fragOff & static_cast<uint16_t>(0x1FFF);
-                size_t headerSize;
-
-                // UDP packets may be fragmented; this isn't really "correct", but for
-                // simplicity's sake we'll assume we get fragments in the right order.
-                if (fragmentOffset == 0)
+                if (newSeq != lastSeq)
                 {
-                    headerSize = sizeof(struct ethhdr) + ipHeaderLength + sizeof(struct udphdr);
-                } else
+                    uint32_t dataOffset = lastTcpHeader->doff * 4;
+                    buffer.insert(buffer.end(),
+                                  last_packet.begin() + lastIpHeaderLength + dataOffset,
+                                  last_packet.end());
+                } else if (newLength <= lastLength)
                 {
-                    headerSize = sizeof(struct ethhdr) + ipHeaderLength;
+                    storePacket = false;
                 }
-
-                buffer.insert(buffer.end(), packetData + headerSize, packetData + header->len);
-
-                break;
             }
-            case 128: // SSCOPMCE
+
+            if (storePacket)
             {
-                ROS_WARN("Recieved data via SSCOPMCE protocol");
-                // TODO : research and handle
-                // Got this protocol while testing with the pcap file, no clue what this does
-                break;
+                last_packet.clear();
+                last_packet.insert(last_packet.end(), packetData + sizeof(struct ethhdr),
+                                   packetData + header->len);
             }
-            default:
-                ROS_WARN("Unexpected protocol: %u", ipHeader->protocol);
-                return READ_ERROR;
+
+            break;
+        }
+        case 17: // UDP
+        {
+            uint16_t fragOff = ntohs(static_cast<uint16_t>(ipHeader->frag_off));
+
+            uint16_t fragmentOffset = fragOff & static_cast<uint16_t>(0x1FFF);
+            size_t headerSize;
+
+            // UDP packets may be fragmented; this isn't really "correct", but for
+            // simplicity's sake we'll assume we get fragments in the right order.
+            if (fragmentOffset == 0)
+            {
+                headerSize = sizeof(struct ethhdr) + ipHeaderLength + sizeof(struct udphdr);
+            } else
+            {
+                headerSize = sizeof(struct ethhdr) + ipHeaderLength;
+            }
+
+            buffer.insert(buffer.end(), packetData + headerSize, packetData + header->len);
+
+            break;
+        }
+        case 128: // SSCOPMCE
+        {
+            ROS_WARN("Recieved data via SSCOPMCE protocol");
+            // TODO : research and handle
+            // Got this protocol while testing with the pcap file, no clue what this does
+            break;
+        }
+        default:
+            ROS_WARN("Unexpected protocol: %u", ipHeader->protocol);
+            return READ_ERROR;
         }
 
         // Add a slight delay after reading packets; if the node is being tested offline
@@ -136,14 +137,14 @@ ReadResult PCAP::read()
 
         if (!last_packet.empty())
         {
-            auto lastIpHeader = reinterpret_cast<const iphdr *>(&(last_packet[0]));
+            auto lastIpHeader = reinterpret_cast<const iphdr*>(&(last_packet[0]));
             uint32_t ipHeaderLength = lastIpHeader->ihl * 4u;
 
-            auto lastTcpHeader = reinterpret_cast<const tcphdr *>(&(last_packet[0]) + ipHeaderLength);
+            auto lastTcpHeader =
+                reinterpret_cast<const tcphdr*>(&(last_packet[0]) + ipHeaderLength);
             uint32_t dataOffset = lastTcpHeader->doff * 4u;
 
-            buffer.insert(buffer.end(),
-                          last_packet.begin() + ipHeaderLength + dataOffset,
+            buffer.insert(buffer.end(), last_packet.begin() + ipHeaderLength + dataOffset,
                           last_packet.end());
 
             last_packet.clear();
@@ -157,7 +158,7 @@ ReadResult PCAP::read()
     }
 }
 
-bool PCAP::write(const std::string &command)
+bool PCAP::write(const std::string& command)
 {
     ROS_WARN_ONCE("Pcap files do not support writing");
     return true;

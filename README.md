@@ -1,19 +1,22 @@
 # mosaic_gnss_driver
 
-## Description
+[![ros-ci](https://github.com/Team-Abhiyaan/mosaic_gnss_driver/actions/workflows/ros-ci.yml/badge.svg)](https://github.com/Team-Abhiyaan/mosaic_gnss_driver/actions/workflows/ros-ci.yml)
 
 Lightweight ROS Driver Package for the [Septentrio Mosaic development kit](https://shop.septentrio.com/en/shop/mosaictm-development-kit)
 
-## Install dependencies
+---
+
+## Installation
 
 ```bash
-sudo apt install libpcap-dev libboost-all-dev
+git clone https://github.com/Team-Abhiyaan/mosaic_gnss_driver.git
+rosdep install --from-paths mosaic_gnss_driver
 ```
 
 ## Usage
 
 - Setup a stream from the mosaic webinterface
-- Edit parameters in the `config/driver.yml` configuration file
+- Edit parameters in the [config/driver.yml](config/driver.yml) configuration file
 - Launch driver
 
 ```bash

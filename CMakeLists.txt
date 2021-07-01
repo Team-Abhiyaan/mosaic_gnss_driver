@@ -3,33 +3,6 @@ project(mosaic_gnss_driver)
 
 add_compile_options(-std=c++17)
 
-## Build only relevant tests
-option(TEST_CONN_PCAP "Run tests for PCAP connection" ON)
-option(TEST_CONN_TCP "Run tests for TCP connection" OFF)
-option(TEST_CONN_UDP "Run tests for UCP connection" OFF)
-option(TEST_CONN_SERIAL "Run tests for SERIAL connection" OFF)
-
-## Define macros at compile time for relevant connection tests
-if(TEST_CONN_PCAP)
-    add_compile_options(-D RUN_PCAP_TEST)
-    message(STATUS "[ MOSAIC-GNSS ] Including tests for PCAP connection")
-endif()
-
-if(TEST_CONN_TCP)
-    add_compile_options(-D RUN_TCP_TEST)
-    message(STATUS "[ MOSAIC-GNSS ] Including tests for TCP connection")
-endif()
-
-if(TEST_CONN_UDP)
-    add_compile_options(-D RUN_UDP_TEST)
-    message(STATUS "[ MOSAIC-GNSS ] Including tests for UDP connection")
-endif()
-
-if(TEST_CONN_SERIAL)
-    add_compile_options(-D RUN_SERIAL_TEST)
-    message(STATUS "[ MOSAIC-GNSS ] Including tests for SERIAL connection")
-endif()
-
 # TODO: roscpp and roslib are not dependencies for the core_lib
 # Maybe one CMakeLists.txt per target?
 set(DEPS
@@ -39,16 +12,8 @@ set(DEPS
         sensor_msgs
         nmea_msgs)
 
-
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-
-find_package(Boost REQUIRED COMPONENTS
-        system)
-
-find_package(catkin REQUIRED COMPONENTS
-        ${DEPS})
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS ${DEPS})
 
 find_library(libpcap_LIBRARIES pcap)
 if("${libpcap_LIBRARIES}" STREQUAL "pcap-NOTFOUND")
@@ -134,12 +99,6 @@ endif()
 ###################################
 ## catkin specific configuration ##
 ###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES ${PROJECT_NAME}
@@ -150,8 +109,6 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
@@ -177,71 +134,27 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 # Driver
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 target_compile_definitions(${PROJECT_NAME}_node PRIVATE MOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
-
-#add_executable(nmea_parser_test src/core/parsers/nmea/nmea_parser_test.cpp src/core/parsers/nmea/NMEAParser.cpp src/core/parsers/nmea/GPSService.cpp src/core/parsers/nmea/GPSFix.cpp)
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${libpcap_LIBRARIES}
         ${Boost_LIBRARIES})
 
-#target_link_libraries(nmea_parser_test
-#        ${PROJECT_NAME}
-#        ${catkin_LIBRARIES}
-#        ${libpcap_LIBRARIES}
-#        ${Boost_LIBRARIES}
-#        )
-
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-# Mark executables for installation
-# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-
-# install(TARGETS ${PROJECT_NAME}_node
-#     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#     )
-# install(TARGETS ${PROJECT_NAME}_noross
-#     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#     )
-
-# Mark libraries for installation
-# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
 install(TARGETS ${PROJECT_NAME}_node
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-# Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
+install(DIRECTORY include/${PROJECT_NAME}
         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
         FILES_MATCHING PATTERN "*.h"
         PATTERN ".svn" EXCLUDE)
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(DIRECTORY config docs launch
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 #############
 ## Testing ##
@@ -256,10 +169,9 @@ if(CATKIN_ENABLE_TESTING)
                 ${PROJECT_NAME}
                 ${catkin_LIBRARIES}
                 ${libpcap_LIBRARIES}
-                ${Boost_LIBRARIES}
-                )
+                ${Boost_LIBRARIES})
     endmacro(package_add_test)
 
-#    package_add_test(conn_test test/test_conn.cpp)
+    package_add_test(connection_test test/test_connection.cpp)
 
 endif()

@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
-#include <ros/package.h>
-
 #include "mosaic_gnss_driver/connections/pcap.h"
 #include "mosaic_gnss_driver/mosaic_gnss.h"
 #include "mosaic_gnss_driver/parsers/sbf/sbf.h"
+
+#include <gtest/gtest.h>
+#include <ros/package.h>
 
 TEST(PcapTestSuite, testCasePcapFileConnection)
 {

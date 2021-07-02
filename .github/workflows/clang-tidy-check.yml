@@ -1,4 +1,4 @@
-name: clang-format check
+name: clang-tidy check
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   formatting-check:
-    name: Formatting Check
+    name: Linter Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

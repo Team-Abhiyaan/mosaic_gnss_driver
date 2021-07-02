@@ -163,5 +163,4 @@ namespace sbf {
     };
 } // namespace sbf
 
-
 #endif // MOSAIC_GNSS_DRIVER_SBF_H

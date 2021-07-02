@@ -1,0 +1,17 @@
+name: clang-format check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: clang-tidy review
+        uses: ZedThree/clang-tidy-review@v0.7.0
+

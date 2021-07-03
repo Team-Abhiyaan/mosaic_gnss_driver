@@ -1,9 +1,9 @@
-9461	4120	BDSIon	BeiDou Ionospheric delay model parameters
-683	4036	GLOTime	GLO-UTC, GLO-GPS and GLO-UT 1 data
+290009	4047	BDSRaw	BeiDou navigation page
+208496	4023	GALRawINAV	Galileo I/NAV navigation page
+161148	4026	GLORawCA	GLONASS CA navigation string
 55807	4017	GPSRawCA	GPS CA navigation subframe
-5446	4003	GALAlm	Almanac data for a Galileo satellite
 52579	5914	ReceiverTime	Current receiver and UTC time
-52511	5922	EndOfMeas	Measurement epoch marker
+52512	5922	EndOfMeas	Measurement epoch marker
 52444	5921	EndOfPVT	PVT epoch marker
 52444	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)
 52444	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)
@@ -29,14 +29,14 @@
 52303	4014	ReceiverStatus	Overall status information of the receiver
 52232	4076	PVTSupport	Internal parameters for maintenance and support
 52231	4079	PVTSupportA	Internal parameters for maintenance and support
+24420	4018	GPSRawL2C	GPS L 2 C navigation frame
+18569	4066	QZSRawL1CA	QZSS L 1 CA navigation frame
+14718	4022	GALRawFNAV	Galileo F/NAV navigation page
+10082	4093	NAVICRaw	NavIC/IRNSS subframe
+9461	4120	BDSIon	BeiDou Ionospheric delay model parameters
+5446	4003	GALAlm	Almanac data for a Galileo satellite
 5105	4031	GALUtc	GST-UTC data
 4818	4067	QZSRawL2C	QZSS L 2 C navigation frame
 4620	4030	GALIon	NeQuick Ionosphere model parameters
 3249	4032	GALGstGps	GST-GPS data
-290009	4047	BDSRaw	BeiDou navigation page
-24420	4018	GPSRawL2C	GPS L 2 C navigation frame
-208496	4023	GALRawINAV	Galileo I/NAV navigation page
-18569	4066	QZSRawL1CA	QZSS L 1 CA navigation frame
-161148	4026	GLORawCA	GLONASS CA navigation string
-14718	4022	GALRawFNAV	Galileo F/NAV navigation page
-10082	4093	NAVICRaw	NavIC/IRNSS subframe
+683	4036	GLOTime	GLO-UTC, GLO-GPS and GLO-UT 1 data

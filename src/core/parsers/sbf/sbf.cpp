@@ -248,7 +248,7 @@ void sbf::SBF::unread(size_t rewind_len)
     // assert( read_ptr != block start) // We dont want to read the same block again and again
 }
 
-/*static*/ bool sbf::SBF::check_crc(const uint8_t* bytes, const size_t length, const uint16_t crc)
+/*static*/ bool sbf::SBF::check_crc(const uint8_t* bytes, size_t length, uint16_t crc)
 {
     uint16_t computed_crc = 0;
 

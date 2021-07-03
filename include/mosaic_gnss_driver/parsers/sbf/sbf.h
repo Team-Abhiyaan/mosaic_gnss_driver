@@ -106,7 +106,7 @@ namespace sbf {
          * @param crc : The correct CRC value
          * @return : Pass/Fail
          */
-        static bool check_crc(const uint8_t* bytes, const size_t length, const uint16_t crc);
+        static bool check_crc(const uint8_t* bytes, size_t length, uint16_t crc);
 
     public:
         explicit SBF(mosaic_gnss_driver::DataBuffers& buffers);

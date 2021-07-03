@@ -254,7 +254,7 @@ void sbf::SBF::unread(size_t rewind_len)
 
     for (size_t i = 0; i < length; i++)
     {
-        computed_crc = (computed_crc << 8) ^ CRC_LOOKUP_16[(computed_crc >> 8) ^ bytes[8]];
+        computed_crc = (computed_crc << 8) ^ CRC_LOOKUP_16[(computed_crc >> 8) ^ bytes[i]];
     }
 
     return (computed_crc == crc);

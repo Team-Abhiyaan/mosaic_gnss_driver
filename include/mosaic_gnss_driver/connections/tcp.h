@@ -1,7 +1,7 @@
 #ifndef MOSAIC_GNSS_DRIVER_TCP_H
 #define MOSAIC_GNSS_DRIVER_TCP_H
 
-#include <boost/array.hpp>
+#include <array>
 #include <boost/asio.hpp>
 #include <mosaic_gnss_driver/connections/connection.h>
 
@@ -25,7 +25,7 @@ namespace mosaic_gnss_driver::connections {
 
         boost::asio::io_service m_IoService;
         boost::asio::ip::tcp::socket m_TcpSocket;
-        boost::array<uint8_t, 10000> m_SocketBuffer;
+        std::array<uint8_t, 10000> m_SocketBuffer;
 
     protected:
         static const size_t DEFAULT_TCP_PORT = 3001;

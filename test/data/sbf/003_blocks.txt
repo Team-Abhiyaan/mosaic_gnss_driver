@@ -1,20 +1,19 @@
-286967	4023	GALRawINAV	Galileo I/NAV navigation page
-156904	4026	GLORawCA	GLONASS CA navigation string
-126025	4047	BDSRaw	BeiDou navigation page
+9010	4093	NAVICRaw	NavIC/IRNSS subframe
+7616	4018	GPSRawL2C	GPS L 2 C navigation frame
 73998	5922	EndOfMeas	Measurement epoch marker
-73998	5914	ReceiverTime	Current receiver and UTC time                             **********************
+73998	5914	ReceiverTime	Current receiver and UTC time
 73823	5921	EndOfPVT	PVT epoch marker
-73823	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)                      ----------------
-73823	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)                 +++++++++++++++++++++
-73823	5905	PosCovCartesian	Position covariance matrix (X,Y, Z)                        ----------------
-73823	4044	PosCart	Position, variance and baseline in Cartesian coordinates           ------------------
-73823	4043	BaseVectorCart	XYZ relative position and velocity with respect to base(s) -----------------
+73823	5907	VelCovCartesian	Velocity covariance matrix (X, Y, Z)
+73823	5906	PosCovGeodetic	Position covariance matrix (Lat, Lon, Alt)
+73823	5905	PosCovCartesian	Position covariance matrix (X,Y, Z)
+73823	4044	PosCart	Position, variance and baseline in Cartesian coordinates
+73823	4043	BaseVectorCart	XYZ relative position and velocity with respect to base(s)
 73823	4028	BaseVectorGeod	ENU relative position and velocity with respect to base(s)
-73823	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates           +++++++++++++++++++++
-73823	4006	PVTCartesian	Position, velocity, and time in Cartesian coordinates      ------------------
+73823	4007	PVTGeodetic	Position, velocity, and time in geodetic coordinates
+73823	4006	PVTCartesian	Position, velocity, and time in Cartesian coordinates
 73823	4001	DOP	Dilution of precision
-73694	5938	AttEuler	GNSS attitude expressed as Euler angles
-73661	4094	PosProjected	Plane grid coordinates
+73688	5938	AttEuler	GNSS attitude expressed as Euler angles
+73659	4094	PosProjected	Plane grid coordinates
 73490	5911	xPPSOffset	Offset of the xPPS pulse with respect to GNSS time
 73490	4238	P2PPStatus	P 2 PP client/server status
 73490	4201	LBandTrackerStatus	Status of the L-band signal tracking
@@ -27,13 +26,14 @@
 73490	4014	ReceiverStatus	Overall status information of the receiver
 73322	4079	PVTSupportA	Internal parameters for maintenance and support
 73322	4076	PVTSupport	Internal parameters for maintenance and support
-46038	4017	GPSRawCA	GPS CA navigation subframe
-9010	4093	NAVICRaw	NavIC/IRNSS subframe
-7616	4018	GPSRawL2C	GPS L 2 C navigation frame
 6372	4120	BDSIon	BeiDou Ionospheric delay model parameters
 6348	4022	GALRawFNAV	Galileo F/NAV navigation page
 5785	4030	GALIon	NeQuick Ionosphere model parameters
+46038	4017	GPSRawCA	GPS CA navigation subframe
 4006	4003	GALAlm	Almanac data for a Galileo satellite
 3782	4031	GALUtc	GST-UTC data
 2879	4121	BDSUtc	BDT-UTC data
+286967	4023	GALRawINAV	Galileo I/NAV navigation page
 2262	4032	GALGstGps	GST-GPS data
+156904	4026	GLORawCA	GLONASS CA navigation string
+126025	4047	BDSRaw	BeiDou navigation page

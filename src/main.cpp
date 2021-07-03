@@ -1,4 +1,4 @@
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <mosaic_gnss_driver/node.hpp>
 #include <ros/package.h>
 
@@ -22,10 +22,10 @@ void initDriver(std::string& device, const std::string& conn)
 {
     if (conn == "pcap")
     {
-        namespace fs = boost::filesystem;
+        namespace fs = std::filesystem;
         // safely join paths
-        fs::path dir(ros::package::getPath("mosaic_gnss_driver"));
-        fs::path file(device);
+        fs::path dir = ros::package::getPath("mosaic_gnss_driver");
+        fs::path file = device;
         fs::path full_path = dir / file;
         device = full_path.string();
 

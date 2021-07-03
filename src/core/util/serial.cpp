@@ -1,5 +1,5 @@
-#include <boost/lexical_cast.hpp>
 #include <mosaic_utils/serial.h>
+#include <string.h>
 
 // Linux headers
 #include <errno.h>        // Error integer and strerror() function
@@ -46,8 +46,7 @@ namespace serial_util {
         int32_t baud = _parseBaudRate(config.m_BaudRate);
         if (baud == -1)
         {
-            m_ErrorMessage =
-                "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
+            m_ErrorMessage = "Invalid baud rate: " + config.m_BaudRate;
 
             return false;
         }
@@ -55,8 +54,7 @@ namespace serial_util {
         // Validate stop bits
         if (config.m_StopBits != 1 && config.m_StopBits != 2)
         {
-            m_ErrorMessage =
-                "Invalid stop bits: " + boost::lexical_cast<std::string>(config.m_StopBits);
+            m_ErrorMessage = "Invalid stop bits: " + std::to_string(config.m_StopBits);
 
             return false;
         }
@@ -64,8 +62,7 @@ namespace serial_util {
         // Validate data bits
         if (config.m_DataBits != 7 && config.m_DataBits != 8)
         {
-            m_ErrorMessage =
-                "Invalid data bits: " + boost::lexical_cast<std::string>(config.m_DataBits);
+            m_ErrorMessage = "Invalid data bits: " + std::to_string(config.m_DataBits);
 
             return false;
         }
@@ -144,8 +141,7 @@ namespace serial_util {
 
         if (cfsetspeed(&term, config.m_BaudRate) < 0)
         {
-            m_ErrorMessage =
-                "Invalid baud rate: " + boost::lexical_cast<std::string>(config.m_BaudRate);
+            m_ErrorMessage = "Invalid baud rate: " + std::to_string(config.m_BaudRate);
             serialClose();
 
             return false;

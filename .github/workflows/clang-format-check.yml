@@ -1,4 +1,4 @@
-name: Clang Formatting and Linter check.
+name: clang-format check
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   formatting-check:
-    name: Formatting and Linter Check
+    name: Formatting Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +16,3 @@ jobs:
         uses: jidicula/clang-format-action@v3.4.0
         with:
           clang-format-version: '10'
-      - name: Run clang-tidy linter check.
-        uses: ZedThree/clang-tidy-review@v0.7.0
-
-

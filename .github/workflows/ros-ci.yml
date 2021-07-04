@@ -47,7 +47,7 @@ jobs:
       - name: cd
         run: bash -c 'cd ros_ws && ls && echo;cd src && ls && echo; cd * && ls && echo; cd mosaic_gnss_driver && ls && echo'
       - name: mv stuff
-        run: bash -c 'mkdir -p /github/ ; ln -t /github ros_ws/src/*/mosaic_gnss_driver; mv /github/mosaic_gnss_driver /github/workspace'
+        run: bash -c 'mkdir -p /github/ ; ln -st /github ros_ws/src/*/mosaic_gnss_driver; mv /github/mosaic_gnss_driver /github/workspace'
 
       - name: cd
         run: bash -c 'cd ros_ws && ls && echo;cd src && ls && echo; cd * && ls && echo; cd mosaic_gnss_driver && ls && echo'

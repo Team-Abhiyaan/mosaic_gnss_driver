@@ -43,7 +43,7 @@ jobs:
       - name: Generate CMake compile_commands.json
         run: bash -c "source /opt/ros/${{ matrix.ros_distribution }}/setup.sh && cd ros_ws/src/*/mosaic_gnss_driver && cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
       - name: ls ros_ws
-        run: bash -c 'cd ros_ws && ls && echo;cd src && ls && echo; cd * && ls && echo; cd mosaic_gnss_driver -la && ls && echo'
+        run: bash -c 'cd ros_ws && ls && echo;cd src && ls && echo; cd * && ls && echo; cd mosaic_gnss_driver && ls -la && echo; echo'
 
 #      - name: mkdir github
 #        run: mkdir -p /github/
@@ -60,18 +60,18 @@ jobs:
         run: mkdir -p /github/workspace
       - name: ln mosaic
         run: ln -st /github/workspace "$(pwd)/ros_ws/src/*/mosaic_gnss_driver"
-#      - name: chown
-#        run: chown 1001:121 /github/workspace/mosaic_gnss_driver
-#      - name: chown
-#        run: chown 1001:121 /github/workspace
+      #      - name: chown
+      #        run: chown 1001:121 /github/workspace/mosaic_gnss_driver
+      #      - name: chown
+      #        run: chown 1001:121 /github/workspace
       - name: ls github
         run: bash -c 'ls /github -la; echo'
       - name: ls workflow
         run: bash -c 'ls /github/workflow -la; echo'
       - name: echo
         run: echo $GITHUB_WORKSPACE
-#      - name: ls workspace
-#        run: bash -c 'ls /github/workspace -la; echo'
+      #      - name: ls workspace
+      #        run: bash -c 'ls /github/workspace -la; echo'
       - name: ls workspace/*
         run: bash -c 'ls /github/workspace/* -la; echo'
       - name: ls workspace/mosaic_gnss_driver

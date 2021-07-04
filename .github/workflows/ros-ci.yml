@@ -48,3 +48,5 @@ jobs:
         run: ln -sf /github/workspace ros_ws/src/*/mosaic_gnss_driver
       - name: Run clang-tidy linter check.
         uses: ZedThree/clang-tidy-review@v0.7.0
+        with:
+          build_dir: "ros_ws/src/*/mosaic_gnss_driver"

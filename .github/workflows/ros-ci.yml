@@ -40,8 +40,8 @@ jobs:
         with:
           package-name: mosaic_gnss_driver
           target-ros1-distro: ${{ matrix.ros_distribution }}
-      - name: cd
-        run: cd ${{ env.GITHUB_WORKSPACE }}
+      - name: ls
+        run: ls
       - name: Generate CMake compile_commands.json
         run: cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: Run clang-tidy linter check.

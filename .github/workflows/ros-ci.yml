@@ -51,8 +51,8 @@ jobs:
         run: ln -st /github ros_ws/src/*/mosaic_gnss_driver
       - name: ls github
         run: bash -c 'ls /github -la; echo'
-      - name: ls workspace
-        run: bash -c 'ls /github/workspace -la; echo'
+      - name: ls workflow
+        run: bash -c 'ls /github/workflow -la; echo'
       - name: mv mosaic to workspace
         run: mv /github/mosaic_gnss_driver /github/workspace
 
@@ -60,7 +60,7 @@ jobs:
         run: bash -c 'ls /github -la; echo'
       - name: ls /github/*
         run: bash -c 'ls /github/ -la; echo'
-      - name: ls /github/workspace/
+      - name: ls /github/*
         run: bash -c 'ls /github/* -la; echo'
       - name: ls /github/workspace/*
         run: bash -c 'ls /github/workspace/* -la; echo'

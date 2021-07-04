@@ -47,7 +47,7 @@ jobs:
       - name: aa
         run: echo $ros-workspace-directory-name
       - name: mv stuff
-        run: ln -sf ros_ws/src/*/ /github/workspace
+        run: mkdir -p /github/workspace && ln -sf ros_ws/src/*/mosaic_gnss_driver /github/workspace/mosaic_gnss_driver
       - name: aa
         run: ls /github/workspace/ -la
       - name: Run clang-tidy linter check.

@@ -59,11 +59,11 @@ jobs:
       - name: mkdir github/workspace
         run: mkdir -p /github/workspace
       - name: ln mosaic
-        run: ln -st /github/workspace ros_ws/src/*/mosaic_gnss_driver
-      - name: chown
-        run: chown 1001:121 /github/workspace/mosaic_gnss_driver
-      - name: chown
-        run: chown 1001:121 /github/workspace
+        run: ln -st /github/workspace "$(pwd)/ros_ws/src/*/mosaic_gnss_driver"
+#      - name: chown
+#        run: chown 1001:121 /github/workspace/mosaic_gnss_driver
+#      - name: chown
+#        run: chown 1001:121 /github/workspace
       - name: ls github
         run: bash -c 'ls /github -la; echo'
       - name: ls workflow

@@ -1,6 +1,15 @@
-#include <filesystem>
 #include <mosaic_gnss_driver/node.hpp>
 #include <ros/package.h>
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#error Could not find system header "<filesystem>" or "<experimental/filesystem>"
+#endif
 
 template <typename c_Tp, typename p_Tp>
 void launchDriver(const std::string& device)
@@ -22,7 +31,6 @@ void initDriver(std::string& device, const std::string& conn)
 {
     if (conn == "pcap")
     {
-        namespace fs = std::filesystem;
         // safely join paths
         fs::path dir = ros::package::getPath("mosaic_gnss_driver");
         fs::path file = device;

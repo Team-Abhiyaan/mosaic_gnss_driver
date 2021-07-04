@@ -45,7 +45,7 @@ jobs:
       - name: Generate CMake compile_commands.json
         run: bash -c "source /opt/ros/${{ matrix.ros_distribution }}/setup.sh && cd ros_ws/src/*/mosaic_gnss_driver && cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
       - name: mv stuff
-        run: ln -sf /github/workspace ros_ws/src/*/mosaic_gnss_driver
+        run: ln -sf ros_ws/src/*/mosaic_gnss_driver /github/workspace
       - name: aa
         run: ls /github/workspace -la
       - name: Run clang-tidy linter check.

@@ -141,6 +141,7 @@ target_link_libraries(${PROJECT_NAME}_node
         ${libpcap_LIBRARIES}
         ${Boost_LIBRARIES}
 		-lstdc++fs)
+# TODO Link stdc++fs only when using <experimental/filesystem>; use some sort of conditional check to do this
 
 #############
 ## Install ##

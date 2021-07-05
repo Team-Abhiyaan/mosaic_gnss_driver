@@ -122,6 +122,7 @@ add_library(${PROJECT_NAME} STATIC
         src/core/connections/pcap.cpp
         src/core/connections/serial.cpp
         src/core/parsers/sbf/sbf.cpp
+		src/core/parsers/sbf/helpers.cpp
         src/core/parsers/sbf/block_parsers/geodetic.cpp
         src/core/parsers/sbf/block_parsers/cartesian.cpp
         src/core/parsers/nmea/NMEAParser.cpp

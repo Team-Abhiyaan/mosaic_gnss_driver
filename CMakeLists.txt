@@ -132,7 +132,6 @@ add_library(${PROJECT_NAME} STATIC
 target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 #target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_SBF_PRINT_ID)
 
-# TODO Extend support for LLVM Clang compiler
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.4)
 	message(FATAL_ERROR " You are on an extremely old version of G++. Please update your compiler to at least G++ 5.4, preferably latest")

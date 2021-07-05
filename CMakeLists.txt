@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
+include(CheckIncludeFileCXX)
 project(mosaic_gnss_driver)
 
 add_compile_options(-std=c++17)
@@ -131,6 +132,16 @@ add_library(${PROJECT_NAME} STATIC
 target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_GNSS_CORE_ONLY)
 #target_compile_definitions(${PROJECT_NAME} PRIVATE MOSAIC_SBF_PRINT_ID)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.4)
+	message(FATAL_ERROR " You are on an extremely old version of G++. Please update your compiler to at least G++ 5.4, preferably latest")
+	elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+	set(EXP_FS_INCLUDE 1)
+	endif()
+else()
+	message(FATAL_ERROR " Please use G++ compiler to compile the project")
+endif()
+
 # Driver
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 target_compile_definitions(${PROJECT_NAME}_node PRIVATE MOSAIC_GNSS_FAKE_SLEEP_TIME=0.1)
@@ -139,8 +150,13 @@ target_link_libraries(${PROJECT_NAME}_node
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
-		-lstdc++fs)
+        ${Boost_LIBRARIES})
+
+if (EXP_FS_INCLUDE)
+	target_link_libraries(${PROJECT_NAME}_node -lstdc++fs)
+	message([STATUS] " Using <experimental/filesystem> library...")
+endif(EXP_FS_INCLUDE)
+
 
 #############
 ## Install ##

@@ -41,7 +41,7 @@ bool UDP::connect(const std::string& endpoint, const Options& opts)
             boost::asio::ip::udp::resolver resolver(m_IoService);
             boost::asio::ip::udp::resolver::query query(ip, port);
             m_UdpEndpoint =
-                boost::make_shared<boost::asio::ip::udp::endpoint>(*resolver.resolve(query));
+                std::make_shared<boost::asio::ip::udp::endpoint>(*resolver.resolve(query));
 
             m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService));
             m_UdpSocket->open(boost::asio::ip::udp::v4());
@@ -55,9 +55,9 @@ bool UDP::connect(const std::string& endpoint, const Options& opts)
                 m_IoService,
                 boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), portNumber)));
 
-            boost::array<char, 1> recvBuffer;
+            std::array<char, 1> recvBuffer;
 
-            m_UdpEndpoint = boost::make_shared<boost::asio::ip::udp::endpoint>();
+            m_UdpEndpoint = std::make_shared<boost::asio::ip::udp::endpoint>();
             boost::system::error_code error;
 
             ROS_INFO("Listening to UDP port %s", port.c_str());

@@ -1,8 +1,9 @@
 #ifndef MOSAIC_GNSS_DRIVER_UDP_H
 #define MOSAIC_GNSS_DRIVER_UDP_H
 
-#include <boost/array.hpp>
+#include <array>
 #include <boost/asio.hpp>
+#include <memory>
 #include <mosaic_gnss_driver/connections/connection.h>
 
 namespace mosaic_gnss_driver::connections {
@@ -15,9 +16,9 @@ namespace mosaic_gnss_driver::connections {
         static constexpr const char* const type = "UDP";
 
         boost::asio::io_service m_IoService;
-        boost::shared_ptr<boost::asio::ip::udp::socket> m_UdpSocket;
-        boost::shared_ptr<boost::asio::ip::udp::endpoint> m_UdpEndpoint;
-        boost::array<uint8_t, 10000> m_SocketBuffer;
+        std::shared_ptr<boost::asio::ip::udp::socket> m_UdpSocket;
+        std::shared_ptr<boost::asio::ip::udp::endpoint> m_UdpEndpoint;
+        std::array<uint8_t, 10000> m_SocketBuffer;
 
         /**
          * (Re)configure the driver with a set of message options

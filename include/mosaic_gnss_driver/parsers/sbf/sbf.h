@@ -99,8 +99,6 @@ namespace sbf {
         /**
          * Performs CRC check according to the SBF specification
          *
-         * TODO: Implement
-         *
          * @param bytes : Start of bytes to be CRC checked
          * @param length  : Number of bytes to be CRC checked
          * @param crc : The correct CRC value

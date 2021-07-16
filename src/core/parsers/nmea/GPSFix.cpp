@@ -234,11 +234,6 @@ GPSFix::GPSFix()
     visibleSatellites = 0;
 }
 
-GPSFix::~GPSFix()
-{
-    // TODO Auto-generated destructor stub
-}
-
 // Returns the duration since the Host has received information
 seconds GPSFix::timeSinceLastUpdate()
 {

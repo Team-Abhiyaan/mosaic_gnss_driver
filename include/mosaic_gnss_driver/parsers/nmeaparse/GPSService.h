@@ -31,8 +31,6 @@ namespace nmea {
 
         GPSService(NMEAParser& parser);
 
-        virtual ~GPSService();
-
         Event<void(bool)>
             onLockStateChanged; // user assignable handler, called whenever lock changes
         Event<void()> onUpdate; // user assignable handler, called whenever fix changes

@@ -118,8 +118,6 @@ namespace nmea {
     public:
         GPSFix();
 
-        virtual ~GPSFix();
-
         GPSAlmanac almanac;
         GPSTimestamp timestamp;
 

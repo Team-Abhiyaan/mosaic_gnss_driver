@@ -234,8 +234,6 @@ GPSFix::GPSFix()
     visibleSatellites = 0;
 }
 
-GPSFix::~GPSFix() {}
-
 // Returns the duration since the Host has received information
 seconds GPSFix::timeSinceLastUpdate()
 {

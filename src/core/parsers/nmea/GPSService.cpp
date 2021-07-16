@@ -43,8 +43,6 @@ GPSService::GPSService(NMEAParser& parser)
     attachToParser(parser); // attach to parser in the GPS object
 }
 
-GPSService::~GPSService() {}
-
 void GPSService::attachToParser(NMEAParser& _parser)
 {
 

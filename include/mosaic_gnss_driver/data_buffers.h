@@ -106,7 +106,6 @@ namespace mosaic_gnss_driver {
                 // boost::core::demangle(typeid(msg_type).name()).data());
             } else
             {
-                // TODO: Check if publisher ready
                 typename msg_type::Ptr shared_ptr = std::move(ptr);
                 pub.publish(shared_ptr);
             }

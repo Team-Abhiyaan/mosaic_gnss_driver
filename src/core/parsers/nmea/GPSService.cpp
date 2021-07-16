@@ -44,9 +44,7 @@ GPSService::GPSService(NMEAParser& parser)
 }
 
 GPSService::~GPSService()
-{
-    // TODO Auto-generated destructor stub
-}
+{}
 
 void GPSService::attachToParser(NMEAParser& _parser)
 {

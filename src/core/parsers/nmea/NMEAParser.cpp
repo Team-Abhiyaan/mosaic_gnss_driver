@@ -555,7 +555,7 @@ void NMEAParser::parse(const uint8_t* data, size_t size)
     ptr1->position_covariance[0] = hdop * hdop;
     ptr1->position_covariance[4] = hdop * hdop;
     ptr1->position_covariance[8] = (2 * hdop) * (2 * hdop); // FIXME
-    ptr1->position_covariance_type = 1;
+    ptr1->position_covariance_type = ptr1->COVARIANCE_TYPE_APPROXIMATED;
     data_buf.nav_sat_fix.set_ptr(std::move(ptr1));
 
     // nmea_sentence msg

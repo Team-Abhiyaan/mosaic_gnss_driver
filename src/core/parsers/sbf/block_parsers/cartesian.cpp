@@ -71,7 +71,7 @@ namespace sbf::block_parsers {
 
         pos_pvt_last_time = block->TOW;
         // Check for mismatch times
-        if ((pos_cov_last_time != do_not_use_time) &&
+        if (pos_cov_last_time != do_not_use_time &&
             pos_pvt_last_time != pos_cov_last_time) // TODO range?
         {
             std::cout << "[WARN] Timestamp mismatch" << std::endl;

@@ -12,7 +12,6 @@ set(DEPS
         sensor_msgs
         nmea_msgs)
 
-find_package(Boost REQUIRED COMPONENTS system)
 find_package(catkin REQUIRED COMPONENTS ${DEPS})
 
 find_library(libpcap_LIBRARIES pcap)
@@ -102,8 +101,7 @@ endif()
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES ${PROJECT_NAME}
-        CATKIN_DEPENDS ${DEPS}
-        DEPENDS Boost)
+        CATKIN_DEPENDS ${DEPS})
 
 ###########
 ## Build ##
@@ -111,8 +109,7 @@ catkin_package(
 
 include_directories(
         include
-        ${catkin_INCLUDE_DIRS}
-        ${Boost_INCLUDE_DIRS})
+        ${catkin_INCLUDE_DIRS})
 
 ## Core Library
 add_library(${PROJECT_NAME} STATIC
@@ -139,7 +136,6 @@ target_link_libraries(${PROJECT_NAME}_node
         ${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${libpcap_LIBRARIES}
-        ${Boost_LIBRARIES}
 		-lstdc++fs)
 
 #############
@@ -170,7 +166,7 @@ if(CATKIN_ENABLE_TESTING)
                 ${PROJECT_NAME}
                 ${catkin_LIBRARIES}
                 ${libpcap_LIBRARIES}
-                ${Boost_LIBRARIES})
+				-lstdc++fs)
     endmacro(package_add_test)
 
     package_add_test(connection_test test/test_connection.cpp)

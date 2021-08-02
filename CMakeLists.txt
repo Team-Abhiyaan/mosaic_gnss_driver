@@ -166,7 +166,7 @@ if(CATKIN_ENABLE_TESTING)
                 ${PROJECT_NAME}
                 ${catkin_LIBRARIES}
                 ${libpcap_LIBRARIES}
-				-lstdc++fs)
+                -lstdc++fs)
     endmacro(package_add_test)
 
     package_add_test(connection_test test/test_connection.cpp)

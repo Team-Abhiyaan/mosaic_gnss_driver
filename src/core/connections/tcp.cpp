@@ -1,6 +1,5 @@
 #include <mosaic_gnss_driver/connections/tcp.h>
 #include <ros/ros.h>
-#include <system_error>
 
 using namespace mosaic_gnss_driver::connections;
 

@@ -40,8 +40,7 @@ bool UDP::connect(const std::string& endpoint, const Options& opts)
 
             asio::ip::udp::resolver resolver(m_IoService);
             asio::ip::udp::resolver::query query(ip, port);
-            m_UdpEndpoint =
-                std::make_shared<asio::ip::udp::endpoint>(*resolver.resolve(query));
+            m_UdpEndpoint = std::make_shared<asio::ip::udp::endpoint>(*resolver.resolve(query));
 
             m_UdpSocket.reset(new asio::ip::udp::socket(m_IoService));
             m_UdpSocket->open(asio::ip::udp::v4());
@@ -52,8 +51,7 @@ bool UDP::connect(const std::string& endpoint, const Options& opts)
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
             m_UdpSocket.reset(new asio::ip::udp::socket(
-                m_IoService,
-                asio::ip::udp::endpoint(asio::ip::udp::v4(), portNumber)));
+                m_IoService, asio::ip::udp::endpoint(asio::ip::udp::v4(), portNumber)));
 
             std::array<char, 1> recvBuffer;
 

@@ -53,8 +53,7 @@ bool TCP::connect(const std::string& endpoint, const Options& opts)
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
             asio::ip::tcp::acceptor acceptor(
-                m_IoService,
-                asio::ip::tcp::endpoint(asio::ip::tcp::v4(), portNumber));
+                m_IoService, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), portNumber));
 
             ROS_INFO("Listening to TCP port %s", port.c_str());
 
@@ -99,7 +98,7 @@ ReadResult TCP::read()
 {
     try
     {
-		std::error_code error;
+        std::error_code error;
         // number of bytes read from the socket
         size_t length;
 

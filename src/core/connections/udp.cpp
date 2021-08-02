@@ -38,35 +38,35 @@ bool UDP::connect(const std::string& endpoint, const Options& opts)
         if (!ip.empty())
         {
 
-            boost::asio::ip::udp::resolver resolver(m_IoService);
-            boost::asio::ip::udp::resolver::query query(ip, port);
+            asio::ip::udp::resolver resolver(m_IoService);
+            asio::ip::udp::resolver::query query(ip, port);
             m_UdpEndpoint =
-                std::make_shared<boost::asio::ip::udp::endpoint>(*resolver.resolve(query));
+                std::make_shared<asio::ip::udp::endpoint>(*resolver.resolve(query));
 
-            m_UdpSocket.reset(new boost::asio::ip::udp::socket(m_IoService));
-            m_UdpSocket->open(boost::asio::ip::udp::v4());
+            m_UdpSocket.reset(new asio::ip::udp::socket(m_IoService));
+            m_UdpSocket->open(asio::ip::udp::v4());
 
             ROS_INFO("Connecting via UDP to %s:%s", ip.c_str(), port.c_str());
         } else
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            m_UdpSocket.reset(new boost::asio::ip::udp::socket(
+            m_UdpSocket.reset(new asio::ip::udp::socket(
                 m_IoService,
-                boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), portNumber)));
+                asio::ip::udp::endpoint(asio::ip::udp::v4(), portNumber)));
 
             std::array<char, 1> recvBuffer;
 
-            m_UdpEndpoint = std::make_shared<boost::asio::ip::udp::endpoint>();
-            boost::system::error_code error;
+            m_UdpEndpoint = std::make_shared<asio::ip::udp::endpoint>();
+            std::error_code error;
 
             ROS_INFO("Listening to UDP port %s", port.c_str());
 
-            m_UdpSocket->receive_from(boost::asio::buffer(recvBuffer), *m_UdpEndpoint, 0, error);
+            m_UdpSocket->receive_from(asio::buffer(recvBuffer), *m_UdpEndpoint, 0, error);
 
-            if (error && error != boost::asio::error::message_size)
+            if (error && error != asio::error::message_size)
             {
-                throw boost::system::system_error(error);
+                throw std::system_error(error);
             }
 
             ROS_INFO("Accepted UDP Connection from client: %s",
@@ -119,12 +119,12 @@ ReadResult UDP::read()
 {
     try
     {
-        boost::system::error_code error;
+        std::error_code error;
         // number of bytes read from the socket
         size_t length;
 
-        boost::asio::ip::udp::endpoint remoteEndpoint;
-        length = m_UdpSocket->receive_from(boost::asio::buffer(m_SocketBuffer), remoteEndpoint);
+        asio::ip::udp::endpoint remoteEndpoint;
+        length = m_UdpSocket->receive_from(asio::buffer(m_SocketBuffer), remoteEndpoint);
 
         buffer.insert(buffer.end(), m_SocketBuffer.begin(), m_SocketBuffer.begin() + length);
 
@@ -147,13 +147,13 @@ bool UDP::write(const std::string& command)
 {
     std::vector<uint8_t> bytes(command.begin(), command.end());
 
-    boost::system::error_code error;
+    std::error_code error;
 
     try
     {
         size_t written; // to store number of bytes written
 
-        written = m_UdpSocket->send_to(boost::asio::buffer(bytes), *m_UdpEndpoint, 0, error);
+        written = m_UdpSocket->send_to(asio::buffer(bytes), *m_UdpEndpoint, 0, error);
 
         if (error)
         {

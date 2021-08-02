@@ -1,5 +1,6 @@
 #include <mosaic_gnss_driver/connections/tcp.h>
 #include <ros/ros.h>
+#include <system_error>
 
 using namespace mosaic_gnss_driver::connections;
 
@@ -40,20 +41,20 @@ bool TCP::connect(const std::string& endpoint, const Options& opts)
     {
         if (!ip.empty())
         {
-            boost::asio::ip::tcp::resolver resolver(m_IoService);
-            boost::asio::ip::tcp::resolver::query query(ip, port);
-            boost::asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
+            asio::ip::tcp::resolver resolver(m_IoService);
+            asio::ip::tcp::resolver::query query(ip, port);
+            asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
 
-            boost::asio::connect(m_TcpSocket, iter);
+            asio::connect(m_TcpSocket, iter);
 
             ROS_INFO("Connecting via TCP to %s:%s", ip.c_str(), port.c_str());
         } else
         {
             auto portNumber = static_cast<uint16_t>(strtoll(port.c_str(), nullptr, 10));
 
-            boost::asio::ip::tcp::acceptor acceptor(
+            asio::ip::tcp::acceptor acceptor(
                 m_IoService,
-                boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), portNumber));
+                asio::ip::tcp::endpoint(asio::ip::tcp::v4(), portNumber));
 
             ROS_INFO("Listening to TCP port %s", port.c_str());
 
@@ -98,11 +99,11 @@ ReadResult TCP::read()
 {
     try
     {
-        boost::system::error_code error;
+		std::error_code error;
         // number of bytes read from the socket
         size_t length;
 
-        length = m_TcpSocket.read_some(boost::asio::buffer(m_SocketBuffer), error);
+        length = m_TcpSocket.read_some(asio::buffer(m_SocketBuffer), error);
 
         buffer.insert(buffer.end(), m_SocketBuffer.begin(), m_SocketBuffer.begin() + length);
 
@@ -125,13 +126,13 @@ bool TCP::write(const std::string& command)
 {
     std::vector<uint8_t> bytes(command.begin(), command.end());
 
-    boost::system::error_code error;
+    std::error_code error;
 
     try
     {
         size_t written; // to store number of bytes written
 
-        written = boost::asio::write(m_TcpSocket, boost::asio::buffer(bytes), error);
+        written = asio::write(m_TcpSocket, asio::buffer(bytes), error);
 
         if (error)
         {

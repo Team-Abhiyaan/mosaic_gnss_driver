@@ -2,7 +2,7 @@
 #define MOSAIC_GNSS_DRIVER_TCP_H
 
 #include <array>
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <mosaic_gnss_driver/connections/connection.h>
 
 namespace mosaic_gnss_driver::connections {
@@ -23,8 +23,8 @@ namespace mosaic_gnss_driver::connections {
          */
         bool _configure(const Options& opts);
 
-        boost::asio::io_service m_IoService;
-        boost::asio::ip::tcp::socket m_TcpSocket;
+        asio::io_service m_IoService;
+        asio::ip::tcp::socket m_TcpSocket;
         std::array<uint8_t, 10000> m_SocketBuffer;
 
     protected:

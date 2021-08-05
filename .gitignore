@@ -4,8 +4,10 @@ docs/latex
 
 .vscode
 .idea
+.cache
 
 stderr.txt
 stdout.txt
 
 cmake-build-*
+build
